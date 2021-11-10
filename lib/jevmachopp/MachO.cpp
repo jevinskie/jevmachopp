@@ -6,51 +6,51 @@
 //  Copyright (c) 2013 Arxan. All rights reserved.
 //
 
-#include "KCFS/MachO.h"
-#include <mach-o/loader.h>
-#include <assert.h>
+#include "jevmachopp/MachO.h"
 #include <algorithm>
+#include <assert.h>
+#include <mach-o/loader.h>
 #include <numeric>
 
 uint64_t MachO::size() const {
-  return sizeof(struct mach_header) + loadCommandSize();
+    return sizeof(struct mach_header) + loadCommandSize();
 }
 
 uint64_t MachO::pack(uint8_t *buf, uint8_t *base) const {
-  struct mach_header *mh = (struct mach_header *)buf;
-  mh->magic = MH_MAGIC;
-  mh->cputype = (int32_t)cputype;
-  mh->cpusubtype = (int32_t)cpusubtype;
-  mh->filetype = filetype;
-  mh->flags = flags;
-  mh->ncmds = (uint32_t)loadCommands.size();
-  mh->sizeofcmds = (uint32_t)loadCommandSize();
-  buf += sizeof(struct mach_header);
-  for (auto &lc : loadCommands) {
-    buf += lc.pack(buf, base);
-  }
-  return size();
+    struct mach_header *mh = (struct mach_header *)buf;
+    mh->magic = MH_MAGIC;
+    mh->cputype = (int32_t)cputype;
+    mh->cpusubtype = (int32_t)cpusubtype;
+    mh->filetype = filetype;
+    mh->flags = flags;
+    mh->ncmds = (uint32_t)loadCommands.size();
+    mh->sizeofcmds = (uint32_t)loadCommandSize();
+    buf += sizeof(struct mach_header);
+    for (auto &lc : loadCommands) {
+        buf += lc.pack(buf, base);
+    }
+    return size();
 }
 
 uint64_t MachO::unpack(uint8_t *buf, uint8_t *base) {
-  struct mach_header *mh = (struct mach_header *)buf;
-  assert(mh->magic == MH_MAGIC);
-  cputype = (CpuType)mh->cputype;
-  cpusubtype = (CpuSubType)mh->cpusubtype;
-  filetype = mh->filetype;
-  flags = mh->flags;
-  buf += sizeof(struct mach_header);
-  for (int i = 0; i < mh->ncmds; i++) {
-    LoadCommand cmd;
-    buf += cmd.unpack(buf, base);
-    loadCommands.push_back(std::move(cmd));
-  }
-  return size();
+    struct mach_header *mh = (struct mach_header *)buf;
+    assert(mh->magic == MH_MAGIC);
+    cputype = (CpuType)mh->cputype;
+    cpusubtype = (CpuSubType)mh->cpusubtype;
+    filetype = mh->filetype;
+    flags = mh->flags;
+    buf += sizeof(struct mach_header);
+    for (int i = 0; i < mh->ncmds; i++) {
+        LoadCommand cmd;
+        buf += cmd.unpack(buf, base);
+        loadCommands.push_back(std::move(cmd));
+    }
+    return size();
 }
 
 uint64_t MachO::loadCommandSize() const {
-  uint64_t sz = 0;
-  for (auto &lc : loadCommands)
-    sz += lc.size();
-  return sz;
+    uint64_t sz = 0;
+    for (auto &lc : loadCommands)
+        sz += lc.size();
+    return sz;
 }

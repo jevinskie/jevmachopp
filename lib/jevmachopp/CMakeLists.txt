@@ -10,6 +10,6 @@ set(MACHOPP_SRC
 	UUIDCommand.cpp
 )
 
-add_library(MACHOPP_SRC ${MACHOPP_SRC})
+add_library(jevmachopp ${MACHOPP_SRC})
 
-target_include_directories(MACHOPP_SRC PUBLIC ../../include)
+target_include_directories(jevmachopp PUBLIC ../../include)

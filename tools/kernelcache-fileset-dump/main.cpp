@@ -1,6 +1,6 @@
 #include <assert.h>
-#include "KCFS/Slurp.h"
-#include "KCFS/MachO.h"
+#include <jevmachopp/Slurp.h>
+#include <jevmachopp/MachO.h>
 #include <fmt/core.h>
 
 int main(int argc, const char *argv[]) {
