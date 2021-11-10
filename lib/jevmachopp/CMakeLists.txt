@@ -1,5 +1,5 @@
 
-set(KCFS_SRC
+set(MACHOPP_SRC
 	EncryptionInfoCommand.cpp
 	GenericCommand.cpp
 	LoadCommand.cpp
@@ -10,6 +10,6 @@ set(KCFS_SRC
 	UUIDCommand.cpp
 )
 
-add_library(KCFS ${KCFS_SRC})
+add_library(MACHOPP_SRC ${MACHOPP_SRC})
 
-target_include_directories(KCFS PUBLIC ../../include)
+target_include_directories(MACHOPP_SRC PUBLIC ../../include)

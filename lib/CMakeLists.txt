@@ -1,1 +1,1 @@
-add_subdirectory(KCFS)
+add_subdirectory(jevmachopp)
