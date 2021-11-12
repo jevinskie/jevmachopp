@@ -10,7 +10,19 @@ set(MACHOPP_SRC
 	UUIDCommand.cpp
 )
 
+set(MACHOPP_HDR_STANDALONE
+	CpuType.h
+	CpuSubType.h
+	CpuTypeMeta.h
+)
+
 set(MACHOPP_HDR)
+foreach(HDR ${MACHOPP_HDR_STANDALONE})
+    set(HDR "${CMAKE_CURRENT_SOURCE_DIR}/../../include/jevmachopp/${HDR}")
+    list(APPEND MACHOPP_HDR ${HDR})
+endforeach()
+
+
 foreach(SRC ${MACHOPP_SRC})
     string(REGEX REPLACE "\.cpp$" ".h" HDR ${SRC})
     set(HDR "${CMAKE_CURRENT_SOURCE_DIR}/../../include/jevmachopp/${HDR}")

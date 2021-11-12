@@ -8,6 +8,7 @@
 
 #include "jevmachopp/CpuSubType.h"
 #include "jevmachopp/CpuType.h"
+#include "jevmachopp/CpuTypeMeta.h"
 #include "jevmachopp/LoadCommand.h"
 #include "jevmachopp/Packer.h"
 
