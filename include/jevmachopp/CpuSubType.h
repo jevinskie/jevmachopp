@@ -1,10 +1,15 @@
 #pragma once
 
+#include "Common.h"
+
 #include <cstdint>
+#include <mach/machine.h>
+#include <utility>
+
+#include <fmt/format.h>
+#include <magic_enum.hpp>
 
 enum class CpuSubType : std::int32_t {
-#include <mach/machine.h>
-
     I386_ALL = CPU_SUBTYPE_I386_ALL,
     I386 = CPU_SUBTYPE_386,
     I486 = CPU_SUBTYPE_486,
@@ -55,4 +60,21 @@ enum class CpuSubType : std::int32_t {
     ARM_V7M = CPU_SUBTYPE_ARM_V7M,
     ARM_V7EM = CPU_SUBTYPE_ARM_V7EM,
     ARM_V8M = CPU_SUBTYPE_ARM_V8M,
+    ARM64_ALL = CPU_SUBTYPE_ARM64_ALL,
+    ARM64_V8 = CPU_SUBTYPE_ARM64_V8,
+    ARM64E = CPU_SUBTYPE_ARM64E,
+};
+
+template <> struct fmt::formatter<CpuSubType> {
+
+    template <typename ParseContext> constexpr auto parse(ParseContext &ctx) {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(CpuSubType const &subtype, FormatContext &ctx) {
+        return fmt::format_to(ctx.out(), "<CpuSubType {:s} ({:#08x})>",
+                              magic_enum::enum_name(subtype),
+                              to_underlying_int(subtype));
+    }
 };
