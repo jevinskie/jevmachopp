@@ -19,8 +19,7 @@ uint64_t MachO::size() const {
 uint64_t MachO::pack(uint8_t *buf, uint8_t *base) const {
     struct mach_header_64 *mh = (struct mach_header_64 *)buf;
     mh->magic = MH_MAGIC;
-    mh->cputype = (int32_t)cputype;
-    mh->cpusubtype = (int32_t)cpusubtype;
+    cputype.pack((uint8_t *)&mh->cputype, nullptr);
     mh->filetype = filetype;
     mh->flags = flags;
     mh->ncmds = (uint32_t)loadCommands.size();
@@ -35,8 +34,7 @@ uint64_t MachO::pack(uint8_t *buf, uint8_t *base) const {
 uint64_t MachO::unpack(uint8_t *buf, uint8_t *base) {
     struct mach_header_64 *mh = (struct mach_header_64 *)buf;
     assert(mh->magic == MH_MAGIC);
-    cputype = (CpuType)mh->cputype;
-    cpusubtype = (CpuSubType)mh->cpusubtype;
+    cputype.unpack((uint8_t *)&mh->cputype, nullptr);
     filetype = mh->filetype;
     flags = mh->flags;
     buf += sizeof(struct mach_header_64);

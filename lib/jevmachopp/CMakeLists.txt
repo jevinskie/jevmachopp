@@ -1,5 +1,6 @@
 
 set(MACHOPP_SRC
+    CpuTypeMeta.cpp
 	EncryptionInfoCommand.cpp
 	GenericCommand.cpp
 	LoadCommand.cpp
@@ -13,7 +14,6 @@ set(MACHOPP_SRC
 set(MACHOPP_HDR_STANDALONE
 	CpuType.h
 	CpuSubType.h
-	CpuTypeMeta.h
 )
 
 set(MACHOPP_HDR)

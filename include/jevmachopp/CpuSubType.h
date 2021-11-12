@@ -4,7 +4,6 @@
 
 #include <cstdint>
 #include <mach/machine.h>
-#include <utility>
 
 #include <fmt/format.h>
 #include <magic_enum.hpp>

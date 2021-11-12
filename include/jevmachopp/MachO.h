@@ -6,8 +6,6 @@
 #include <stdint.h>
 #include <string>
 
-#include "jevmachopp/CpuSubType.h"
-#include "jevmachopp/CpuType.h"
 #include "jevmachopp/CpuTypeMeta.h"
 #include "jevmachopp/LoadCommand.h"
 #include "jevmachopp/Packer.h"
@@ -19,8 +17,7 @@ class MachO : public Packer {
     uint64_t size() const;
 
   public:
-    CpuType cputype;
-    CpuSubType cpusubtype;
+    CpuTypeMeta cputype;
     uint32_t filetype;
     uint32_t flags;
     std::list<LoadCommand> loadCommands;

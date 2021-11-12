@@ -11,6 +11,5 @@ int main(int argc, const char *argv[]) {
     auto macho = (const MachO *)inbuf;
     fmt::print("macho: {}\n", (void *)macho);
     fmt::print("macho->cputype: {}\n", macho->cputype);
-    fmt::print("macho->cpusubtype: {}\n", macho->cpusubtype);
     return 0;
 }
