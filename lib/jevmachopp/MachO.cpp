@@ -13,11 +13,11 @@
 #include <numeric>
 
 uint64_t MachO::size() const {
-    return sizeof(struct mach_header) + loadCommandSize();
+    return sizeof(struct mach_header_64) + loadCommandSize();
 }
 
 uint64_t MachO::pack(uint8_t *buf, uint8_t *base) const {
-    struct mach_header *mh = (struct mach_header *)buf;
+    struct mach_header_64 *mh = (struct mach_header_64 *)buf;
     mh->magic = MH_MAGIC;
     mh->cputype = (int32_t)cputype;
     mh->cpusubtype = (int32_t)cpusubtype;
@@ -25,7 +25,7 @@ uint64_t MachO::pack(uint8_t *buf, uint8_t *base) const {
     mh->flags = flags;
     mh->ncmds = (uint32_t)loadCommands.size();
     mh->sizeofcmds = (uint32_t)loadCommandSize();
-    buf += sizeof(struct mach_header);
+    buf += sizeof(struct mach_header_64);
     for (auto &lc : loadCommands) {
         buf += lc.pack(buf, base);
     }
@@ -33,13 +33,13 @@ uint64_t MachO::pack(uint8_t *buf, uint8_t *base) const {
 }
 
 uint64_t MachO::unpack(uint8_t *buf, uint8_t *base) {
-    struct mach_header *mh = (struct mach_header *)buf;
+    struct mach_header_64 *mh = (struct mach_header_64 *)buf;
     assert(mh->magic == MH_MAGIC);
     cputype = (CpuType)mh->cputype;
     cpusubtype = (CpuSubType)mh->cpusubtype;
     filetype = mh->filetype;
     flags = mh->flags;
-    buf += sizeof(struct mach_header);
+    buf += sizeof(struct mach_header_64);
     for (int i = 0; i < mh->ncmds; i++) {
         LoadCommand cmd;
         buf += cmd.unpack(buf, base);

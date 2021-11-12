@@ -9,9 +9,9 @@
 
 class SegmentCommand : public LoadSubCommand {
   public:
-    uint64_t pack(uint8_t *buf, uint8_t *base) const override;
-    uint64_t unpack(uint8_t *buf, uint8_t *base) override;
-    uint64_t size() const override;
+    uint64_t pack(uint8_t *buf, uint8_t *base) const;
+    uint64_t unpack(uint8_t *buf, uint8_t *base);
+    uint64_t size() const;
     uint32_t numSections();
 
   public:
