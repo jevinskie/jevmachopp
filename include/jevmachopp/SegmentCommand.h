@@ -4,6 +4,7 @@
 #include <mach/vm_prot.h>
 #include <memory>
 
+#include "jevmachopp/Common.h"
 #include "jevmachopp/LoadSubCommand.h"
 #include "jevmachopp/Section.h"
 

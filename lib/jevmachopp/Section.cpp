@@ -10,7 +10,9 @@
 #include <mach-o/loader.h>
 #include <string.h>
 
-uint64_t Section::size() const { return sizeof(section); }
+uint64_t Section::size() const {
+    return sizeof(section);
+}
 
 uint64_t Section::pack(uint8_t *buf, uint8_t *base) const {
     struct section *s = (struct section *)buf;

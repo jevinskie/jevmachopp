@@ -27,7 +27,6 @@ uint64_t EncryptionInfoCommand::unpack(uint8_t *buf, uint8_t *base) {
     buf -= sizeof(struct load_command);
     struct encryption_info_command *cmd = (struct encryption_info_command *)buf;
     cryptid = cmd->cryptid;
-    data.insert(data.end(), base + cmd->cryptoff,
-                base + cmd->cryptoff + cmd->cryptsize);
+    data.insert(data.end(), base + cmd->cryptoff, base + cmd->cryptoff + cmd->cryptsize);
     return size();
 }

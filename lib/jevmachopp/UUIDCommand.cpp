@@ -10,7 +10,9 @@
 #include <mach-o/loader.h>
 #include <string.h>
 
-uint64_t UUIDCommand::size() const { return sizeof(uuid); }
+uint64_t UUIDCommand::size() const {
+    return sizeof(uuid);
+}
 
 uint64_t UUIDCommand::pack(uint8_t *buf, uint8_t *base) const {
     buf -= sizeof(struct load_command);

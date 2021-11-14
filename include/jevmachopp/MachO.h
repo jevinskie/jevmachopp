@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <string>
 
+#include "jevmachopp/Common.h"
 #include "jevmachopp/CpuTypeMeta.h"
 #include "jevmachopp/LoadCommand.h"
 #include "jevmachopp/Packer.h"
@@ -24,4 +25,16 @@ class MachO : public Packer {
 
   private:
     uint64_t loadCommandSize() const;
+};
+
+template <> struct fmt::formatter<MachO> {
+
+    template <typename ParseContext> constexpr auto parse(ParseContext &ctx) {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext> auto format(MachO const &macho, FormatContext &ctx) {
+        return fmt::format_to(ctx.out(), "<MachO cputype: {} fileType: {:#010x} flags: {:#010x}>",
+                              macho.cputype, macho.filetype, macho.flags);
+    }
 };

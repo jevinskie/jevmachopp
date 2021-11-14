@@ -26,8 +26,7 @@ uint8_t *Slurp::readfile(const std::string &filename, uint64_t *len) {
 
     *len = (uint64_t)st.st_size;
 
-    buf = (uint8_t *)mmap(0, st.st_size, PROT_READ | PROT_WRITE, MAP_PRIVATE,
-                          fd, 0);
+    buf = (uint8_t *)mmap(0, st.st_size, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
     if (buf == NULL)
         throw "couldnt mmap";
     close(fd);

@@ -2,7 +2,9 @@
 
 #include "jevmachopp/Common.h"
 
-uint64_t CpuTypeMeta::size() const { return sizeof(*this); }
+uint64_t CpuTypeMeta::size() const {
+    return sizeof(*this);
+}
 
 uint64_t CpuTypeMeta::pack(uint8_t *buf, uint8_t *base) const {
     int32_t *cputype_buf = (int32_t *)buf;

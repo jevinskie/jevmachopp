@@ -10,6 +10,7 @@ int main(int argc, const char *argv[]) {
     uint8_t *inbuf = Slurp::readfile(infile, &size);
     auto macho = (const MachO *)inbuf;
     fmt::print("macho: {}\n", (void *)macho);
+    fmt::print("macho fmt: {}\n", *macho);
     fmt::print("macho->cputype: {}\n", macho->cputype);
     return 0;
 }

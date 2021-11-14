@@ -2,6 +2,7 @@
 
 #include <memory>
 
+#include "jevmachopp/Common.h"
 #include "jevmachopp/LoadCommandType.h"
 #include "jevmachopp/LoadSubCommand.h"
 #include "jevmachopp/Packer.h"

@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Common.h"
-#include "CpuSubType.h"
-#include "CpuType.h"
-#include "Packer.h"
+#include "jevmachopp/Common.h"
+#include "jevmachopp/CpuSubType.h"
+#include "jevmachopp/CpuType.h"
+#include "jevmachopp/Packer.h"
 
 class CpuTypeMeta : public Packer {
   public:
@@ -24,14 +24,10 @@ template <> struct fmt::formatter<CpuTypeMeta> {
         return ctx.begin();
     }
 
-    template <typename FormatContext>
-    auto format(CpuTypeMeta const &metatype, FormatContext &ctx) {
+    template <typename FormatContext> auto format(CpuTypeMeta const &metatype, FormatContext &ctx) {
         return fmt::format_to(
-            ctx.out(),
-            "<CpuTypeMeta type: {:s} ({:#08x}) subtype: {:s} ({:#08x})>",
-            magic_enum::enum_name(metatype.type),
-            to_underlying_int(metatype.type),
-            magic_enum::enum_name(metatype.subtype),
-            to_underlying_int(metatype.subtype));
+            ctx.out(), "<CpuTypeMeta type: {:s} ({:#08x}) subtype: {:s} ({:#08x})>",
+            magic_enum::enum_name(metatype.type), to_underlying_int(metatype.type),
+            magic_enum::enum_name(metatype.subtype), to_underlying_int(metatype.subtype));
     }
 };

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "jevmachopp/Common.h"
 #include "jevmachopp/LoadSubCommand.h"
 #include <vector>
 

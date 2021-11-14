@@ -12,6 +12,7 @@ set(MACHOPP_SRC
 )
 
 set(MACHOPP_HDR_STANDALONE
+	Common.h
 	CpuType.h
 	CpuSubType.h
 )
