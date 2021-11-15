@@ -11,7 +11,7 @@
 #include "jevmachopp/Section.h"
 
 class SegmentCommand : public LoadSubCommand {
-  public:
+public:
     char segname[16];
     uint64_t vmaddr;
     uint64_t vmsize;
@@ -23,5 +23,5 @@ class SegmentCommand : public LoadSubCommand {
     uint32_t flags;
 };
 
-static_assert_size_same_minus_header(SegmentCommand, struct segment_command_64,
-                                     struct load_command);
+static_assert_size_same_minus_header(
+    SegmentCommand, struct segment_command_64, struct load_command);

@@ -7,6 +7,6 @@
 #include "jevmachopp/LoadSubCommand.h"
 
 class UnknownCommand : public LoadSubCommand {
-  public:
+public:
     int dummy;
 };

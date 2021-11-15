@@ -17,10 +17,10 @@
 class LoadCommand;
 
 class MachO {
-  public:
-    ranges::subrange<const LoadCommand *> loadCommands() const;
+public:
+    ranges::subrange<const LoadCommand*> loadCommands() const;
 
-  public:
+public:
     uint32_t magic;
     CpuTypeMeta cputype;
     uint32_t filetype;
@@ -34,12 +34,14 @@ static_assert_size_same(MachO, struct mach_header_64);
 
 template <> struct fmt::formatter<MachO> {
 
-    template <typename ParseContext> constexpr auto parse(ParseContext &ctx) {
+    template <typename ParseContext> constexpr auto parse(ParseContext& ctx)
+    {
         return ctx.begin();
     }
 
-    template <typename FormatContext> auto format(MachO const &macho, FormatContext &ctx) {
+    template <typename FormatContext> auto format(MachO const& macho, FormatContext& ctx)
+    {
         return fmt::format_to(ctx.out(), "<MachO cputype: {} fileType: {:#010x} flags: {:#010x}>",
-                              macho.cputype, macho.filetype, macho.flags);
+            macho.cputype, macho.filetype, macho.flags);
     }
 };

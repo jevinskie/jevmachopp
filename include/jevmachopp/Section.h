@@ -7,7 +7,7 @@
 #include "jevmachopp/Common.h"
 
 class Section {
-  public:
+public:
     char sectname[16];
     char segname[16];
     uint64_t addr;

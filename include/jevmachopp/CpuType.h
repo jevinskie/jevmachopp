@@ -19,12 +19,14 @@ enum class CpuType : std::int32_t {
 
 template <> struct fmt::formatter<CpuType> {
 
-    template <typename ParseContext> constexpr auto parse(ParseContext &ctx) {
+    template <typename ParseContext> constexpr auto parse(ParseContext& ctx)
+    {
         return ctx.begin();
     }
 
-    template <typename FormatContext> auto format(CpuType const &type, FormatContext &ctx) {
+    template <typename FormatContext> auto format(CpuType const& type, FormatContext& ctx)
+    {
         return fmt::format_to(ctx.out(), "<CpuType {:s} ({:#08x})>", magic_enum::enum_name(type),
-                              to_underlying_int(type));
+            to_underlying_int(type));
     }
 };
