@@ -1,20 +1,16 @@
 #pragma once
 
 #include "jevmachopp/Common.h"
-#include "jevmachopp/Packer.h"
 #include <list>
 
-class Section : public Packer {
-  public:
-    uint64_t pack(uint8_t *buf, uint8_t *base) const;
-    uint64_t unpack(uint8_t *buf, uint8_t *base);
-    uint64_t size() const;
+#include <mach-o/loader.h>
 
+class Section {
   public:
     char sectname[16];
     char segname[16];
-    uint32_t addr;
-    uint32_t size_dumb;
+    uint64_t addr;
+    uint64_t size;
     uint32_t offset;
     uint32_t align;
     uint32_t reloff;
@@ -22,4 +18,7 @@ class Section : public Packer {
     uint32_t flags;
     uint32_t reserved1;
     uint32_t reserved2;
+    uint32_t reserved3;
 };
+
+static_assert_size_same(Section, struct section_64);

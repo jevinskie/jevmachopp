@@ -1,5 +1,7 @@
 #pragma once
 
+#include "jevmachopp/Common.h"
+
 #include <cstdint>
 #include <mach-o/loader.h>
 

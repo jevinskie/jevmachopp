@@ -3,14 +3,8 @@
 #include "jevmachopp/Common.h"
 #include "jevmachopp/CpuSubType.h"
 #include "jevmachopp/CpuType.h"
-#include "jevmachopp/Packer.h"
 
-class CpuTypeMeta : public Packer {
-  public:
-    uint64_t pack(uint8_t *buf, uint8_t *base) const;
-    uint64_t unpack(uint8_t *buf, uint8_t *base);
-    uint64_t size() const;
-
+class CpuTypeMeta {
   public:
     CpuType type;
     CpuSubType subtype;

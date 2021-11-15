@@ -1,10 +1,6 @@
 #pragma once
 
-#include "jevmachopp/Packer.h"
+#include "jevmachopp/Common.h"
 
-class LoadSubCommand : public Packer {
-  public:
-    uint64_t pack(uint8_t *buf, uint8_t *base) const;
-    uint64_t unpack(uint8_t *buf, uint8_t *base);
-    uint64_t size() const;
+class LoadSubCommand {
 };

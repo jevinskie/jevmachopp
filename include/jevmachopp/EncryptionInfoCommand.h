@@ -4,13 +4,14 @@
 #include "jevmachopp/LoadSubCommand.h"
 #include <vector>
 
+#include <mach-o/loader.h>
+
 class EncryptionInfoCommand : public LoadSubCommand {
   public:
-    uint64_t pack(uint8_t *buf, uint8_t *base) const;
-    uint64_t unpack(uint8_t *buf, uint8_t *base);
-    uint64_t size() const;
-
-  public:
+    uint32_t cryptoff;
+    uint32_t cryptsize;
     uint32_t cryptid;
-    std::vector<uint8_t> data;
+    uint32_t pad;
 };
+
+static_assert_size_same_minus_header(EncryptionInfoCommand, struct encryption_info_command_64, struct load_command);

@@ -8,19 +8,19 @@
 #include "jevmachopp/LoadSubCommand.h"
 #include "jevmachopp/Section.h"
 
+#include <mach-o/loader.h>
+
 class SegmentCommand : public LoadSubCommand {
   public:
-    uint64_t pack(uint8_t *buf, uint8_t *base) const;
-    uint64_t unpack(uint8_t *buf, uint8_t *base);
-    uint64_t size() const;
-    uint32_t numSections();
-
-  public:
     char segname[16];
-    uint32_t vmaddr;
-    uint32_t vmsize;
+    uint64_t vmaddr;
+    uint64_t vmsize;
+    uint64_t fileoff;
+    uint64_t filesize;
     vm_prot_t maxprot;
     vm_prot_t initprot;
+    uint32_t nsects;
     uint32_t flags;
-    std::list<Section> sections;
 };
+
+static_assert_size_same_minus_header(SegmentCommand, struct segment_command_64, struct load_command);
