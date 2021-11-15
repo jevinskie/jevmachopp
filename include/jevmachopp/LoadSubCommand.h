@@ -2,6 +2,7 @@
 
 #include "jevmachopp/Common.h"
 
+#include "fmt/core.h"
 #include <variant>
 
 class LoadCommand;
@@ -20,3 +21,21 @@ public:
 };
 
 static_assert_size_is(LoadSubCommand, 1);
+
+template <> struct fmt::formatter<LoadSubCommand> {
+
+    template <typename ParseContext> constexpr auto parse(ParseContext &ctx) {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext> auto format(LoadSubCommand const &lsc, FormatContext &ctx) {
+        auto out = ctx.out();
+        out = fmt::format_to(out, "<lsc>");
+        std::visit(
+            [=](auto &&o) {
+                fmt::format_to(out, " <lsc2> ");
+            },
+            lsc.get());
+        return out;
+    }
+};

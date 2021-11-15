@@ -7,7 +7,8 @@
 #include <cstdint>
 #include <mach-o/loader.h>
 
-enum class LoadCommandType : std::uint32_t {
+enum class LoadCommandType : std::uint32_t
+{
     SEGMENT = LC_SEGMENT,
     SYMTAB = LC_SYMTAB,
     SYMSEG = LC_SYMSEG,

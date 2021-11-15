@@ -8,7 +8,8 @@
 #include <fmt/format.h>
 #include <magic_enum.hpp>
 
-enum class CpuSubType : std::int32_t {
+enum class CpuSubType : std::int32_t
+{
     I386_ALL = CPU_SUBTYPE_I386_ALL,
     I386 = CPU_SUBTYPE_386,
     I486 = CPU_SUBTYPE_486,
