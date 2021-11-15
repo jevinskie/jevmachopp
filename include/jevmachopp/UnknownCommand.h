@@ -8,7 +8,6 @@
 
 class UnknownCommand : public LoadSubCommand {
   public:
-
-  public:
-    std::vector<uint8_t> data;
+    int dummy;
 };
+
