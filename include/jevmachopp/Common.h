@@ -2,6 +2,7 @@
 
 #include <hedley.h>
 #include <utility>
+#include <type_traits>
 
 template <typename T> constexpr T abs_diff(T a, T b) {
     return a > b ? a - b : b - a;
@@ -50,12 +51,21 @@ template <typename E> constexpr auto to_underlying_int(E e) noexcept {
     return +(static_cast<std::underlying_type_t<E>>(e));
 }
 
+// template <typename Src>
+// constexpr typename std::make_unsigned<
+//     typename base::internal::UnderlyingType<Src>::type>::type
+// as_unsigned(const Src value) {
+//   static_assert(std::is_integral<decltype(as_unsigned(value))>::value,
+//                 "Argument must be a signed or unsigned integer type.");
+//   return static_cast<decltype(as_unsigned(value))>(value);
+// }
+
 // https://chromium.googlesource.com/chromium/src/+/refs/heads/main/base/numerics/safe_conversions_impl.h
 // as_unsigned<> returns the supplied integral value (or integral castable
 // Numeric template) cast as an unsigned integral of equivalent precision.
 // I.e. it's mostly an alias for: static_cast<std::make_unsigned<T>::type>(t)
 template <typename Src>
-constexpr typename std::make_unsigned<typename std::underlying_type_t<Src>::type>::type
+constexpr std::make_unsigned_t<std::underlying_type_t<Src>>
 as_unsigned(const Src value) {
     static_assert(std::is_integral<decltype(as_unsigned(value))>::value,
                   "Argument must be a signed or unsigned integer type.");

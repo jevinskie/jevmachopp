@@ -46,7 +46,13 @@ template <> struct fmt::formatter<MachO> {
         auto out = ctx.out();
         out = fmt::format_to(out, "<MachO cputype: {} fileType: {:#010x} flags: {:#010x}>",
                              macho.cputype, macho.filetype, macho.flags);
-        for (auto i = macho.lc_cbegin(), e = macho.lc_cend(); i != e; i = std::next(i)) {}
+
+
+        out = fmt::format_to(out, "\ncputype raw: {:08x}", (uint32_t)macho.cputype.type);
+
+        for (auto i = macho.lc_cbegin(), e = macho.lc_cend(); i != e; i = std::next(i)) {
+            // out = fmt::format_to(out, "\ni: {}", i);
+        }
         return out;
     }
 };
