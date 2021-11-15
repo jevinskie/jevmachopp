@@ -18,7 +18,11 @@ class LoadCommand;
 
 class MachO {
 public:
-    ranges::subrange<const LoadCommand*> loadCommands() const;
+    // ranges::subrange<const LoadCommand*> loadCommands() const;
+    const LoadCommand* lc_cbegin() const;
+    const LoadCommand* lc_cend() const;
+    size_t lc_size() const;
+    size_t lc_sizeof() const;
 
 public:
     uint32_t magic;
@@ -41,7 +45,10 @@ template <> struct fmt::formatter<MachO> {
 
     template <typename FormatContext> auto format(MachO const& macho, FormatContext& ctx)
     {
-        return fmt::format_to(ctx.out(), "<MachO cputype: {} fileType: {:#010x} flags: {:#010x}>",
+        auto out = ctx.out();
+        out = fmt::format_to(out, "<MachO cputype: {} fileType: {:#010x} flags: {:#010x}>",
             macho.cputype, macho.filetype, macho.flags);
+        for (auto i = macho.lc_cbegin(), e = macho.lc_cend(); i != e; i = std::next(i)) { }
+        return out;
     }
 };
