@@ -20,8 +20,8 @@ class LoadCommand;
 class MachO {
 public:
     // ranges::subrange<const LoadCommand*> loadCommands() const;
-    const LoadCommand *lc_cbegin() const;
-    const LoadCommand *lc_cend() const;
+    LoadCommand::Iterator lc_cbegin() const;
+    LoadCommand::Iterator lc_cend() const;
     size_t lc_size() const;
     size_t lc_sizeof() const;
 
