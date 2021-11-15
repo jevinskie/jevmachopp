@@ -7,4 +7,3 @@
 //
 
 #include "jevmachopp/SegmentCommand.h"
-

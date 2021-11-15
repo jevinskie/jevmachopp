@@ -1,10 +1,10 @@
 #pragma once
 
-#include <mach/vm_prot.h>
-#include <mach-o/loader.h>
-#include <stdint.h>
 #include <list>
+#include <mach-o/loader.h>
+#include <mach/vm_prot.h>
 #include <memory>
+#include <stdint.h>
 
 #include "jevmachopp/Common.h"
 #include "jevmachopp/LoadSubCommand.h"
@@ -23,4 +23,5 @@ class SegmentCommand : public LoadSubCommand {
     uint32_t flags;
 };
 
-static_assert_size_same_minus_header(SegmentCommand, struct segment_command_64, struct load_command);
+static_assert_size_same_minus_header(SegmentCommand, struct segment_command_64,
+                                     struct load_command);

@@ -1,27 +1,27 @@
 #pragma once
 
+#include <list>
 #include <mach/machine.h>
-#include <stdint.h>
+#include <memory>
 #include <range/v3/range.hpp>
 #include <range/v3/view.hpp>
 #include <range/v3/view/subrange.hpp>
-#include <list>
-#include <memory>
+#include <stdint.h>
 #include <string>
 
+#include "fmt/core.h"
 #include "jevmachopp/Common.h"
 #include "jevmachopp/CpuTypeMeta.h"
 #include "jevmachopp/LoadCommand.h"
-#include "fmt/core.h"
 
 class LoadCommand;
 
 class MachO {
   public:
-    ranges::subrange<const LoadCommand*> loadCommands() const;
+    ranges::subrange<const LoadCommand *> loadCommands() const;
 
   public:
-    uint32_t  magic;
+    uint32_t magic;
     CpuTypeMeta cputype;
     uint32_t filetype;
     uint32_t ncmds;
@@ -31,7 +31,6 @@ class MachO {
 };
 
 static_assert_size_same(MachO, struct mach_header_64);
-
 
 template <> struct fmt::formatter<MachO> {
 

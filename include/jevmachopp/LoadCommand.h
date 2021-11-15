@@ -17,7 +17,6 @@ class LoadCommand {
 
 static_assert_size_same(LoadCommand, struct load_command);
 
-
 template <> struct fmt::formatter<LoadCommand> {
 
     template <typename ParseContext> constexpr auto parse(ParseContext &ctx) {
@@ -25,10 +24,6 @@ template <> struct fmt::formatter<LoadCommand> {
     }
 
     template <typename FormatContext> auto format(LoadCommand const &lc, FormatContext &ctx) {
-        return fmt::format_to(
-            ctx.out(),
-            "<LoadCommand @ {:p} {}>",
-            (void*)this,
-            lc.cmd);
+        return fmt::format_to(ctx.out(), "<LoadCommand @ {:p} {}>", (void *)this, lc.cmd);
     }
 };

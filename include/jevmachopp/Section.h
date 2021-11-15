@@ -1,8 +1,8 @@
 #pragma once
 
+#include <list>
 #include <mach-o/loader.h>
 #include <stdint.h>
-#include <list>
 
 #include "jevmachopp/Common.h"
 

@@ -1,9 +1,9 @@
 #pragma once
 
+#include "fmt/core.h"
 #include "jevmachopp/Common.h"
 #include "jevmachopp/CpuSubType.h"
 #include "jevmachopp/CpuType.h"
-#include "fmt/core.h"
 #include "magic_enum.hpp"
 
 class CpuTypeMeta {

@@ -2,11 +2,10 @@
 
 #include "jevmachopp/Common.h"
 
+#include "fmt/core.h"
+#include "magic_enum.hpp"
 #include <cstdint>
 #include <mach-o/loader.h>
-#include "magic_enum.hpp"
-#include "fmt/core.h"
-
 
 enum class LoadCommandType : std::uint32_t {
     SEGMENT = LC_SEGMENT,
@@ -55,7 +54,6 @@ enum class LoadCommandType : std::uint32_t {
     DYLIB_CODE_SIGN_DRS = LC_DYLIB_CODE_SIGN_DRS,
 };
 
-
 template <> struct fmt::formatter<LoadCommandType> {
 
     template <typename ParseContext> constexpr auto parse(ParseContext &ctx) {
@@ -63,8 +61,7 @@ template <> struct fmt::formatter<LoadCommandType> {
     }
 
     template <typename FormatContext> auto format(LoadCommandType const &lct, FormatContext &ctx) {
-        return fmt::format_to(ctx.out(), "<LoadCommandType {:s} ({:#08x})>", magic_enum::enum_name(lct),
-                              to_underlying_int(lct));
+        return fmt::format_to(ctx.out(), "<LoadCommandType {:s} ({:#08x})>",
+                              magic_enum::enum_name(lct), to_underlying_int(lct));
     }
 };
-
