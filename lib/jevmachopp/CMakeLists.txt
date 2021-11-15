@@ -4,10 +4,12 @@ set(MACHOPP_SRC
 	EncryptionInfoCommand.cpp
 	GenericCommand.cpp
 	LoadCommand.cpp
+	LoadSubCommand.cpp
 	MachO.cpp
 	Section.cpp
 	SegmentCommand.cpp
 	Slurp.cpp
+	UnknownCommand.cpp
 	UUIDCommand.cpp
 )
 
