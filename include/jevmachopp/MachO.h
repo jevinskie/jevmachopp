@@ -46,7 +46,7 @@ class MachO : public Packer {
     uint64_t loadCommandSize() const;
 };
 
-static_assert_cond(sizeof(MachO) == sizeof(struct mach_header_64));
+static_assert_size_same(MachO, struct mach_header_64);
 
 
 template <> struct fmt::formatter<MachO> {

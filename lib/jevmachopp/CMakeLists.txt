@@ -15,6 +15,8 @@ set(MACHOPP_HDR_STANDALONE
 	Common.h
 	CpuType.h
 	CpuSubType.h
+	Packer.h
+	LoadCommandType.h
 )
 
 set(MACHOPP_HDR)

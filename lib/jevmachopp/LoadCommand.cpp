@@ -17,7 +17,11 @@
 #include "jevmachopp/LoadCommand.h"
 
 uint64_t LoadCommand::size() const {
-    return sizeof(struct load_command) + subcmd->size();
+    return cmdsize;
+}
+
+LoadSubCommand* LoadCommand::subcmd() const {
+    return (LoadSubCommand *)(this + 1);
 }
 
 uint64_t LoadCommand::pack(uint8_t *buf, uint8_t *base) const {
@@ -25,27 +29,12 @@ uint64_t LoadCommand::pack(uint8_t *buf, uint8_t *base) const {
     lc->cmd = (uint32_t)cmd;
     lc->cmdsize = (uint32_t)size();
     buf += sizeof(struct load_command);
-    subcmd->pack(buf, base);
+    subcmd()->pack(buf, base);
     return size();
 }
 
 uint64_t LoadCommand::unpack(uint8_t *buf, uint8_t *base) {
     struct load_command *lc = (struct load_command *)buf;
-    cmd = (LoadCommandType)lc->cmd;
-    switch (cmd) {
-    case LoadCommandType::SEGMENT:
-        subcmd = std::make_unique<SegmentCommand>();
-        break;
-    case LoadCommandType::UUID:
-        subcmd = std::make_unique<UUIDCommand>();
-        break;
-    case LoadCommandType::ENCRYPTION_INFO:
-        subcmd = std::make_unique<EncryptionInfoCommand>();
-        break;
-    default:
-        subcmd = std::make_unique<GenericCommand>();
-        break;
-    }
-    subcmd->unpack(buf + sizeof(struct load_command), base);
+    subcmd()->unpack(buf + sizeof(struct load_command), base);
     return size();
 }
