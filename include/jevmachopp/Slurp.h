@@ -1,9 +1,10 @@
 #pragma once
 
-#include "jevmachopp/Common.h"
-
 #include <stdint.h>
 #include <string>
+#include <iosfwd>
+
+#include "jevmachopp/Common.h"
 
 class Slurp {
   public:

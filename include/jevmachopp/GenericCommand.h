@@ -1,8 +1,10 @@
 #pragma once
 
+#include <vector>
+#include <cstdint>
+
 #include "jevmachopp/Common.h"
 #include "jevmachopp/LoadSubCommand.h"
-#include <vector>
 
 class GenericCommand : public LoadSubCommand {
   public:

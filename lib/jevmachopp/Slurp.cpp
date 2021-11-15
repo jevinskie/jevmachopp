@@ -7,11 +7,13 @@
 //
 
 #include "jevmachopp/Slurp.h"
+
 #include <stdio.h>
 #include <sys/fcntl.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <string>
 
 uint8_t *Slurp::readfile(const std::string &filename, uint64_t *len) {
     int fd;

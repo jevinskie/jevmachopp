@@ -1,10 +1,11 @@
 #pragma once
 
-#include "jevmachopp/Common.h"
-#include "jevmachopp/LoadSubCommand.h"
+#include <mach-o/loader.h>
+#include <stdint.h>
 #include <vector>
 
-#include <mach-o/loader.h>
+#include "jevmachopp/Common.h"
+#include "jevmachopp/LoadSubCommand.h"
 
 class EncryptionInfoCommand : public LoadSubCommand {
   public:

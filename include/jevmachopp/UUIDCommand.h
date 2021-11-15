@@ -1,6 +1,7 @@
 #pragma once
 
 #include <mach-o/loader.h>
+#include <stdint.h>
 
 #include "jevmachopp/Common.h"
 #include "jevmachopp/LoadSubCommand.h"

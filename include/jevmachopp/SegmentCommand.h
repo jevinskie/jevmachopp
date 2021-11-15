@@ -1,14 +1,14 @@
 #pragma once
 
-#include <list>
 #include <mach/vm_prot.h>
+#include <mach-o/loader.h>
+#include <stdint.h>
+#include <list>
 #include <memory>
 
 #include "jevmachopp/Common.h"
 #include "jevmachopp/LoadSubCommand.h"
 #include "jevmachopp/Section.h"
-
-#include <mach-o/loader.h>
 
 class SegmentCommand : public LoadSubCommand {
   public:

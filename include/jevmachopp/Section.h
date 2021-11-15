@@ -1,9 +1,10 @@
 #pragma once
 
-#include "jevmachopp/Common.h"
+#include <mach-o/loader.h>
+#include <stdint.h>
 #include <list>
 
-#include <mach-o/loader.h>
+#include "jevmachopp/Common.h"
 
 class Section {
   public:

@@ -7,5 +7,4 @@
 //
 
 #include "jevmachopp/SegmentCommand.h"
-#include <mach-o/loader.h>
 

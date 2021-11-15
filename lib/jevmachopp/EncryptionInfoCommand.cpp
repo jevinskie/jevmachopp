@@ -7,5 +7,3 @@
 //
 
 #include "jevmachopp/EncryptionInfoCommand.h"
-#include <mach-o/loader.h>
-#include <string.h>

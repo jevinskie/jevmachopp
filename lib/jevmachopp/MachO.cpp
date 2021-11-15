@@ -7,8 +7,4 @@
 //
 
 #include "jevmachopp/MachO.h"
-#include <algorithm>
-#include <assert.h>
-#include <mach-o/loader.h>
-#include <numeric>
 

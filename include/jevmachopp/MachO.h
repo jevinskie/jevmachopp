@@ -1,18 +1,20 @@
 #pragma once
 
-#include <list>
 #include <mach/machine.h>
-#include <memory>
 #include <stdint.h>
-#include <string>
-
 #include <range/v3/range.hpp>
 #include <range/v3/view.hpp>
 #include <range/v3/view/subrange.hpp>
+#include <list>
+#include <memory>
+#include <string>
 
 #include "jevmachopp/Common.h"
 #include "jevmachopp/CpuTypeMeta.h"
 #include "jevmachopp/LoadCommand.h"
+#include "fmt/core.h"
+
+class LoadCommand;
 
 class MachO {
   public:

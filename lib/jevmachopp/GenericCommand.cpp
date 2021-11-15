@@ -8,7 +8,3 @@
 
 #include "jevmachopp/GenericCommand.h"
 
-#include <assert.h>
-#include <mach-o/loader.h>
-#include <string.h>
-

@@ -6,15 +6,9 @@
 //  Copyright (c) 2013 Arxan. All rights reserved.
 //
 
-#include <assert.h>
-#include <mach-o/loader.h>
-#include <memory>
-
-#include "jevmachopp/EncryptionInfoCommand.h"
-#include "jevmachopp/GenericCommand.h"
-#include "jevmachopp/SegmentCommand.h"
-#include "jevmachopp/UUIDCommand.h"
 #include "jevmachopp/LoadCommand.h"
+
+class LoadSubCommand;
 
 LoadSubCommand* LoadCommand::subcmd() const {
     return (LoadSubCommand *)(this + 1);
