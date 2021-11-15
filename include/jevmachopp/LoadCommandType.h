@@ -4,6 +4,9 @@
 
 #include <cstdint>
 #include <mach-o/loader.h>
+#include "magic_enum.hpp"
+#include "fmt/core.h"
+
 
 enum class LoadCommandType : std::uint32_t {
     SEGMENT = LC_SEGMENT,
@@ -51,3 +54,17 @@ enum class LoadCommandType : std::uint32_t {
     SOURCE_VERSION = LC_SOURCE_VERSION,
     DYLIB_CODE_SIGN_DRS = LC_DYLIB_CODE_SIGN_DRS,
 };
+
+
+template <> struct fmt::formatter<LoadCommandType> {
+
+    template <typename ParseContext> constexpr auto parse(ParseContext &ctx) {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext> auto format(LoadCommandType const &lct, FormatContext &ctx) {
+        return fmt::format_to(ctx.out(), "<LoadCommandType {:s} ({:#08x})>", magic_enum::enum_name(lct),
+                              to_underlying_int(lct));
+    }
+};
+

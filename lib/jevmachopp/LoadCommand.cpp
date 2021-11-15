@@ -10,6 +10,6 @@
 
 class LoadSubCommand;
 
-LoadSubCommand* LoadCommand::subcmd() const {
-    return (LoadSubCommand *)(this + 1);
+const LoadSubCommand* LoadCommand::subcmd() const {
+    return (const LoadSubCommand *)(this + 1);
 }

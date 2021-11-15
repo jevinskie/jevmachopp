@@ -15,23 +15,32 @@ constexpr std::size_t get_size_diff() {
   return abs_diff(SizeA, SizeB);
 }
 
+
+template <typename T, std::size_t SizeExpected, std::size_t SizeActual = sizeof(T)>
+constexpr bool check_size_is() {
+  static_assert(SizeActual == SizeExpected, "Size is off!");
+  return false;
+}
+
 template <typename TA, typename TB, std::size_t SizeA = sizeof(TA), std::size_t SizeB = sizeof(TB)>
-constexpr bool check_size() {
+constexpr bool check_size_equal() {
   static_assert(SizeA == SizeB, "Size is off!");
   return false;
 }
 
 template <typename TA, typename TB, typename TBH, std::size_t SizeA = sizeof(TA), std::size_t SizeB = sizeof(TB), std::size_t SizeBH = sizeof(TBH)>
-constexpr bool check_size_minus_header() {
+constexpr bool check_size_minus_header_equal() {
   static_assert(SizeA == SizeB - SizeBH, "Size is off!");
   return false;
 }
 
 #define static_assert_cond(cond) static_assert((cond), #cond)
 
-#define static_assert_size_same(obj_a, obj_b) __attribute__((unused)) static constexpr bool HEDLEY_CONCAT(static_assert_size_same_,__COUNTER__) = check_size<obj_a, obj_b>()
+#define static_assert_size_is(obj, sz) __attribute__((unused)) static constexpr bool HEDLEY_CONCAT(static_assert_size_is_, __COUNTER__) = check_size_is<obj, (sz)>()
 
-#define static_assert_size_same_minus_header(obj_a, obj_b, obj_b_hdr) __attribute__((unused)) static constexpr bool HEDLEY_CONCAT(static_assert_size_same_minus_header_,__COUNTER__) = check_size_minus_header<obj_a, obj_b, obj_b_hdr>()
+#define static_assert_size_same(obj_a, obj_b) __attribute__((unused)) static constexpr bool HEDLEY_CONCAT(static_assert_size_same_, __COUNTER__) = check_size_equal<obj_a, obj_b>()
+
+#define static_assert_size_same_minus_header(obj_a, obj_b, obj_b_hdr) __attribute__((unused)) static constexpr bool HEDLEY_CONCAT(static_assert_size_same_minus_header_, __COUNTER__) = check_size_minus_header_equal<obj_a, obj_b, obj_b_hdr>()
 
 
 
