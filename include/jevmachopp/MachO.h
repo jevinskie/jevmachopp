@@ -45,11 +45,14 @@ template <> struct fmt::formatter<MachO> {
 
     template <typename FormatContext> auto format(MachO const &macho, FormatContext &ctx) {
         auto out = ctx.out();
-        out = fmt::format_to(out, "<MachO cputype: {} fileType: {:#010x} flags: {:#010x}>",
-                             macho.cputype, macho.filetype, macho.flags);
+        out = fmt::format_to(out, "<MachO cputype: {} fileType: {:#010x} flags: {:#010x} ncmds: {:d} sizeofcmds: {:#x}>",
+                             macho.cputype, macho.filetype, macho.flags, macho.ncmds, macho.sizeofcmds);
 
         for (auto i = macho.lc_cbegin(), e = macho.lc_cend(); i != e; i = std::next(i)) {
-            // out = fmt::format_to(out, "\ni: {}", (void*)i);
+            out = fmt::format_to(out, "\ni: {}", (void*)&*i);
+            auto lc = *i;
+            out = fmt::format_to(out, "\nlc: {}", lc);
+            auto subcmd = lc.subcmd();
         }
         return out;
     }
