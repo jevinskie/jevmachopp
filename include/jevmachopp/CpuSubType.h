@@ -66,14 +66,12 @@ enum class CpuSubType : std::int32_t {
 
 template <> struct fmt::formatter<CpuSubType> {
 
-    template <typename ParseContext> constexpr auto parse(ParseContext& ctx)
-    {
+    template <typename ParseContext> constexpr auto parse(ParseContext &ctx) {
         return ctx.begin();
     }
 
-    template <typename FormatContext> auto format(CpuSubType const& subtype, FormatContext& ctx)
-    {
+    template <typename FormatContext> auto format(CpuSubType const &subtype, FormatContext &ctx) {
         return fmt::format_to(ctx.out(), "<CpuSubType {:s} ({:#08x})>",
-            magic_enum::enum_name(subtype), to_underlying_int(subtype));
+                              magic_enum::enum_name(subtype), to_underlying_int(subtype));
     }
 };

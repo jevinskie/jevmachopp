@@ -15,5 +15,5 @@ public:
     uint32_t pad;
 };
 
-static_assert_size_same_minus_header(
-    EncryptionInfoCommand, struct encryption_info_command_64, struct load_command);
+static_assert_size_same_minus_header(EncryptionInfoCommand, struct encryption_info_command_64,
+                                     struct load_command);

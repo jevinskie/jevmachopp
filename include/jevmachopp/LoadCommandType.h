@@ -56,14 +56,12 @@ enum class LoadCommandType : std::uint32_t {
 
 template <> struct fmt::formatter<LoadCommandType> {
 
-    template <typename ParseContext> constexpr auto parse(ParseContext& ctx)
-    {
+    template <typename ParseContext> constexpr auto parse(ParseContext &ctx) {
         return ctx.begin();
     }
 
-    template <typename FormatContext> auto format(LoadCommandType const& lct, FormatContext& ctx)
-    {
+    template <typename FormatContext> auto format(LoadCommandType const &lct, FormatContext &ctx) {
         return fmt::format_to(ctx.out(), "<LoadCommandType {:s} ({:#08x})>",
-            magic_enum::enum_name(lct), to_underlying_int(lct));
+                              magic_enum::enum_name(lct), to_underlying_int(lct));
     }
 };
