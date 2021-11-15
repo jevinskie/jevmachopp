@@ -6,7 +6,6 @@
 //  Copyright (c) 2013 Arxan. All rights reserved.
 //
 
-#include "jevmachopp/LoadCommand.h"
 #include <assert.h>
 #include <mach-o/loader.h>
 #include <memory>
@@ -15,6 +14,7 @@
 #include "jevmachopp/GenericCommand.h"
 #include "jevmachopp/SegmentCommand.h"
 #include "jevmachopp/UUIDCommand.h"
+#include "jevmachopp/LoadCommand.h"
 
 uint64_t LoadCommand::size() const {
     return sizeof(struct load_command) + subcmd->size();

@@ -17,3 +17,9 @@ class LoadCommand : public Packer {
     LoadCommandType cmd;
     std::unique_ptr<LoadSubCommand> subcmd;
 };
+
+//static_assert_cond(sizeof(LoadCommand) == sizeof(struct load_command));
+
+//static_assert(sizeof(LoadCommand) == sizeof(struct load_command), HEDLEY_STRINGIFY(sizeof));
+static_assert_size_same(LoadCommand, struct load_command);
+// constexpr bool static_assert_size_same_0 = check_size<LoadCommand, struct load_command>();
