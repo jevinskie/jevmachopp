@@ -1,8 +1,8 @@
 #pragma once
 
 #include <hedley.h>
-#include <utility>
 #include <type_traits>
+#include <utility>
 
 template <typename T> constexpr T abs_diff(T a, T b) {
     return a > b ? a - b : b - a;
@@ -51,21 +51,33 @@ template <typename E> constexpr auto to_underlying_int(E e) noexcept {
     return +(static_cast<std::underlying_type_t<E>>(e));
 }
 
-// template <typename Src>
-// constexpr typename std::make_unsigned<
-//     typename base::internal::UnderlyingType<Src>::type>::type
-// as_unsigned(const Src value) {
-//   static_assert(std::is_integral<decltype(as_unsigned(value))>::value,
-//                 "Argument must be a signed or unsigned integer type.");
-//   return static_cast<decltype(as_unsigned(value))>(value);
-// }
+// Extracts the underlying type from an enum.
+template <typename T, bool is_enum = std::is_enum<T>::value> struct ArithmeticOrUnderlyingEnum;
+
+template <typename T> struct ArithmeticOrUnderlyingEnum<T, true> {
+    using type = typename std::underlying_type<T>::type;
+    static const bool value = std::is_arithmetic<type>::value;
+};
+
+template <typename T> struct ArithmeticOrUnderlyingEnum<T, false> {
+    using type = T;
+    static const bool value = std::is_arithmetic<type>::value;
+};
+
+template <typename T> struct UnderlyingType {
+    using type = typename ArithmeticOrUnderlyingEnum<T>::type;
+    static const bool is_numeric = std::is_arithmetic<type>::value;
+    static const bool is_checked = false;
+    static const bool is_clamped = false;
+    static const bool is_strict = false;
+};
 
 // https://chromium.googlesource.com/chromium/src/+/refs/heads/main/base/numerics/safe_conversions_impl.h
 // as_unsigned<> returns the supplied integral value (or integral castable
 // Numeric template) cast as an unsigned integral of equivalent precision.
 // I.e. it's mostly an alias for: static_cast<std::make_unsigned<T>::type>(t)
 template <typename Src>
-constexpr std::make_unsigned_t<std::underlying_type_t<Src>>
+constexpr typename std::make_unsigned<typename UnderlyingType<Src>::type>::type
 as_unsigned(const Src value) {
     static_assert(std::is_integral<decltype(as_unsigned(value))>::value,
                   "Argument must be a signed or unsigned integer type.");

@@ -8,6 +8,7 @@
 #include <range/v3/view/subrange.hpp>
 #include <stdint.h>
 #include <string>
+#include <typeinfo>
 
 #include "fmt/core.h"
 #include "jevmachopp/Common.h"
@@ -47,11 +48,8 @@ template <> struct fmt::formatter<MachO> {
         out = fmt::format_to(out, "<MachO cputype: {} fileType: {:#010x} flags: {:#010x}>",
                              macho.cputype, macho.filetype, macho.flags);
 
-
-        out = fmt::format_to(out, "\ncputype raw: {:08x}", (uint32_t)macho.cputype.type);
-
         for (auto i = macho.lc_cbegin(), e = macho.lc_cend(); i != e; i = std::next(i)) {
-            out = fmt::format_to(out, "\ni: {}", (void*)i);
+            // out = fmt::format_to(out, "\ni: {}", (void*)i);
         }
         return out;
     }

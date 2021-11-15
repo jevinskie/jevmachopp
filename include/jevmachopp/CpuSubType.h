@@ -72,6 +72,6 @@ template <> struct fmt::formatter<CpuSubType> {
 
     template <typename FormatContext> auto format(CpuSubType const &subtype, FormatContext &ctx) {
         return fmt::format_to(ctx.out(), "<CpuSubType {:s} ({:#08x})>",
-                              magic_enum::enum_name(subtype), (uint32_t)to_underlying_int(subtype));
+                              magic_enum::enum_name(subtype), as_unsigned(subtype));
     }
 };
