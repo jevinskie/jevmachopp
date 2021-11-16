@@ -1,3 +1,4 @@
 add_subdirectory(fmt)
 add_subdirectory(magic_enum)
 add_subdirectory(range-v3)
+add_subdirectory(visit)

@@ -7,6 +7,8 @@
 #include "jevmachopp/UUIDCommand.h"
 #include "jevmachopp/UnknownCommand.h"
 
+#include <visit.hpp>
+
 const LoadCommand *LoadSubCommand::loadCommand() const {
     return (const LoadCommand *)((uintptr_t)this - sizeof(LoadCommand));
 }
@@ -25,7 +27,7 @@ const SubCommandVariant LoadSubCommand::get() const {
 }
 
 fmt::appender &LoadSubCommand::format_to(fmt::appender &out) const {
-    std::visit(
+    rollbear::visit(
         [=](auto &&o) {
             fmt::format_to(out, "{}"_cf, *o);
         },
