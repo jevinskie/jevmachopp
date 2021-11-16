@@ -53,22 +53,11 @@ template <> struct fmt::formatter<MachO> {
         auto out = ctx.out();
         fmt::format_to(
             out,
-            "<MachO @ {:p} cputype: {} fileType: {:#010x} flags: {:#010x} ncmds: {:d} sizeofcmds: {:#x}>"_cf,
+            "<MachO @ {:p} cputype: {} fileType: {:#010x} flags: {:#010x} ncmds: {:d} sizeofcmds: {:#x} "_cf,
             (void *)&macho, macho.cputype, macho.filetype, macho.flags, macho.ncmds,
             macho.sizeofcmds);
-
-        // for (auto i = macho.lc_cbegin(), e = macho.lc_cend(); i != e; i = std::next(i)) {
-        //     fmt::format_to(out, "\ni: {}", (void *)&*i);
-        //     fmt::format_to(out, "\nlc: {}", *i);
-        //     auto subcmd = i->subcmd();
-        // }
-
-        for (auto &&lc : macho.loadCommands()) {
-            fmt::format_to(out, "\ni: {}", (void *)&lc);
-            fmt::format_to(out, "\nlc: {}", lc);
-            auto subcmd = lc.subcmd();
-        }
-
+        fmt::format_to(out, "{}"_cf, fmt::join(macho.loadCommands(), ", "));
+        fmt::format_to(out, ">"_cf);
         return out;
     }
 };

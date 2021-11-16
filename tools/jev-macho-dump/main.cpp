@@ -12,9 +12,5 @@ int main(int argc, const char *argv[]) {
     fmt::print("macho: {}\n", (void *)macho);
     fmt::print("macho fmt: {}\n", *macho);
     fmt::print("macho->cputype: {}\n", macho->cputype);
-    auto lc0 = macho->lc_cbegin();
-    fmt::print("lc0: {:p}\n", (void *)&*lc0);
-    ++lc0;
-    fmt::print("++lc0: {:p}\n", (void *)&*lc0);
     return 0;
 }
