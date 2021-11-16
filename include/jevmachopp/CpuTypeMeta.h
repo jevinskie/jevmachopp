@@ -8,6 +8,10 @@
 
 class CpuTypeMeta {
 public:
+    CpuTypeMeta(const CpuTypeMeta &) = delete;
+    void operator=(const CpuTypeMeta &) = delete;
+
+public:
     CpuType type;
     CpuSubType subtype;
 };

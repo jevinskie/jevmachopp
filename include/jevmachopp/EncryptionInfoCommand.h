@@ -9,6 +9,10 @@
 
 class EncryptionInfoCommand : public LoadSubCommand {
 public:
+    EncryptionInfoCommand(const EncryptionInfoCommand &) = delete;
+    void operator=(const EncryptionInfoCommand &) = delete;
+
+public:
     uint32_t cryptoff;
     uint32_t cryptsize;
     uint32_t cryptid;

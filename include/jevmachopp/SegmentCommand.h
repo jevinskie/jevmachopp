@@ -13,6 +13,10 @@
 
 class SegmentCommand : public LoadSubCommand {
 public:
+    SegmentCommand(const SegmentCommand &) = delete;
+    void operator=(const SegmentCommand &) = delete;
+
+public:
     char segname[16];
     uint64_t vmaddr;
     uint64_t vmsize;

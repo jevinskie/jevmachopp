@@ -2,7 +2,6 @@
 set(MACHOPP_SRC
     CpuTypeMeta.cpp
 	EncryptionInfoCommand.cpp
-	GenericCommand.cpp
 	LoadCommand.cpp
 	LoadSubCommand.cpp
 	MachO.cpp

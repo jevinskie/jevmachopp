@@ -10,6 +10,10 @@
 
 class UUIDCommand : public LoadSubCommand {
 public:
+    UUIDCommand(const UUIDCommand &) = delete;
+    void operator=(const UUIDCommand &) = delete;
+
+public:
     uint8_t uuid[16];
 };
 

@@ -19,6 +19,10 @@ class LoadCommand;
 
 class MachO {
 public:
+    MachO(const MachO &) = delete;
+    void operator=(const MachO &) = delete;
+
+public:
     // ranges::subrange<const LoadCommand*> loadCommands() const;
     LoadCommand::Iterator lc_cbegin() const;
     LoadCommand::Iterator lc_cend() const;
@@ -52,9 +56,8 @@ template <> struct fmt::formatter<MachO> {
 
         for (auto i = macho.lc_cbegin(), e = macho.lc_cend(); i != e; i = std::next(i)) {
             fmt::format_to(out, "\ni: {}", (void *)&*i);
-            auto lc = *i;
-            fmt::format_to(out, "\nlc: {}", lc);
-            auto subcmd = lc.subcmd();
+            fmt::format_to(out, "\nlc: {}", *i);
+            auto subcmd = i->subcmd();
         }
         return out;
     }

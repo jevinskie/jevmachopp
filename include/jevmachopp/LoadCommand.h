@@ -10,6 +10,10 @@
 
 class LoadCommand {
 public:
+    LoadCommand(const LoadCommand &) = delete;
+    void operator=(const LoadCommand &) = delete;
+
+public:
     const LoadSubCommand *subcmd() const;
 
 public:
@@ -63,7 +67,7 @@ template <> struct fmt::formatter<LoadCommand> {
     }
 
     template <typename FormatContext> auto format(LoadCommand const &lc, FormatContext &ctx) {
-        return fmt::format_to(ctx.out(), "<LoadCommand @ {:p} {} {}>"_cf, (void *)this, lc.cmd,
+        return fmt::format_to(ctx.out(), "<LoadCommand @ {:p} {} {}>"_cf, (void *)&lc, lc.cmd,
                               *lc.subcmd());
     }
 };

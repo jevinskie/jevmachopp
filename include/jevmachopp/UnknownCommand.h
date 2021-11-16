@@ -10,6 +10,10 @@
 
 class UnknownCommand : public LoadSubCommand {
 public:
+    UnknownCommand(const UnknownCommand &) = delete;
+    void operator=(const UnknownCommand &) = delete;
+
+public:
     fmt::appender &format_to(fmt::appender &out) const;
 };
 

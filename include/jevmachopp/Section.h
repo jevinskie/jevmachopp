@@ -8,6 +8,10 @@
 
 class Section {
 public:
+    Section(const Section &) = delete;
+    void operator=(const Section &) = delete;
+
+public:
     char sectname[16];
     char segname[16];
     uint64_t addr;
