@@ -66,7 +66,7 @@ template <> struct fmt::formatter<LoadCommandType> {
     }
 
     template <typename FormatContext> auto format(LoadCommandType const &lct, FormatContext &ctx) {
-        return fmt::format_to(ctx.out(), "<LoadCommandType {:s} ({:#08x})>",
+        return fmt::format_to(ctx.out(), "<LoadCommandType {:s} ({:#010x})>",
                               magic_enum::enum_name(lct), to_underlying_int(lct));
     }
 };

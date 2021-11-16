@@ -25,3 +25,17 @@ public:
 
 static_assert_size_same_minus_header(SegmentCommand, struct segment_command_64,
                                      struct load_command);
+
+template <> struct fmt::formatter<SegmentCommand> {
+
+    template <typename ParseContext> constexpr auto parse(ParseContext &ctx) {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(SegmentCommand const &segCmd, FormatContext &ctx) {
+        auto out = ctx.out();
+        fmt::format_to(out, "<SegmentCommand @ {:p}>", (void *)segCmd.loadCommand());
+        return out;
+    }
+};

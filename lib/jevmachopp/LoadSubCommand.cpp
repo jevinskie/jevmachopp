@@ -2,6 +2,11 @@
 #include "jevmachopp/LoadCommand.h"
 #include "jevmachopp/LoadCommandType.h"
 
+#include "jevmachopp/EncryptionInfoCommand.h"
+#include "jevmachopp/SegmentCommand.h"
+#include "jevmachopp/UUIDCommand.h"
+#include "jevmachopp/UnknownCommand.h"
+
 const LoadCommand *LoadSubCommand::loadCommand() const {
     return (const LoadCommand *)((uintptr_t)this - sizeof(LoadCommand));
 }
@@ -17,4 +22,13 @@ const SubCommandVariant LoadSubCommand::get() const {
     default:
         return SubCommandVariant{(const UnknownCommand *)this};
     }
+}
+
+fmt::appender &LoadSubCommand::format_to(fmt::appender &out) const {
+    std::visit(
+        [=](auto &&o) {
+            fmt::format_to(out, "{}", *o);
+        },
+        get());
+    return out;
 }

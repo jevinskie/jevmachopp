@@ -18,6 +18,7 @@ class LoadSubCommand {
 public:
     const LoadCommand *loadCommand() const;
     const SubCommandVariant get() const;
+    fmt::appender &format_to(fmt::appender &out) const;
 };
 
 static_assert_size_is(LoadSubCommand, 1);
@@ -30,12 +31,7 @@ template <> struct fmt::formatter<LoadSubCommand> {
 
     template <typename FormatContext> auto format(LoadSubCommand const &lsc, FormatContext &ctx) {
         auto out = ctx.out();
-        out = fmt::format_to(out, "<lsc>");
-        std::visit(
-            [=](auto &&o) {
-                fmt::format_to(out, " <lsc2> ");
-            },
-            lsc.get());
+        lsc.format_to(out);
         return out;
     }
 };
