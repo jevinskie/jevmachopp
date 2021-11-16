@@ -12,7 +12,7 @@ const LoadCommand *LoadSubCommand::loadCommand() const {
 }
 
 const SubCommandVariant LoadSubCommand::get() const {
-    switch (LoadCommand().cmd) {
+    switch (loadCommand()->cmd) {
     case LoadCommandType::ENCRYPTION_INFO:
         return SubCommandVariant{(const EncryptionInfoCommand *)this};
     case LoadCommandType::SEGMENT_64:
