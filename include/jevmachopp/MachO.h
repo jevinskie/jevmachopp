@@ -23,7 +23,9 @@ public:
     void operator=(const MachO &) = delete;
 
 public:
-    // ranges::subrange<const LoadCommand*> loadCommands() const;
+    ranges::subrange<LoadCommand::Iterator> loadCommands() const {
+        return {lc_cbegin(), lc_cend()};
+    };
     LoadCommand::Iterator lc_cbegin() const;
     LoadCommand::Iterator lc_cend() const;
     size_t lc_size() const;
@@ -54,11 +56,18 @@ template <> struct fmt::formatter<MachO> {
             "<MachO cputype: {} fileType: {:#010x} flags: {:#010x} ncmds: {:d} sizeofcmds: {:#x}>"_cf,
             macho.cputype, macho.filetype, macho.flags, macho.ncmds, macho.sizeofcmds);
 
-        for (auto i = macho.lc_cbegin(), e = macho.lc_cend(); i != e; i = std::next(i)) {
-            fmt::format_to(out, "\ni: {}", (void *)&*i);
-            fmt::format_to(out, "\nlc: {}", *i);
-            auto subcmd = i->subcmd();
+        // for (auto i = macho.lc_cbegin(), e = macho.lc_cend(); i != e; i = std::next(i)) {
+        //     fmt::format_to(out, "\ni: {}", (void *)&*i);
+        //     fmt::format_to(out, "\nlc: {}", *i);
+        //     auto subcmd = i->subcmd();
+        // }
+
+        for (auto &&lc : macho.loadCommands()) {
+            fmt::format_to(out, "\ni: {}", (void *)&lc);
+            fmt::format_to(out, "\nlc: {}", lc);
+            auto subcmd = lc.subcmd();
         }
+
         return out;
     }
 };

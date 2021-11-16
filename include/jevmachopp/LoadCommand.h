@@ -29,6 +29,7 @@ public:
         using pointer = const LoadCommand *;
         using reference = const LoadCommand &;
 
+        Iterator() : m_ptr(nullptr) {}
         Iterator(pointer ptr) : m_ptr(ptr) {}
 
         reference operator*() const {
