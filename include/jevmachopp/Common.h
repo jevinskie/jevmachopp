@@ -1,8 +1,12 @@
 #pragma once
 
+#include <fmt/compile.h>
+#include <fmt/core.h>
 #include <hedley.h>
 #include <type_traits>
 #include <utility>
+
+using namespace fmt::literals;
 
 template <typename T> constexpr T abs_diff(T a, T b) {
     return a > b ? a - b : b - a;

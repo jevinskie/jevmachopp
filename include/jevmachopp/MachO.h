@@ -47,7 +47,7 @@ template <> struct fmt::formatter<MachO> {
         auto out = ctx.out();
         fmt::format_to(
             out,
-            "<MachO cputype: {} fileType: {:#010x} flags: {:#010x} ncmds: {:d} sizeofcmds: {:#x}>",
+            "<MachO cputype: {} fileType: {:#010x} flags: {:#010x} ncmds: {:d} sizeofcmds: {:#x}>"_cf,
             macho.cputype, macho.filetype, macho.flags, macho.ncmds, macho.sizeofcmds);
 
         for (auto i = macho.lc_cbegin(), e = macho.lc_cend(); i != e; i = std::next(i)) {

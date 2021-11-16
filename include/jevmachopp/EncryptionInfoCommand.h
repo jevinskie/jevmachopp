@@ -27,7 +27,7 @@ template <> struct fmt::formatter<EncryptionInfoCommand> {
     template <typename FormatContext>
     auto format(EncryptionInfoCommand const &encInfoCmd, FormatContext &ctx) {
         auto out = ctx.out();
-        fmt::format_to(out, "<EncryptionInfoCommand @ {:p}>", (void *)encInfoCmd.loadCommand());
+        fmt::format_to(out, "<EncryptionInfoCommand @ {:p}>"_cf, (void *)encInfoCmd.loadCommand());
         return out;
     }
 };

@@ -22,7 +22,7 @@ template <> struct fmt::formatter<CpuTypeMeta> {
 
     template <typename FormatContext> auto format(CpuTypeMeta const &metatype, FormatContext &ctx) {
         return fmt::format_to(
-            ctx.out(), "<CpuTypeMeta type: {:s} ({:#010x}) subtype: {:s} ({:#010x})>",
+            ctx.out(), "<CpuTypeMeta type: {:s} ({:#010x}) subtype: {:s} ({:#010x})>"_cf,
             magic_enum::enum_name(metatype.type), as_unsigned(metatype.type),
             magic_enum::enum_name(metatype.subtype), as_unsigned(metatype.subtype));
     }

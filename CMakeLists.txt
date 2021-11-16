@@ -12,6 +12,8 @@ if (${FORCE_COLORED_OUTPUT})
     endif ()
 endif ()
 
+add_compile_options(-Os -flto=full -fvisibility=hidden -fvisibility-inlines-hidden -fwhole-program-vtables -g)
+
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_EXTENSIONS YES)
 

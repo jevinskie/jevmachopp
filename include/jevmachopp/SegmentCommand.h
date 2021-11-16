@@ -5,6 +5,7 @@
 #include <mach/vm_prot.h>
 #include <memory>
 #include <stdint.h>
+#include <string>
 
 #include "jevmachopp/Common.h"
 #include "jevmachopp/LoadSubCommand.h"
@@ -21,6 +22,9 @@ public:
     vm_prot_t initprot;
     uint32_t nsects;
     uint32_t flags;
+
+public:
+    std::string segName() const;
 };
 
 static_assert_size_same_minus_header(SegmentCommand, struct segment_command_64,
@@ -35,7 +39,8 @@ template <> struct fmt::formatter<SegmentCommand> {
     template <typename FormatContext>
     auto format(SegmentCommand const &segCmd, FormatContext &ctx) {
         auto out = ctx.out();
-        fmt::format_to(out, "<SegmentCommand @ {:p}>", (void *)segCmd.loadCommand());
+        fmt::format_to(out, "<SegmentCommand @ {:p} \"{:s}\">"_cf, (void *)segCmd.loadCommand(),
+                       segCmd.segName());
         return out;
     }
 };
