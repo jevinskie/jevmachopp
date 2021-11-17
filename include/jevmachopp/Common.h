@@ -7,6 +7,10 @@
 #include <type_traits>
 #include <utility>
 
+#include <range/v3/algorithm/find_if.hpp>
+#include <range/v3/range.hpp>
+#include <range/v3/view.hpp>
+
 using namespace fmt::literals;
 
 template <typename T> constexpr auto type_name() {
@@ -28,6 +32,8 @@ template <typename T> constexpr auto type_name() {
     name.remove_suffix(suffix.size());
     return name;
 }
+
+#pragma mark Size Checking
 
 template <typename T> constexpr T abs_diff(T a, T b) {
     return a > b ? a - b : b - a;
@@ -57,6 +63,8 @@ constexpr bool check_size_minus_header_equal() {
     return false;
 }
 
+#pragma mark static_assert helpers
+
 #define static_assert_cond(cond) static_assert((cond), #cond)
 
 #define static_assert_size_is(obj, sz)                                                             \
@@ -75,6 +83,8 @@ constexpr bool check_size_minus_header_equal() {
 template <typename E> constexpr auto to_underlying_int(E e) noexcept {
     return +(static_cast<std::underlying_type_t<E>>(e));
 }
+
+#pragma mark Type Conversions
 
 // Extracts the underlying type from an enum.
 template <typename T, bool is_enum = std::is_enum<T>::value> struct ArithmeticOrUnderlyingEnum;
@@ -108,3 +118,16 @@ as_unsigned(const Src value) {
                   "Argument must be a signed or unsigned integer type.");
     return static_cast<decltype(as_unsigned(value))>(value);
 }
+
+#pragma mark Ranges
+
+namespace ranges {
+template <typename Rng, typename F> range_value_t<Rng> *find_if_or_nullptr(Rng &&rng, F pred) {
+    auto rng_orig = rng;
+    auto res = ranges::find_if(rng_orig, pred);
+    if (res != std::end(rng_orig)) {
+        return &*res;
+    }
+    return nullptr;
+}
+} // namespace ranges
