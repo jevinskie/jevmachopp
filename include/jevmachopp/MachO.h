@@ -16,7 +16,7 @@
 #include "jevmachopp/CpuTypeMeta.h"
 #include "jevmachopp/LoadCommand.h"
 
-class LoadCommand;
+class SegmentCommand;
 
 class MachO {
 public:
@@ -25,18 +25,15 @@ public:
 
 public:
     using lc_range = ranges::subrange<LoadCommand::Iterator>;
-    lc_range loadCommands() const {
-        return {lc_cbegin(), lc_cend()};
-    };
-    auto segmentLoadCommands() const {
-        return ranges::views::filter(loadCommands(), [](auto &&lc) {
-            return lc.cmd == LoadCommandType::SEGMENT_64;
-        });
-    };
+    lc_range loadCommands() const;
+    ranges::views::view<const LoadCommand *> segmentLoadCommands() const;
+    ranges::views::view<const LoadCommand *> segments() const;
+    const SegmentCommand *segmentWithName(const std::string &name);
     LoadCommand::Iterator lc_cbegin() const;
     LoadCommand::Iterator lc_cend() const;
     size_t lc_size() const;
     size_t lc_sizeof() const;
+    fmt::appender &format_to(fmt::appender &out);
 
 public:
     uint32_t magic;
@@ -57,14 +54,6 @@ template <> struct fmt::formatter<MachO> {
     }
 
     template <typename FormatContext> auto format(MachO const &macho, FormatContext &ctx) {
-        auto out = ctx.out();
-        fmt::format_to(
-            out,
-            "<MachO @ {:p} cputype: {} fileType: {:#010x} flags: {:#010x} ncmds: {:d} sizeofcmds: {:#x} "_cf,
-            (void *)&macho, macho.cputype, macho.filetype, macho.flags, macho.ncmds,
-            macho.sizeofcmds);
-        fmt::format_to(out, "{}"_cf, fmt::join(macho.loadCommands(), ", "));
-        fmt::format_to(out, ">"_cf);
-        return out;
+        return macho.format_to(ctx.out());
     }
 };

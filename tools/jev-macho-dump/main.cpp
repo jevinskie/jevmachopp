@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <fmt/core.h>
 #include <jevmachopp/MachO.h>
+#include <jevmachopp/SegmentCommand.h>
 #include <jevmachopp/Slurp.h>
 
 int main(int argc, const char *argv[]) {
@@ -13,8 +14,14 @@ int main(int argc, const char *argv[]) {
     fmt::print("macho fmt: {}\n", *macho);
     fmt::print("macho->cputype: {}\n", macho->cputype);
 
-    for (auto &&o : macho->segmentLoadCommands()) {
+    fmt::print("ret: {:s}\n", type_name<decltype(macho->segments())>());
+
+    for (const auto &&o : macho->segmentLoadCommands()) {
         fmt::print("o: {}\n", o);
+    }
+
+    for (const auto &&o : macho->segments()) {
+        fmt::print("o: {}\n", *o);
     }
 
     return 0;
