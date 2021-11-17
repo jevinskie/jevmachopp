@@ -2,6 +2,7 @@
 #include "jevmachopp/LoadCommand.h"
 #include "jevmachopp/LoadCommandType.h"
 
+#include "jevmachopp/DylibCommand.h"
 #include "jevmachopp/EncryptionInfoCommand.h"
 #include "jevmachopp/SegmentCommand.h"
 #include "jevmachopp/UUIDCommand.h"
@@ -13,6 +14,11 @@ const LoadCommand *LoadSubCommand::loadCommand() const {
 
 const SubCommandVariant LoadSubCommand::get() const {
     switch (loadCommand()->cmd) {
+    case LoadCommandType::ID_DYLIB:
+    case LoadCommandType::LOAD_DYLIB:
+    case LoadCommandType::LOAD_WEAK_DYLIB:
+    case LoadCommandType::REEXPORT_DYLIB:
+        return SubCommandVariant{(const DylibCommand *)this};
     case LoadCommandType::ENCRYPTION_INFO:
         return SubCommandVariant{(const EncryptionInfoCommand *)this};
     case LoadCommandType::SEGMENT_64:

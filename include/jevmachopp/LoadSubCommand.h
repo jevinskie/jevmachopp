@@ -6,13 +6,15 @@
 #include <variant>
 
 class LoadCommand;
+class DylibCommand;
 class EncryptionInfoCommand;
 class SegmentCommand;
 class UUIDCommand;
 class UnknownCommand;
 
-using SubCommandVariant = std::variant<const EncryptionInfoCommand *, const SegmentCommand *,
-                                       const UUIDCommand *, const UnknownCommand *>;
+using SubCommandVariant =
+    std::variant<const DylibCommand *, const EncryptionInfoCommand *, const SegmentCommand *,
+                 const UUIDCommand *, const UnknownCommand *>;
 
 class LoadSubCommand {
 public:
