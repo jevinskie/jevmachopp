@@ -14,6 +14,12 @@ int main(int argc, const char *argv[]) {
     // fmt::print("macho fmt: {}\n", *macho);
     fmt::print("macho->cputype: {}\n", macho->cputype);
 
+    for (const auto &lc_enum : ranges::views::enumerate(macho->loadCommands())) {
+        const auto idx = std::get<0>(lc_enum);
+        const auto &lc = std::get<1>(lc_enum);
+        fmt::print("lc[{:2d}]: {}\n", idx, lc);
+    }
+
     for (const auto &segLC : macho->segmentLoadCommands()) {
         fmt::print("segment load cmd: {}\n", segLC);
     }

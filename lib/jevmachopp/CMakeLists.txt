@@ -5,6 +5,7 @@ set(MACHOPP_SRC
 	EncryptionInfoCommand.cpp
 	LoadCommand.cpp
 	LoadSubCommand.cpp
+	LinkerDataCommand.cpp
 	MachO.cpp
 	Section.cpp
 	SegmentCommand.cpp
