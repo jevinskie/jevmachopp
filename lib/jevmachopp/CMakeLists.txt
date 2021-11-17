@@ -13,6 +13,7 @@ set(MACHOPP_SRC
     Section.cpp
     SegmentCommand.cpp
     Slurp.cpp
+    Strtab.cpp
     SymtabCommand.cpp
     UnknownCommand.cpp
     UUIDCommand.cpp
