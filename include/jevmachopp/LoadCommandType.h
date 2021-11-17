@@ -32,6 +32,7 @@ enum class LoadCommandType : std::uint32_t
     SUB_LIBRARY = LC_SUB_LIBRARY,
     TWOLEVEL_HINTS = LC_TWOLEVEL_HINTS,
     PREBIND_CKSUM = LC_PREBIND_CKSUM,
+    LOAD_WEAK_DYLIB = LC_LOAD_WEAK_DYLIB,
     SEGMENT_64 = LC_SEGMENT_64,
     ROUTINES_64 = LC_ROUTINES_64,
     UUID = LC_UUID,
@@ -56,7 +57,6 @@ enum class LoadCommandType : std::uint32_t
     DYLD_EXPORTS_TRIE = LC_DYLD_EXPORTS_TRIE,
     DYLD_CHAINED_FIXUPS = LC_DYLD_CHAINED_FIXUPS,
     FILESET_ENTRY = LC_FILESET_ENTRY,
-    LOAD_WEAK_DYLIB = 0x80000018u,
 };
 
 template <> struct fmt::formatter<LoadCommandType> {
