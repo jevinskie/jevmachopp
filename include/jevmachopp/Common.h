@@ -123,12 +123,20 @@ as_unsigned(const Src value) {
 
 namespace ranges {
 template <typename Rng, typename F>
-const range_value_t<Rng> *find_if_or_nullptr(const Rng &&rng, F pred) {
-    auto rng_orig = rng;
-    auto res = ranges::find_if(rng_orig, pred);
-    if (res != std::end(rng_orig)) {
+const range_value_t<Rng> *find_if_or_nullptr(Rng &&rng, F pred) {
+    auto res = ranges::find_if(rng, pred);
+    if (res != std::end(rng)) {
         return &*res;
     }
     return nullptr;
 }
 } // namespace ranges
+
+#pragma mark Utilities
+
+std::string readMaybeNullTermCString(const char *cstr, size_t cstr_buf_sz);
+
+template <typename Buf, std::size_t BufSz = sizeof(Buf)>
+std::string readMaybeNullTermCString(const char *cstr) {
+    return readMaybeNullTermCString(cstr, BufSz);
+}
