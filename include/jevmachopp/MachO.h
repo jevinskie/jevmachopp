@@ -26,7 +26,6 @@ public:
 public:
     using lc_pred = bool (*)(const LoadCommand &lc);
     using lc_range = ranges::subrange<LoadCommand::Iterator>;
-    using lc_view = ranges::views::view<LoadCommand::Iterator>;
     lc_range loadCommands() const;
     ranges::filter_view<lc_range, lc_pred> segmentLoadCommands() const;
     // lc_view segments() const;
