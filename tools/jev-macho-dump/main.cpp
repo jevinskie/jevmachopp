@@ -18,11 +18,11 @@ int main(int argc, const char *argv[]) {
         fmt::print("o: {}\n", o);
     }
 
-    // fmt::print("ret: {:s}\n", type_name<decltype(macho->segments())>());
+    fmt::print("ret: {:s}\n", type_name<decltype(macho->segments())>());
 
-    // for (const auto &o : macho->segments()) {
-    //     fmt::print("o: {}\n", o);
-    // }
+    for (const auto &o : macho->segments()) {
+        fmt::print("o: {}\n", *o);
+    }
 
     return 0;
 }

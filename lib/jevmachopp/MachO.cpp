@@ -27,11 +27,12 @@ ranges::filter_view<MachO::lc_range, MachO::lc_pred> MachO::segmentLoadCommands(
         (lc_pred)[](const LoadCommand &lc) { return lc.cmd == LoadCommandType::SEGMENT_64; });
 };
 
-// ranges::transform_view<MachO::lc_range, MachO::lc_pred> MachO::segments() const {
-//     return ranges::views::transform(segmentLoadCommands(), [](auto &&segLC) {
-//         return std::get<const SegmentCommand *>(segLC.subcmd()->get());
-//     });
-// };
+ranges::any_view<const SegmentCommand *> MachO::segments() const {
+    return ranges::views::transform(
+        segmentLoadCommands(), (lc_to_seg_pred)[](const LoadCommand &segLC) {
+            return std::get<const SegmentCommand *>(segLC.subcmd()->get());
+        });
+};
 
 const SegmentCommand *MachO::segmentWithName(const std::string &name) {
     return nullptr;

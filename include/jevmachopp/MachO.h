@@ -25,10 +25,11 @@ public:
 
 public:
     using lc_pred = bool (*)(const LoadCommand &lc);
+    using lc_to_seg_pred = const SegmentCommand *(*)(const LoadCommand &lc);
     using lc_range = ranges::subrange<LoadCommand::Iterator>;
     lc_range loadCommands() const;
     ranges::filter_view<lc_range, lc_pred> segmentLoadCommands() const;
-    // lc_view segments() const;
+    ranges::any_view<const SegmentCommand *> segments() const;
     const SegmentCommand *segmentWithName(const std::string &name);
     LoadCommand::Iterator lc_cbegin() const;
     LoadCommand::Iterator lc_cend() const;
