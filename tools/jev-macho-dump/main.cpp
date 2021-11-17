@@ -1,8 +1,10 @@
 #include <assert.h>
 #include <fmt/core.h>
 #include <jevmachopp/MachO.h>
+#include <jevmachopp/NList.h>
 #include <jevmachopp/SegmentCommand.h>
 #include <jevmachopp/Slurp.h>
+#include <jevmachopp/SymtabCommand.h>
 
 int main(int argc, const char *argv[]) {
     assert(argc == 2);
@@ -38,5 +40,16 @@ int main(int argc, const char *argv[]) {
         fmt::print("textSeg: {}\n", *textSeg);
     }
 
+    const SymtabCommand *symtab_ptr = macho->symtab();
+    if (!symtab_ptr) {
+        fmt::print("symtab: nullptr\n");
+    } else {
+        fmt::print("symtab: {}\n", *symtab_ptr);
+    }
+
+    const SymtabCommand &symtab = *symtab_ptr;
+    for (const auto [idx, nl] : ranges::views::enumerate(symtab.nlists())) {
+        fmt::print("nlist[{:3d}]: {}\n", idx, nl);
+    }
     return 0;
 }

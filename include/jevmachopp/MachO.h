@@ -17,6 +17,8 @@
 #include "jevmachopp/LoadCommand.h"
 
 class SegmentCommand;
+class SymtabCommand;
+class DySymtabCommand;
 
 class MachO {
 public:
@@ -26,13 +28,18 @@ public:
 public:
     using lc_range = ranges::subrange<LoadCommand::Iterator>;
     lc_range loadCommands() const;
-    ranges::any_view<const LoadCommand &> segmentLoadCommands() const;
-    ranges::any_view<const SegmentCommand &> segments() const;
-    const SegmentCommand *segmentWithName(const std::string &name) const;
     LoadCommand::Iterator lc_cbegin() const;
     LoadCommand::Iterator lc_cend() const;
     size_t lc_size() const;
     size_t lc_sizeof() const;
+
+    ranges::any_view<const LoadCommand &> segmentLoadCommands() const;
+    ranges::any_view<const SegmentCommand &> segments() const;
+    const SegmentCommand *segmentWithName(const std::string &name) const;
+
+    const SymtabCommand *symtab() const;
+    const DySymtabCommand *dysymtab() const;
+
     fmt::appender &format_to(fmt::appender &out) const;
 
 public:
