@@ -2,6 +2,7 @@
 set(MACHOPP_SRC
 	Common.cpp
     CpuTypeMeta.cpp
+    DylibCommand.cpp
 	EncryptionInfoCommand.cpp
 	LoadCommand.cpp
 	LoadSubCommand.cpp
