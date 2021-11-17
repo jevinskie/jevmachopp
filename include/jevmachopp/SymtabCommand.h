@@ -2,11 +2,17 @@
 
 #include "jevmachopp/Common.h"
 #include "jevmachopp/LoadSubCommand.h"
+#include "jevmachopp/NList.h"
 #include <mach-o/loader.h>
-#include <string>
 
 class SymtabCommand : public LoadSubCommand {
 public:
+    using nlist_range = ranges::subrange<const NList *>;
+    const NList *nlists_cbegin() const;
+    const NList *nlists_cend() const;
+    size_t nlists_size() const;
+    size_t nlists_sizeof() const;
+    nlist_range nlists() const;
     fmt::appender &format_to(fmt::appender &out) const;
 
 public:

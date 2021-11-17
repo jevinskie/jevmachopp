@@ -22,7 +22,7 @@ size_t SegmentCommand::sect_size() const {
 }
 
 size_t SegmentCommand::sect_sizeof() const {
-    return nsects * sizeof(Section);
+    return sect_size() * sizeof(Section);
 }
 
 SegmentCommand::sect_range SegmentCommand::sections() const {

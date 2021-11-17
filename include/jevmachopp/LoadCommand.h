@@ -22,7 +22,8 @@ public:
 
 public:
     // https://internalpointers.com/post/writing-custom-iterators-modern-cpp
-    struct Iterator {
+    class Iterator {
+    public:
         using iterator_category = std::forward_iterator_tag;
         using difference_type = std::ptrdiff_t;
         using value_type = const LoadCommand;
