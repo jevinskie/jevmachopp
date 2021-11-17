@@ -122,7 +122,8 @@ as_unsigned(const Src value) {
 #pragma mark Ranges
 
 namespace ranges {
-template <typename Rng, typename F> range_value_t<Rng> *find_if_or_nullptr(Rng &&rng, F pred) {
+template <typename Rng, typename F>
+const range_value_t<Rng> *find_if_or_nullptr(const Rng &&rng, F pred) {
     auto rng_orig = rng;
     auto res = ranges::find_if(rng_orig, pred);
     if (res != std::end(rng_orig)) {
