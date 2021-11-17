@@ -4,7 +4,6 @@
 #include "jevmachopp/Common.h"
 #include "jevmachopp/CpuSubType.h"
 #include "jevmachopp/CpuType.h"
-#include "magic_enum.hpp"
 
 class CpuTypeMeta {
 public:
@@ -25,9 +24,9 @@ template <> struct fmt::formatter<CpuTypeMeta> {
     }
 
     template <typename FormatContext> auto format(CpuTypeMeta const &metatype, FormatContext &ctx) {
-        return fmt::format_to(
-            ctx.out(), "<CpuTypeMeta type: {:s} ({:#010x}) subtype: {:s} ({:#010x})>"_cf,
-            magic_enum::enum_name(metatype.type), as_unsigned(metatype.type),
-            magic_enum::enum_name(metatype.subtype), as_unsigned(metatype.subtype));
+        return fmt::format_to(ctx.out(),
+                              "<CpuTypeMeta type: {:s} ({:#010x}) subtype: ({:#010x})>"_cf,
+                              CpuType_traits::to_string_or_empty(metatype.type),
+                              as_unsigned(metatype.type), as_unsigned(metatype.subtype));
     }
 };

@@ -1,9 +1,6 @@
 [submodule "3rdparty/fmt"]
 	path = 3rdparty/fmt
 	url = https://github.com/fmtlib/fmt
-[submodule "3rdparty/magic_enum"]
-	path = 3rdparty/magic_enum
-	url = https://github.com/Neargye/magic_enum
 [submodule "3rdparty/range-v3"]
 	path = 3rdparty/range-v3
 	url = https://github.com/ericniebler/range-v3/
