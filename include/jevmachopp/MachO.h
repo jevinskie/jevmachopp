@@ -25,15 +25,16 @@ public:
 
 public:
     using lc_range = ranges::subrange<LoadCommand::Iterator>;
+    using lc_view = ranges::views::view<LoadCommand::Iterator>;
     lc_range loadCommands() const;
-    ranges::views::view<const LoadCommand *> segmentLoadCommands() const;
-    ranges::views::view<const LoadCommand *> segments() const;
+    lc_view segmentLoadCommands() const;
+    lc_view segments() const;
     const SegmentCommand *segmentWithName(const std::string &name);
     LoadCommand::Iterator lc_cbegin() const;
     LoadCommand::Iterator lc_cend() const;
     size_t lc_size() const;
     size_t lc_sizeof() const;
-    fmt::appender &format_to(fmt::appender &out);
+    fmt::appender &format_to(fmt::appender &out) const;
 
 public:
     uint32_t magic;
@@ -54,6 +55,7 @@ template <> struct fmt::formatter<MachO> {
     }
 
     template <typename FormatContext> auto format(MachO const &macho, FormatContext &ctx) {
-        return macho.format_to(ctx.out());
+        auto out = ctx.out();
+        return macho.format_to(out);
     }
 };

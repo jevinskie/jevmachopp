@@ -17,16 +17,16 @@ size_t MachO::lc_sizeof() const {
     return sizeofcmds;
 }
 
-lc_range MachO::loadCommands() const {
+MachO::lc_range MachO::loadCommands() const {
     return {lc_cbegin(), lc_cend()};
 };
 
-auto MachO::segmentLoadCommands() const {
+MachO::lc_view MachO::segmentLoadCommands() const {
     return ranges::views::filter(loadCommands(), [](auto &&lc) {
         return lc.cmd == LoadCommandType::SEGMENT_64;
     });
 };
-auto MachO::segments() const {
+MachO::lc_view MachO::segments() const {
     return ranges::views::transform(segmentLoadCommands(), [](auto &&segLC) {
         return std::get<const SegmentCommand *>(segLC.subcmd()->get());
     });
@@ -35,7 +35,7 @@ const SegmentCommand *MachO::segmentWithName(const std::string &name) {
     return nullptr;
 };
 
-fmt::appender &MachO::format_to(fmt::appender &out) {
+fmt::appender &MachO::format_to(fmt::appender &out) const {
     fmt::format_to(
         out,
         "<MachO @ {:p} cputype: {} fileType: {:#010x} flags: {:#010x} ncmds: {:d} sizeofcmds: {:#x} "_cf,
