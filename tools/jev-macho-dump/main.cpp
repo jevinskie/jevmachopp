@@ -12,5 +12,10 @@ int main(int argc, const char *argv[]) {
     fmt::print("macho: {}\n", (void *)macho);
     fmt::print("macho fmt: {}\n", *macho);
     fmt::print("macho->cputype: {}\n", macho->cputype);
+
+    for (auto &&o : macho->segmentLoadCommands()) {
+        fmt::print("o: {}\n", o);
+    }
+
     return 0;
 }

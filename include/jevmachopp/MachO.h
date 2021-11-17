@@ -5,6 +5,7 @@
 #include <memory>
 #include <range/v3/range.hpp>
 #include <range/v3/view.hpp>
+#include <range/v3/view/filter.hpp>
 #include <range/v3/view/subrange.hpp>
 #include <stdint.h>
 #include <string>
@@ -23,8 +24,14 @@ public:
     void operator=(const MachO &) = delete;
 
 public:
-    ranges::subrange<LoadCommand::Iterator> loadCommands() const {
+    using lc_range = ranges::subrange<LoadCommand::Iterator>;
+    lc_range loadCommands() const {
         return {lc_cbegin(), lc_cend()};
+    };
+    auto segmentLoadCommands() const {
+        return ranges::views::filter(loadCommands(), [](auto &&lc) {
+            return lc.cmd == LoadCommandType::SEGMENT_64;
+        });
     };
     LoadCommand::Iterator lc_cbegin() const;
     LoadCommand::Iterator lc_cend() const;
