@@ -16,6 +16,10 @@ using SubCommandVariant = std::variant<const EncryptionInfoCommand *, const Segm
 
 class LoadSubCommand {
 public:
+    LoadSubCommand(const LoadSubCommand &) = delete;
+    void operator=(const LoadSubCommand &) = delete;
+
+public:
     const LoadCommand *loadCommand() const;
     const SubCommandVariant get() const;
     fmt::appender &format_to(fmt::appender &out) const;

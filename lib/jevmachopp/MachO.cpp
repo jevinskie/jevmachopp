@@ -28,9 +28,13 @@ ranges::any_view<const LoadCommand &> MachO::segmentLoadCommands() const {
 };
 
 ranges::any_view<const SegmentCommand &> MachO::segments() const {
-    return ranges::views::transform(segmentLoadCommands(), [](const LoadCommand &segLC) {
-        return &*std::get<const SegmentCommand *>(segLC.subcmd()->get());
-    });
+    return ranges::views::transform(
+        segmentLoadCommands(), [](const LoadCommand &segLC) -> const SegmentCommand & {
+            const LoadSubCommand &subcmd = *segLC.subcmd();
+            const SubCommandVariant subcmd_var = subcmd.get();
+            const SegmentCommand *segcmd_ptr = std::get<const SegmentCommand *>(subcmd_var);
+            return *segcmd_ptr;
+        });
 };
 
 const SegmentCommand *MachO::segmentWithName(const std::string &name) {
