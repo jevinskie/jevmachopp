@@ -14,14 +14,21 @@ int main(int argc, const char *argv[]) {
     fmt::print("macho fmt: {}\n", *macho);
     fmt::print("macho->cputype: {}\n", macho->cputype);
 
-    for (const auto &o : macho->segmentLoadCommands()) {
-        fmt::print("o: {}\n", o);
+    for (const auto &segLC : macho->segmentLoadCommands()) {
+        fmt::print("segment load cmd: {}\n", segLC);
     }
 
     fmt::print("ret: {:s}\n", type_name<decltype(macho->segments())>());
 
-    for (const auto &o : macho->segments()) {
-        fmt::print("o: {}\n", o);
+    for (const auto &segCmd : macho->segments()) {
+        fmt::print("segment cmd: {}\n", segCmd);
+    }
+
+    const SegmentCommand *textSeg = macho->segmentWithName("__TEXT");
+    if (!textSeg) {
+        fmt::print("textSeg: nullptr\n");
+    } else {
+        fmt::print("textSeg: {}\n", *textSeg);
     }
 
     return 0;

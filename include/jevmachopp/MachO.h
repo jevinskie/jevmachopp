@@ -28,7 +28,7 @@ public:
     lc_range loadCommands() const;
     ranges::any_view<const LoadCommand &> segmentLoadCommands() const;
     ranges::any_view<const SegmentCommand &> segments() const;
-    const SegmentCommand *segmentWithName(const std::string &name);
+    const SegmentCommand *segmentWithName(const std::string &name) const;
     LoadCommand::Iterator lc_cbegin() const;
     LoadCommand::Iterator lc_cend() const;
     size_t lc_size() const;

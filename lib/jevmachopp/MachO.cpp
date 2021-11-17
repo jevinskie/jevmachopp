@@ -1,6 +1,8 @@
 #include "jevmachopp/MachO.h"
 #include "jevmachopp/SegmentCommand.h"
 
+#include <range/v3/algorithm/find_if.hpp>
+
 LoadCommand::Iterator MachO::lc_cbegin() const {
     return LoadCommand::Iterator((const LoadCommand *)(this + 1));
 }
@@ -30,14 +32,18 @@ ranges::any_view<const LoadCommand &> MachO::segmentLoadCommands() const {
 ranges::any_view<const SegmentCommand &> MachO::segments() const {
     return ranges::views::transform(
         segmentLoadCommands(), [](const LoadCommand &segLC) -> const SegmentCommand & {
-            const LoadSubCommand &subcmd = *segLC.subcmd();
-            const SubCommandVariant subcmd_var = subcmd.get();
-            const SegmentCommand *segcmd_ptr = std::get<const SegmentCommand *>(subcmd_var);
-            return *segcmd_ptr;
+            return *std::get<const SegmentCommand *>(segLC.subcmd()->get());
         });
 };
 
-const SegmentCommand *MachO::segmentWithName(const std::string &name) {
+const SegmentCommand *MachO::segmentWithName(const std::string &name) const {
+    auto segs = segments();
+    auto res = ranges::find_if(segs, [=](const SegmentCommand &segCmd) {
+        return segCmd.segName() == name;
+    });
+    if (res != std::end(segs)) {
+        return &*res;
+    }
     return nullptr;
 };
 
