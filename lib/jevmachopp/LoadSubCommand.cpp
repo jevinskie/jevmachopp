@@ -2,9 +2,11 @@
 #include "jevmachopp/LoadCommand.h"
 #include "jevmachopp/LoadCommandType.h"
 
+#include "jevmachopp/DySymtabCommand.h"
 #include "jevmachopp/DylibCommand.h"
 #include "jevmachopp/EncryptionInfoCommand.h"
 #include "jevmachopp/SegmentCommand.h"
+#include "jevmachopp/SymtabCommand.h"
 #include "jevmachopp/UUIDCommand.h"
 #include "jevmachopp/UnknownCommand.h"
 
@@ -14,6 +16,10 @@ const LoadCommand *LoadSubCommand::loadCommand() const {
 
 const SubCommandVariant LoadSubCommand::get() const {
     switch (loadCommand()->cmd) {
+    case LoadCommandType::SYMTAB:
+        return SubCommandVariant{(const SymtabCommand *)this};
+    case LoadCommandType::DYSYMTAB:
+        return SubCommandVariant{(const DySymtabCommand *)this};
     case LoadCommandType::ID_DYLIB:
     case LoadCommandType::LOAD_DYLIB:
     case LoadCommandType::LOAD_WEAK_DYLIB:

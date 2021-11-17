@@ -1,24 +1,26 @@
 
 set(MACHOPP_SRC
-	Common.cpp
+    Common.cpp
     CpuTypeMeta.cpp
     DylibCommand.cpp
-	EncryptionInfoCommand.cpp
-	LoadCommand.cpp
-	LoadSubCommand.cpp
-	LinkerDataCommand.cpp
-	MachO.cpp
-	Section.cpp
-	SegmentCommand.cpp
-	Slurp.cpp
-	UnknownCommand.cpp
-	UUIDCommand.cpp
+    DySymtabCommand.cpp
+    EncryptionInfoCommand.cpp
+    LoadCommand.cpp
+    LoadSubCommand.cpp
+    LinkerDataCommand.cpp
+    MachO.cpp
+    Section.cpp
+    SegmentCommand.cpp
+    Slurp.cpp
+    SymtabCommand.cpp
+    UnknownCommand.cpp
+    UUIDCommand.cpp
 )
 
 set(MACHOPP_HDR_STANDALONE
-	CpuType.h
-	CpuSubType.h
-	LoadCommandType.h
+    CpuType.h
+    CpuSubType.h
+    LoadCommandType.h
 )
 
 set(MACHOPP_HDR)
