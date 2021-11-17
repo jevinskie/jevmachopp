@@ -11,7 +11,6 @@
 #include "jevmachopp/LoadSubCommand.h"
 #include "jevmachopp/Section.h"
 
-
 class SegmentCommand : public LoadSubCommand {
 public:
     SegmentCommand(const SegmentCommand &) = delete;

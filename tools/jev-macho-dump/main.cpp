@@ -11,7 +11,7 @@ int main(int argc, const char *argv[]) {
     uint8_t *inbuf = Slurp::readfile(infile, &size);
     auto macho = (const MachO *)inbuf;
     fmt::print("macho: {}\n", (void *)macho);
-    fmt::print("macho fmt: {}\n", *macho);
+    // fmt::print("macho fmt: {}\n", *macho);
     fmt::print("macho->cputype: {}\n", macho->cputype);
 
     for (const auto &segLC : macho->segmentLoadCommands()) {
@@ -22,6 +22,9 @@ int main(int argc, const char *argv[]) {
 
     for (const auto &segCmd : macho->segments()) {
         fmt::print("segment cmd: {}\n", segCmd);
+        for (const auto &sect : segCmd.sections()) {
+            fmt::print("section: {}\n", sect);
+        }
     }
 
     const SegmentCommand *textSeg = macho->segmentWithName("__TEXT");
