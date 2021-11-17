@@ -3,11 +3,11 @@
 #include "jevmachopp/Common.h"
 
 #include "fmt/core.h"
-#include <enum.hpp/enum.hpp>
 #include <cstdint>
+#include <enum.hpp/enum.hpp>
 #include <mach-o/loader.h>
 
-
+// clang-format off
 ENUM_HPP_CLASS_DECL(LoadCommandType, std::uint32_t,
     (SEGMENT = LC_SEGMENT)
     (SYMTAB = LC_SYMTAB)
@@ -53,11 +53,18 @@ ENUM_HPP_CLASS_DECL(LoadCommandType, std::uint32_t,
     (DATA_IN_CODE = LC_DATA_IN_CODE)
     (SOURCE_VERSION = LC_SOURCE_VERSION)
     (DYLIB_CODE_SIGN_DRS = LC_DYLIB_CODE_SIGN_DRS)
+    (ENCRYPTION_INFO_64 = LC_ENCRYPTION_INFO_64)
+    (LINKER_OPTION = LC_LINKER_OPTION)
+    (LINKER_OPTIMIZATION_HINT = LC_LINKER_OPTIMIZATION_HINT)
+    (VERSION_MIN_TVOS = LC_VERSION_MIN_TVOS)
+    (VERSION_MIN_WATCHOS = LC_VERSION_MIN_WATCHOS)
+    (NOTE = LC_NOTE)
     (BUILD_VERSION = LC_BUILD_VERSION)
     (DYLD_EXPORTS_TRIE = LC_DYLD_EXPORTS_TRIE)
     (DYLD_CHAINED_FIXUPS = LC_DYLD_CHAINED_FIXUPS)
     (FILESET_ENTRY = LC_FILESET_ENTRY)
 )
+// clang-format on
 
 template <> struct fmt::formatter<LoadCommandType> {
 
@@ -67,6 +74,7 @@ template <> struct fmt::formatter<LoadCommandType> {
 
     template <typename FormatContext> auto format(LoadCommandType const &lct, FormatContext &ctx) {
         return fmt::format_to(ctx.out(), "<LoadCommandType {:s} ({:#010x})>"_cf,
-                              LoadCommandType_traits::to_string_or_empty(lct), to_underlying_int(lct));
+                              LoadCommandType_traits::to_string_or_empty(lct),
+                              to_underlying_int(lct));
     }
 };
