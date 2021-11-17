@@ -37,7 +37,7 @@ endforeach()
 # MACHOPP_HDR added for Xcode project generation
 add_library(jevmachopp ${MACHOPP_SRC} ${MACHOPP_HDR})
 
-target_link_libraries(jevmachopp fmt magic_enum range-v3-meta range-v3-concepts range-v3 visit)
+target_link_libraries(jevmachopp enum.hpp fmt magic_enum range-v3-meta range-v3-concepts range-v3 visit)
 
 target_include_directories(jevmachopp PUBLIC ../../include ../../3rdparty/hedley)
 
