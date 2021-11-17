@@ -8,6 +8,10 @@
 class DylibCommand : public LoadSubCommand {
 public:
     const char *name() const;
+    bool isID() const;
+    bool isLoad() const;
+    bool isLoadWeak() const;
+    bool isRexport() const;
     fmt::appender &format_to(fmt::appender &out) const;
 
 public:
