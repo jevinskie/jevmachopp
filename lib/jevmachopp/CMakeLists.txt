@@ -9,6 +9,7 @@ set(MACHOPP_SRC
     LoadSubCommand.cpp
     LinkerDataCommand.cpp
     MachO.cpp
+    NList.cpp
     Section.cpp
     SegmentCommand.cpp
     Slurp.cpp
