@@ -10,10 +10,11 @@ public:
     fmt::appender &format_to(fmt::appender &out) const;
 
 public:
-    uint32_t symoff; // nlist array offset from <FIXME WHERE?>
-    uint32_t nsyms;
-    uint32_t stroff;  // strtab offset from <FIXME WHERE?>
-    uint32_t strsize; // bytes
+    uint32_t strx;
+    uint8_t type;
+    uint8_t sect;
+    uint16_t desc;
+    uint64_t value;
 
 public:
     NList(const NList &) = delete;
