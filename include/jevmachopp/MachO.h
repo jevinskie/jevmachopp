@@ -24,11 +24,12 @@ public:
     void operator=(const MachO &) = delete;
 
 public:
+    using lc_pred = bool (*)(const LoadCommand &lc);
     using lc_range = ranges::subrange<LoadCommand::Iterator>;
     using lc_view = ranges::views::view<LoadCommand::Iterator>;
     lc_range loadCommands() const;
-    lc_view segmentLoadCommands() const;
-    lc_view segments() const;
+    ranges::filter_view<lc_range, lc_pred> segmentLoadCommands() const;
+    // lc_view segments() const;
     const SegmentCommand *segmentWithName(const std::string &name);
     LoadCommand::Iterator lc_cbegin() const;
     LoadCommand::Iterator lc_cend() const;

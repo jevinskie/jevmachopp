@@ -21,16 +21,16 @@ MachO::lc_range MachO::loadCommands() const {
     return {lc_cbegin(), lc_cend()};
 };
 
-MachO::lc_view MachO::segmentLoadCommands() const {
+ranges::filter_view<MachO::lc_range, MachO::lc_pred> MachO::segmentLoadCommands() const {
     return ranges::views::filter(loadCommands(), [](auto &&lc) {
         return lc.cmd == LoadCommandType::SEGMENT_64;
     });
 };
-MachO::lc_view MachO::segments() const {
-    return ranges::views::transform(segmentLoadCommands(), [](auto &&segLC) {
-        return std::get<const SegmentCommand *>(segLC.subcmd()->get());
-    });
-};
+// ranges::any_view<const LoadCommand &> MachO::segments() const {
+//     return ranges::views::transform(segmentLoadCommands(), [](auto &&segLC) {
+//         return std::get<const SegmentCommand *>(segLC.subcmd()->get());
+//     });
+// };
 const SegmentCommand *MachO::segmentWithName(const std::string &name) {
     return nullptr;
 };
@@ -39,8 +39,8 @@ fmt::appender &MachO::format_to(fmt::appender &out) const {
     fmt::format_to(
         out,
         "<MachO @ {:p} cputype: {} fileType: {:#010x} flags: {:#010x} ncmds: {:d} sizeofcmds: {:#x} "_cf,
-        (void *)&macho, macho.cputype, macho.filetype, macho.flags, macho.ncmds, macho.sizeofcmds);
-    fmt::format_to(out, "{}"_cf, fmt::join(macho.loadCommands(), ", "));
+        (void *)this, cputype, filetype, flags, ncmds, sizeofcmds);
+    fmt::format_to(out, "{}"_cf, fmt::join(loadCommands(), ", "));
     fmt::format_to(out, ">"_cf);
     return out;
 }
