@@ -19,7 +19,7 @@ size_t MachO::lc_sizeof() const {
 
 MachO::lc_range MachO::loadCommands() const {
     return {lc_cbegin(), lc_cend()};
-};
+}
 
 ranges::any_view<const LoadCommand &> MachO::segmentLoadCommands() const {
     return ranges::views::filter(loadCommands(), [](const LoadCommand &lc) {

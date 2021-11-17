@@ -11,10 +11,20 @@
 #include "jevmachopp/LoadSubCommand.h"
 #include "jevmachopp/Section.h"
 
+
 class SegmentCommand : public LoadSubCommand {
 public:
     SegmentCommand(const SegmentCommand &) = delete;
     void operator=(const SegmentCommand &) = delete;
+
+public:
+    using sect_range = ranges::subrange<const Section *>;
+    std::string segName() const;
+    const Section *sect_cbegin() const;
+    const Section *sect_cend() const;
+    size_t sect_size() const;
+    size_t sect_sizeof() const;
+    sect_range sections() const;
 
 public:
     char segname[16];
@@ -26,9 +36,6 @@ public:
     vm_prot_t initprot;
     uint32_t nsects;
     uint32_t flags;
-
-public:
-    std::string segName() const;
 };
 
 static_assert_size_same_minus_header(SegmentCommand, struct segment_command_64,
