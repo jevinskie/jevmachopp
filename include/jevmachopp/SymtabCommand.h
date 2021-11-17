@@ -5,14 +5,16 @@
 #include "jevmachopp/NList.h"
 #include <mach-o/loader.h>
 
+class MachO;
+
 class SymtabCommand : public LoadSubCommand {
 public:
     using nlist_range = ranges::subrange<const NList *>;
-    const NList *nlists_cbegin() const;
-    const NList *nlists_cend() const;
+    const NList *nlists_cbegin(const MachO &macho) const;
+    const NList *nlists_cend(const MachO &macho) const;
     size_t nlists_size() const;
     size_t nlists_sizeof() const;
-    nlist_range nlists() const;
+    nlist_range nlists(const MachO &macho) const;
     fmt::appender &format_to(fmt::appender &out) const;
 
 public:

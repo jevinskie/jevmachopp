@@ -2,12 +2,12 @@
 #include "jevmachopp/LoadCommand.h"
 #include "jevmachopp/LoadCommandType.h"
 
-const NList *SymtabCommand::nlists_cbegin() const {
-    return (const NList *)(this + 1);
+const NList *SymtabCommand::nlists_cbegin(const MachO &macho) const {
+    return (const NList *)((uintptr_t)&macho + symoff);
 }
 
-const NList *SymtabCommand::nlists_cend() const {
-    return (const NList *)((uintptr_t)nlists_cbegin() + nlists_sizeof());
+const NList *SymtabCommand::nlists_cend(const MachO &macho) const {
+    return (const NList *)((uintptr_t)nlists_cbegin(macho) + nlists_sizeof());
 }
 
 size_t SymtabCommand::nlists_size() const {
@@ -18,8 +18,8 @@ size_t SymtabCommand::nlists_sizeof() const {
     return nlists_size() * sizeof(NList);
 }
 
-SymtabCommand::nlist_range SymtabCommand::nlists() const {
-    return {nlists_cbegin(), nlists_cend()};
+SymtabCommand::nlist_range SymtabCommand::nlists(const MachO &macho) const {
+    return {nlists_cbegin(macho), nlists_cend(macho)};
 }
 
 fmt::appender &SymtabCommand::format_to(fmt::appender &out) const {
