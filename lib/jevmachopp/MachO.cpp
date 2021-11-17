@@ -22,9 +22,9 @@ MachO::lc_range MachO::loadCommands() const {
 };
 
 ranges::filter_view<MachO::lc_range, MachO::lc_pred> MachO::segmentLoadCommands() const {
-    return ranges::views::filter(loadCommands(), [](auto &&lc) {
-        return lc.cmd == LoadCommandType::SEGMENT_64;
-    });
+    return ranges::views::filter(
+        loadCommands(),
+        (lc_pred)[](const LoadCommand &lc) { return lc.cmd == LoadCommandType::SEGMENT_64; });
 };
 // ranges::any_view<const LoadCommand &> MachO::segments() const {
 //     return ranges::views::transform(segmentLoadCommands(), [](auto &&segLC) {
