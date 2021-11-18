@@ -50,8 +50,8 @@ int main(int argc, const char *argv[]) {
     } else {
         fmt::print("symtab: {}\n", *symtab_ptr);
     }
-
     const SymtabCommand &symtab = *symtab_ptr;
+
     for (const auto [idx, nl] : ranges::views::enumerate(symtab.nlists(macho))) {
         fmt::print("nlist[{:3d}]: {}\n", idx, nl);
     }

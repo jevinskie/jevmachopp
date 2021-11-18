@@ -43,17 +43,23 @@ const SegmentCommand *MachO::segmentWithName(const std::string &name) const {
 }
 
 const SymtabCommand *MachO::symtab() const {
-    return (const SymtabCommand *)ranges::find_if_or_nullptr(
-        loadCommands(), [=](const LoadCommand &lc) {
-            return lc.cmd == LoadCommandType::SYMTAB;
-        });
+    const auto *lc = ranges::find_if_or_nullptr(loadCommands(), [=](const LoadCommand &lc) {
+        return lc.cmd == LoadCommandType::SYMTAB;
+    });
+    if (lc) {
+        return (const SymtabCommand *)lc->subcmd();
+    }
+    return nullptr;
 }
 
 const DySymtabCommand *MachO::dysymtab() const {
-    return (const DySymtabCommand *)ranges::find_if_or_nullptr(
-        loadCommands(), [=](const LoadCommand &lc) {
-            return lc.cmd == LoadCommandType::DYSYMTAB;
-        });
+    const auto *lc = ranges::find_if_or_nullptr(loadCommands(), [=](const LoadCommand &lc) {
+        return lc.cmd == LoadCommandType::DYSYMTAB;
+    });
+    if (lc) {
+        return (const DySymtabCommand *)lc->subcmd();
+    }
+    return nullptr;
 }
 
 fmt::appender &MachO::format_to(fmt::appender &out) const {
