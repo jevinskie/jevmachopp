@@ -12,6 +12,8 @@ if (${FORCE_COLORED_OUTPUT})
     endif ()
 endif ()
 
+add_compile_definitions(FMT_USE_INT128=0)
+
 # add_compile_options(-Os -flto=full -fvisibility=hidden -fvisibility-inlines-hidden -fwhole-program-vtables -fvirtual-function-elimination -ffunction-sections -fdata-sections)
 # add_link_options(-flto=full -Wl,-dead_strip)
 
