@@ -62,6 +62,7 @@ int main(int argc, const char *argv[]) {
     }
 #endif
 
+#if 0
     for (const auto [idx, nl] : ranges::views::enumerate(macho.local_syms())) {
         fmt::print("local_sym[{:3d}]: {:f}\n", idx, nl, macho);
     }
@@ -72,6 +73,11 @@ int main(int argc, const char *argv[]) {
 
     for (const auto [idx, nl] : ranges::views::enumerate(macho.undef_syms())) {
         fmt::print("undef_sym[{:3d}]: {:f}\n", idx, nl, macho);
+    }
+#endif
+
+    for (const auto [idx, lc] : ranges::views::enumerate(macho.loadCommands())) {
+        fmt::print("lc[{:2d}]: {}\n", idx, lc);
     }
 
     return 0;

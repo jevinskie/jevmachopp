@@ -22,10 +22,21 @@ bool DylibCommand::isRexport() const {
     return loadCommand()->cmd == LoadCommandType::REEXPORT_DYLIB;
 }
 
+DylibCommand::Version::Version(uint32_t ver)
+    : major(ver >> 16), minor((ver >> 8) & 0xff), patch(ver & 0xff) {}
+
+DylibCommand::Version DylibCommand::currentVersion() const {
+    return current_version;
+}
+
+DylibCommand::Version DylibCommand::compatibilityVersion() const {
+    return compatibility_version;
+}
+
 fmt::appender &DylibCommand::format_to(fmt::appender &out) const {
     fmt::format_to(
         out,
-        "<DylibCommand @ {:p} \"{:s}\" timestamp: {:#010x} current_version: {:#010x} compatibility_version: {:#010x}>"_cf,
-        (void *)loadCommand(), name(), timestamp, current_version, compatibility_version);
+        "<DylibCommand @ {:p} \"{:s}\" timestamp: {:#010x} current_version: {} compatibility_version: {}>"_cf,
+        (void *)loadCommand(), name(), timestamp, currentVersion(), compatibilityVersion());
     return out;
 }

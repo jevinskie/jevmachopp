@@ -7,11 +7,22 @@
 
 class DylibCommand : public LoadSubCommand {
 public:
+    class Version {
+    public:
+        Version(uint32_t ver);
+        uint16_t major;
+        uint8_t minor;
+        uint8_t patch;
+    };
+
+public:
     const char *name() const;
     bool isID() const;
     bool isLoad() const;
     bool isLoadWeak() const;
     bool isRexport() const;
+    Version currentVersion() const;
+    Version compatibilityVersion() const;
     fmt::appender &format_to(fmt::appender &out) const;
 
 public:
@@ -37,5 +48,15 @@ template <> struct fmt::formatter<DylibCommand> {
     auto format(DylibCommand const &dylibCmd, FormatContext &ctx) {
         auto out = ctx.out();
         return dylibCmd.format_to(out);
+    }
+};
+
+template <> struct fmt::formatter<DylibCommand::Version> {
+    constexpr auto parse(format_parse_context &ctx) -> decltype(ctx.begin()) {
+        return ctx.begin();
+    }
+
+    auto format(DylibCommand::Version const &ver, format_context &ctx) -> decltype(ctx.out()) {
+        return fmt::format_to(ctx.out(), "{:d}.{:d}.{:d}", ver.major, ver.minor, ver.patch);
     }
 };
