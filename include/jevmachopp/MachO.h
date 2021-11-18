@@ -7,11 +7,11 @@
 #include <range/v3/view.hpp>
 #include <range/v3/view/filter.hpp>
 #include <range/v3/view/subrange.hpp>
+#include <span>
 #include <stdint.h>
 #include <string>
 #include <typeinfo>
 
-#include "fmt/core.h"
 #include "jevmachopp/Common.h"
 #include "jevmachopp/CpuTypeMeta.h"
 #include "jevmachopp/LoadCommand.h"
@@ -40,7 +40,7 @@ public:
     const SegmentCommand *segmentWithName(const std::string &name) const;
 
     const SymtabCommand *symtab() const;
-    ranges::any_view<const NList &> symtab_nlists() const;
+    std::span<const NList> symtab_nlists() const;
     ranges::any_view<const char *> symtab_strtab_entries() const;
 
     const DySymtabCommand *dysymtab() const;

@@ -59,7 +59,7 @@ const SymtabCommand *MachO::symtab() const {
     return nullptr;
 }
 
-ranges::any_view<const NList &> MachO::symtab_nlists() const {
+std::span<const NList> MachO::symtab_nlists() const {
     const auto *symtab_ptr = symtab();
     if (!symtab_ptr) {
         return {};
