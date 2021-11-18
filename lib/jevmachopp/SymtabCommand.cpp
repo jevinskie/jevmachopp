@@ -27,7 +27,7 @@ StrtabIterator SymtabCommand::strtab_cbegin(const MachO &macho) const {
 }
 
 StrtabIterator SymtabCommand::strtab_cend(const MachO &macho) const {
-    return StrtabIterator((const char *)((uintptr_t)&macho + stroff + nlists_sizeof()));
+    return StrtabIterator((const char *)((uintptr_t) & *strtab_cbegin(macho) + strtab_sizeof()));
 }
 
 size_t SymtabCommand::strtab_sizeof() const {
