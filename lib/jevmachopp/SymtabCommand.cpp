@@ -22,6 +22,22 @@ SymtabCommand::nlist_range SymtabCommand::nlists(const MachO &macho) const {
     return {nlists_cbegin(macho), nlists_cend(macho)};
 }
 
+StrtabIterator SymtabCommand::strtab_cbegin(const MachO &macho) const {
+    return StrtabIterator((const char *)((uintptr_t)&macho + stroff));
+}
+
+StrtabIterator SymtabCommand::strtab_cend(const MachO &macho) const {
+    return StrtabIterator((const char *)((uintptr_t)&macho + stroff + nlists_sizeof()));
+}
+
+size_t SymtabCommand::strtab_sizeof() const {
+    return strsize;
+}
+
+SymtabCommand::strtab_entry_range SymtabCommand::strtab_entries(const MachO &macho) const {
+    return {strtab_cbegin(macho), strtab_cend(macho)};
+}
+
 fmt::appender &SymtabCommand::format_to(fmt::appender &out) const {
     fmt::format_to(out, "<SymtabCommand @ {:p}>"_cf, (void *)loadCommand());
     return out;

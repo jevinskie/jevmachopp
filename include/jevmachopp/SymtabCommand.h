@@ -3,6 +3,7 @@
 #include "jevmachopp/Common.h"
 #include "jevmachopp/LoadSubCommand.h"
 #include "jevmachopp/NList.h"
+#include "jevmachopp/Strtab.h"
 #include <mach-o/loader.h>
 
 class MachO;
@@ -15,6 +16,13 @@ public:
     size_t nlists_size() const;
     size_t nlists_sizeof() const;
     nlist_range nlists(const MachO &macho) const;
+
+    using strtab_entry_range = ranges::subrange<StrtabIterator>;
+    StrtabIterator strtab_cbegin(const MachO &macho) const;
+    StrtabIterator strtab_cend(const MachO &macho) const;
+    size_t strtab_sizeof() const;
+    strtab_entry_range strtab_entries(const MachO &macho) const;
+
     fmt::appender &format_to(fmt::appender &out) const;
 
 public:
