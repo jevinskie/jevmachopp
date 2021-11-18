@@ -53,10 +53,10 @@ const SymtabCommand *MachO::symtab() const {
     const auto *lc = ranges::find_if_or_nullptr(loadCommands(), [=](const LoadCommand &lc) {
         return lc.cmd == LoadCommandType::SYMTAB;
     });
-    if (lc) {
-        return (const SymtabCommand *)lc->subcmd();
+    if (!lc) {
+        return nullptr;
     }
-    return nullptr;
+    return (const SymtabCommand *)lc->subcmd();
 }
 
 std::span<const NList> MachO::symtab_nlists() const {
@@ -84,10 +84,10 @@ const DySymtabCommand *MachO::dysymtab() const {
     const auto *lc = ranges::find_if_or_nullptr(loadCommands(), [=](const LoadCommand &lc) {
         return lc.cmd == LoadCommandType::DYSYMTAB;
     });
-    if (lc) {
-        return (const DySymtabCommand *)lc->subcmd();
+    if (!lc) {
+        return nullptr;
     }
-    return nullptr;
+    return (const DySymtabCommand *)lc->subcmd();
 }
 
 fmt::appender &MachO::format_to(fmt::appender &out) const {
