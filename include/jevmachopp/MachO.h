@@ -35,7 +35,11 @@ public:
 
     ranges::any_view<const LoadCommand &> segmentLoadCommands() const;
     ranges::any_view<const SegmentCommand &> segments() const;
-    const SegmentCommand *segmentWithName(const std::string &name) const;
+    const SegmentCommand *segmentWithName(const std::string_view &name) const;
+    const SegmentCommand *textSeg() const;
+    const SegmentCommand *dataConstSeg() const;
+    const SegmentCommand *dataSeg() const;
+    const SegmentCommand *linkeditSeg() const;
 
     const SymtabCommand *symtab() const;
     std::span<const NList> symtab_nlists() const;

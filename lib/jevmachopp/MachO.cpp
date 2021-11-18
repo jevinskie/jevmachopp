@@ -47,10 +47,26 @@ ranges::any_view<const SegmentCommand &> MachO::segments() const {
         });
 }
 
-const SegmentCommand *MachO::segmentWithName(const std::string &name) const {
+const SegmentCommand *MachO::segmentWithName(const std::string_view &name) const {
     return ranges::find_if_or_nullptr(segments(), [=](const SegmentCommand &segCmd) {
         return segCmd.segName() == name;
     });
+}
+
+const SegmentCommand *MachO::textSeg() const {
+    return segmentWithName("__TEXT");
+}
+
+const SegmentCommand *MachO::dataConstSeg() const {
+    return segmentWithName("__DATA_CONST");
+}
+
+const SegmentCommand *MachO::dataSeg() const {
+    return segmentWithName("__DATA");
+}
+
+const SegmentCommand *MachO::linkeditSeg() const {
+    return segmentWithName("__LINKEDIT");
 }
 
 #pragma mark symtab

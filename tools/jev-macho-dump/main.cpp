@@ -70,14 +70,19 @@ int main(int argc, const char *argv[]) {
     for (const auto [idx, nl] : ranges::views::enumerate(macho.ext_def_syms())) {
         fmt::print("ext_def_sym[{:3d}]: {:f}\n", idx, nl, macho);
     }
+#endif
+
+    const SymtabCommand *symtab_ptr = macho.symtab();
+    assert(symtab_ptr);
+    const SymtabCommand &symtab = *symtab_ptr;
+    const SegmentCommand *linkedit_seg_ptr = macho.linkeditSeg();
+    assert(linkedit_seg_ptr);
+    const SegmentCommand &linkedit_seg = *linkedit_seg_ptr;
+
+    fmt::print("linkedit_seg: {}\n", linkedit_seg);
 
     for (const auto [idx, nl] : ranges::views::enumerate(macho.undef_syms())) {
         fmt::print("undef_sym[{:3d}]: {:f}\n", idx, nl, macho);
-    }
-#endif
-
-    for (const auto [idx, lc] : ranges::views::enumerate(macho.loadCommands())) {
-        fmt::print("lc[{:2d}]: {}\n", idx, lc);
     }
 
     return 0;
