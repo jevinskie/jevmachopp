@@ -1,6 +1,7 @@
 #include "jevmachopp/MachO.h"
 #include "jevmachopp/DySymtabCommand.h"
 #include "jevmachopp/SegmentCommand.h"
+#include "jevmachopp/Strtab.h"
 #include "jevmachopp/SymtabCommand.h"
 
 #pragma mark load commands
@@ -59,7 +60,12 @@ const SymtabCommand *MachO::symtab() const {
 }
 
 ranges::any_view<const NList &> MachO::symtab_nlists() const {
-    return {};
+    const auto *symtab_ptr = symtab();
+    if (!symtab_ptr) {
+        return {};
+    }
+    const auto &symtab = *symtab_ptr;
+    return symtab.nlists(*this);
 }
 
 ranges::any_view<const StrtabIterator &> MachO::symtab_strtab_entries() const {
