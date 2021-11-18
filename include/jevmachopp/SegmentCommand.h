@@ -4,6 +4,7 @@
 #include <mach-o/loader.h>
 #include <mach/vm_prot.h>
 #include <memory>
+#include <span>
 #include <stdint.h>
 #include <string>
 
@@ -17,13 +18,12 @@ public:
     void operator=(const SegmentCommand &) = delete;
 
 public:
-    using sect_range = ranges::subrange<const Section *>;
     std::string segName() const;
     const Section *sect_cbegin() const;
     const Section *sect_cend() const;
     size_t sect_size() const;
     size_t sect_sizeof() const;
-    sect_range sections() const;
+    std::span<const Section> sections() const;
 
 public:
     char segname[16];

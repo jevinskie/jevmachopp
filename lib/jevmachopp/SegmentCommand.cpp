@@ -25,6 +25,6 @@ size_t SegmentCommand::sect_sizeof() const {
     return sect_size() * sizeof(Section);
 }
 
-SegmentCommand::sect_range SegmentCommand::sections() const {
+std::span<const Section> SegmentCommand::sections() const {
     return {sect_cbegin(), sect_cend()};
 }
