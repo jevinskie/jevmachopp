@@ -40,7 +40,7 @@ template <> struct fmt::formatter<NList> {
     char presentation = 'd';
     int macho_arg_id = -1;
 
-    auto parse(format_parse_context &ctx) -> decltype(ctx.begin()) {
+    constexpr auto parse(format_parse_context &ctx) -> decltype(ctx.begin()) {
         auto it = ctx.begin(), end = ctx.end();
         if (it != end && (*it == 'd' || *it == 'f'))
             presentation = *it++;

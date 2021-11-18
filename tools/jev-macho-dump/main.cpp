@@ -54,8 +54,6 @@ int main(int argc, const char *argv[]) {
 
     for (const auto [idx, nl] : ranges::views::enumerate(macho.symtab_nlists())) {
         fmt::print("nlist[{:3d}]: {:f}\n", idx, nl, macho);
-        // fmt::print("nlist[{:3d}]: {:f}\n", idx, nl, fmt::ptr(&macho));
-        // fmt::print("nlist[{:3d}]: {:f}\n", idx, nl, 243);
     }
 
     for (const auto [idx, ste] : ranges::views::enumerate(macho.symtab_strtab_entries())) {
