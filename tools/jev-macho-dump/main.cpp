@@ -53,7 +53,7 @@ int main(int argc, const char *argv[]) {
     const SymtabCommand &symtab = *symtab_ptr;
 
     for (const auto [idx, nl] : ranges::views::enumerate(macho.symtab_nlists())) {
-        fmt::print("nlist[{:3d}]: {:f}\n", idx, nl);
+        fmt::print("nlist[{:3d}]: {:f}\n", idx, nl, macho);
     }
 
     for (const auto [idx, ste] : ranges::views::enumerate(macho.symtab_strtab_entries())) {
