@@ -90,6 +90,25 @@ const DySymtabCommand *MachO::dysymtab() const {
     return (const DySymtabCommand *)lc->subcmd();
 }
 
+std::span<const NList> MachO::local_syms() const {
+    const auto *symtab_ptr = symtab();
+    const auto *dysymtab_ptr = dysymtab();
+    if (!symtab_ptr || !dysymtab_ptr) {
+        return {};
+    }
+    const auto nlists = symtab_ptr->nlists(*this);
+    return {&nlists[dysymtab_ptr->ilocalsym],
+            &nlists[dysymtab_ptr->ilocalsym + dysymtab_ptr->nlocalsym]};
+}
+
+size_t MachO::local_syms_size() const {
+    const auto *dysymtab_ptr = dysymtab();
+    if (!dysymtab_ptr) {
+        return 0;
+    }
+    return dysymtab_ptr->nlocalsym;
+}
+
 fmt::appender &MachO::format_to(fmt::appender &out) const {
     fmt::format_to(
         out,

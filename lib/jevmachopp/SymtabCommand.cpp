@@ -23,15 +23,19 @@ std::span<const NList> SymtabCommand::nlists(const MachO &macho) const {
 }
 
 StrtabIterator SymtabCommand::strtab_cbegin(const MachO &macho) const {
-    return StrtabIterator((const char *)((uintptr_t)&macho + stroff));
+    return StrtabIterator(strtab_data(macho));
 }
 
 StrtabIterator SymtabCommand::strtab_cend(const MachO &macho) const {
-    return StrtabIterator((const char *)((uintptr_t) & *strtab_cbegin(macho) + strtab_sizeof()));
+    return StrtabIterator(strtab_data(macho) + strtab_sizeof());
 }
 
 size_t SymtabCommand::strtab_sizeof() const {
     return strsize;
+}
+
+const char *SymtabCommand::strtab_data(const MachO &macho) const {
+    return (const char *)((uintptr_t)&macho + stroff);
 }
 
 SymtabCommand::strtab_entry_range SymtabCommand::strtab_entries(const MachO &macho) const {

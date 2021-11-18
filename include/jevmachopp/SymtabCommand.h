@@ -22,6 +22,7 @@ public:
     StrtabIterator strtab_cbegin(const MachO &macho) const;
     StrtabIterator strtab_cend(const MachO &macho) const;
     size_t strtab_sizeof() const;
+    const char *strtab_data(const MachO &macho) const;
     strtab_entry_range strtab_entries(const MachO &macho) const;
 
     fmt::appender &format_to(fmt::appender &out) const;

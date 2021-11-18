@@ -44,6 +44,8 @@ public:
     ranges::any_view<const char *> symtab_strtab_entries() const;
 
     const DySymtabCommand *dysymtab() const;
+    std::span<const NList> local_syms() const;
+    size_t local_syms_size() const;
 
     fmt::appender &format_to(fmt::appender &out) const;
 

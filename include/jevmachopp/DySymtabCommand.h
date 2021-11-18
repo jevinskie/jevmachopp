@@ -2,6 +2,8 @@
 
 #include "jevmachopp/Common.h"
 #include "jevmachopp/LoadSubCommand.h"
+#include "jevmachopp/NList.h"
+
 #include <mach-o/loader.h>
 #include <string>
 

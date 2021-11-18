@@ -25,11 +25,11 @@ static_assert_size_same(NList, struct nlist_64);
 
 template <> struct fmt::formatter<NList> {
 
-    template <typename ParseContext> constexpr auto parse(ParseContext &ctx) {
+    constexpr auto parse(format_parse_context &ctx) {
         return ctx.begin();
     }
 
-    template <typename FormatContext> auto format(NList const &nlist, FormatContext &ctx) {
+    auto format(NList const &nlist, format_context &ctx) {
         auto out = ctx.out();
         return nlist.format_to(out);
     }
