@@ -72,6 +72,10 @@ int main(int argc, const char *argv[]) {
     }
 #endif
 
+    for (const auto [idx, lc] : ranges::views::enumerate(macho.loadCommands())) {
+        fmt::print("lc[{:2d}]: {}\n", idx, lc);
+    }
+
     const SymtabCommand *symtab_ptr = macho.symtab();
     assert(symtab_ptr);
     const SymtabCommand &symtab = *symtab_ptr;

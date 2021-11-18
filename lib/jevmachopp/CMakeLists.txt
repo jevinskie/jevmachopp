@@ -7,7 +7,7 @@ set(MACHOPP_SRC
     EncryptionInfoCommand.cpp
     LoadCommand.cpp
     LoadSubCommand.cpp
-    LinkerDataCommand.cpp
+    LinkeditDataCommand.cpp
     MachO.cpp
     NList.cpp
     Section.cpp
