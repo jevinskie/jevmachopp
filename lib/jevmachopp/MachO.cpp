@@ -3,6 +3,8 @@
 #include "jevmachopp/SegmentCommand.h"
 #include "jevmachopp/SymtabCommand.h"
 
+#pragma mark load commands
+
 LoadCommand::Iterator MachO::lc_cbegin() const {
     return LoadCommand::Iterator((const LoadCommand *)(this + 1));
 }
@@ -23,6 +25,8 @@ MachO::lc_range MachO::loadCommands() const {
     return {lc_cbegin(), lc_cend()};
 }
 
+#pragma mark segments
+
 ranges::any_view<const LoadCommand &> MachO::segmentLoadCommands() const {
     return ranges::views::filter(loadCommands(), [](const LoadCommand &lc) {
         return lc.cmd == LoadCommandType::SEGMENT_64;
@@ -42,6 +46,8 @@ const SegmentCommand *MachO::segmentWithName(const std::string &name) const {
     });
 }
 
+#pragma mark symtab
+
 const SymtabCommand *MachO::symtab() const {
     const auto *lc = ranges::find_if_or_nullptr(loadCommands(), [=](const LoadCommand &lc) {
         return lc.cmd == LoadCommandType::SYMTAB;
@@ -51,6 +57,16 @@ const SymtabCommand *MachO::symtab() const {
     }
     return nullptr;
 }
+
+ranges::any_view<const NList &> MachO::symtab_nlists() const {
+    return {};
+}
+
+ranges::any_view<const StrtabIterator &> MachO::symtab_strtab_entries() const {
+    return {};
+}
+
+#pragma mark dysymtab
 
 const DySymtabCommand *MachO::dysymtab() const {
     const auto *lc = ranges::find_if_or_nullptr(loadCommands(), [=](const LoadCommand &lc) {

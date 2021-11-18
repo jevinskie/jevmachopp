@@ -19,6 +19,8 @@
 class SegmentCommand;
 class SymtabCommand;
 class DySymtabCommand;
+class NList;
+class StrtabIterator;
 
 class MachO {
 public:
@@ -38,6 +40,9 @@ public:
     const SegmentCommand *segmentWithName(const std::string &name) const;
 
     const SymtabCommand *symtab() const;
+    ranges::any_view<const NList &> symtab_nlists() const;
+    ranges::any_view<const StrtabIterator &> symtab_strtab_entries() const;
+
     const DySymtabCommand *dysymtab() const;
 
     fmt::appender &format_to(fmt::appender &out) const;
