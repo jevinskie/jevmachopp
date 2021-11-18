@@ -18,7 +18,7 @@ size_t SymtabCommand::nlists_sizeof() const {
     return nlists_size() * sizeof(NList);
 }
 
-SymtabCommand::nlist_range SymtabCommand::nlists(const MachO &macho) const {
+std::span<const NList> SymtabCommand::nlists(const MachO &macho) const {
     return {nlists_cbegin(macho), nlists_cend(macho)};
 }
 

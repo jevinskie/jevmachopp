@@ -4,18 +4,19 @@
 #include "jevmachopp/LoadSubCommand.h"
 #include "jevmachopp/NList.h"
 #include "jevmachopp/Strtab.h"
+
 #include <mach-o/loader.h>
+#include <span>
 
 class MachO;
 
 class SymtabCommand : public LoadSubCommand {
 public:
-    using nlist_range = ranges::subrange<const NList *>;
     const NList *nlists_cbegin(const MachO &macho) const;
     const NList *nlists_cend(const MachO &macho) const;
     size_t nlists_size() const;
     size_t nlists_sizeof() const;
-    nlist_range nlists(const MachO &macho) const;
+    std::span<const NList> nlists(const MachO &macho) const;
 
     using strtab_entry_range = ranges::subrange<StrtabIterator>;
     StrtabIterator strtab_cbegin(const MachO &macho) const;
