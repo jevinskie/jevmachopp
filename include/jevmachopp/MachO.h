@@ -24,10 +24,8 @@ class StrtabIterator;
 
 class MachO {
 public:
-    MachO(const MachO &) = delete;
-    void operator=(const MachO &) = delete;
+    bool isMagicGood() const;
 
-public:
     using lc_range = ranges::subrange<LoadCommand::Iterator>;
     lc_range loadCommands() const;
     LoadCommand::Iterator lc_cbegin() const;
@@ -58,6 +56,10 @@ public:
     uint32_t sizeofcmds;
     uint32_t flags;
     uint32_t reserved;
+
+public:
+    MachO(const MachO &) = delete;
+    void operator=(const MachO &) = delete;
 };
 
 static_assert_size_same(MachO, struct mach_header_64);

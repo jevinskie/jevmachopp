@@ -4,6 +4,12 @@
 #include "jevmachopp/Strtab.h"
 #include "jevmachopp/SymtabCommand.h"
 
+#pragma mark MachO header
+
+bool MachO::isMagicGood() const {
+    return magic == MH_MAGIC_64;
+}
+
 #pragma mark load commands
 
 LoadCommand::Iterator MachO::lc_cbegin() const {

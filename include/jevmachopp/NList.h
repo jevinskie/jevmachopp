@@ -3,6 +3,7 @@
 #include "jevmachopp/Common.h"
 #include "jevmachopp/MachO.h"
 
+#include <cassert>
 #include <mach-o/nlist.h>
 #include <string>
 
@@ -30,8 +31,8 @@ template <typename T> struct value_extractor {
         return value;
     }
 
-    template <typename U> FMT_NORETURN T operator()(U) {
-        throw std::runtime_error(fmt::format("invalid type {}", typeid(U).name()));
+    template <typename U> [[noreturn]] T operator()(U) {
+        assert(!"invalid type");
     }
 };
 
@@ -58,14 +59,17 @@ template <> struct fmt::formatter<NList> {
     }
 
     auto format(NList const &nlist, format_context &ctx) -> decltype(ctx.out()) {
+        using handle_t = fmt::basic_format_arg<format_context>::handle;
+        using custom_value_t = detail::custom_value<format_context>;
+        static_assert_size_same(handle_t, custom_value_t);
         auto out = ctx.out();
         if (macho_arg_id >= 0) {
             auto macho_arg = ctx.arg(macho_arg_id);
-            auto arg_handle = visit_format_arg(
-                value_extractor<fmt::basic_format_arg<format_context>::handle>(), macho_arg);
-            auto custom_value = (detail::custom_value<format_context> *)&arg_handle;
-            const auto *macho_ptr = (const MachO *)custom_value->value;
-            return nlist.format_to(out, *macho_ptr);
+            auto arg_handle = visit_format_arg(value_extractor<handle_t>(), macho_arg);
+            auto custom_value = (custom_value_t *)&arg_handle;
+            const auto &macho = *(const MachO *)custom_value->value;
+            assert(macho.isMagicGood());
+            return nlist.format_to(out, macho);
         }
         return nlist.format_to(out);
     }
