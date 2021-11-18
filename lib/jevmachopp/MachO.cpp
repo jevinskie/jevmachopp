@@ -64,12 +64,20 @@ ranges::any_view<const NList &> MachO::symtab_nlists() const {
     if (!symtab_ptr) {
         return {};
     }
-    const auto &symtab = *symtab_ptr;
-    return symtab.nlists(*this);
+    return symtab_ptr->nlists(*this);
 }
 
-ranges::any_view<const StrtabIterator &> MachO::symtab_strtab_entries() const {
-    return {};
+ranges::any_view<const char *> MachO::symtab_strtab_entries() const {
+    decltype(symtab_strtab_entries()) res = {};
+    const auto *symtab_ptr = symtab();
+    if (!symtab_ptr) {
+        return res;
+    }
+    ranges::views::transform(symtab_ptr->strtab_entries(*this), res,
+                             [](const StrtabIterator &stri) -> const char * {
+                                 return &*stri;
+                             });
+    return res;
 }
 
 #pragma mark dysymtab

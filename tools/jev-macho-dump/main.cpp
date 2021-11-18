@@ -64,5 +64,9 @@ int main(int argc, const char *argv[]) {
         fmt::print("strtab[{:3d}]: {:s}\n", idx, &ste);
     }
 
+    for (const auto [idx, ste] : ranges::views::enumerate(macho.symtab_strtab_entries())) {
+        fmt::print("strtab2[{:3d}]: {:s}\n", idx, ste);
+    }
+
     return 0;
 }

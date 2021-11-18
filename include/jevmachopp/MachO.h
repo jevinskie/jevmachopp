@@ -41,7 +41,7 @@ public:
 
     const SymtabCommand *symtab() const;
     ranges::any_view<const NList &> symtab_nlists() const;
-    ranges::any_view<const StrtabIterator &> symtab_strtab_entries() const;
+    ranges::any_view<const char *> symtab_strtab_entries() const;
 
     const DySymtabCommand *dysymtab() const;
 
