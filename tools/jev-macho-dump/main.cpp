@@ -52,20 +52,12 @@ int main(int argc, const char *argv[]) {
     }
     const SymtabCommand &symtab = *symtab_ptr;
 
-    for (const auto [idx, nl] : ranges::views::enumerate(symtab.nlists(macho))) {
-        fmt::print("nlist[{:3d}]: {}\n", idx, nl);
-    }
-
     for (const auto [idx, nl] : ranges::views::enumerate(macho.symtab_nlists())) {
         fmt::print("nlist[{:3d}]: {}\n", idx, nl);
     }
 
-    for (const auto [idx, ste] : ranges::views::enumerate(symtab.strtab_entries(macho))) {
-        fmt::print("strtab[{:3d}]: {:s}\n", idx, &ste);
-    }
-
     for (const auto [idx, ste] : ranges::views::enumerate(macho.symtab_strtab_entries())) {
-        fmt::print("strtab2[{:3d}]: {:s}\n", idx, ste);
+        fmt::print("strtab[{:3d}]: {:s}\n", idx, ste);
     }
 
     return 0;
