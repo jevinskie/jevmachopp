@@ -42,6 +42,7 @@ public:
     const SymtabCommand *symtab() const;
     std::span<const NList> symtab_nlists() const;
     ranges::any_view<const char *> symtab_strtab_entries() const;
+    const char *strtab_data() const;
 
     const DySymtabCommand *dysymtab() const;
     std::span<const NList> local_syms() const;

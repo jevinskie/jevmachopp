@@ -9,6 +9,7 @@
 class NList {
 public:
     fmt::appender &format_to(fmt::appender &out) const;
+    fmt::appender &format_to(fmt::appender &out, const MachO &macho) const;
 
 public:
     uint32_t strx;
@@ -24,27 +25,10 @@ public:
 
 static_assert_size_same(NList, struct nlist_64);
 
-// // Checks if an argument is a valid printf width specifier and sets
-// // left alignment if it is negative.
-template <typename Char> class my_handler {
-
- public:
-  explicit my_handler() {}
-
-
-  template <typename T, std::enable_if_t<std::is_integral<T>::value>>
-  unsigned operator()(T value) {
-    return static_cast<unsigned>(value);
-  }
-
-  template <typename T, std::enable_if_t<!std::is_integral<T>::value>>
-  unsigned operator()(T) {
-    return 0;
-  }
-};
-
 template <typename T> struct value_extractor {
-    T operator()(T value) { return value; }
+    T operator()(T value) {
+        return value;
+    }
 
     template <typename U> FMT_NORETURN T operator()(U) {
         throw std::runtime_error(fmt::format("invalid type {}", typeid(U).name()));
@@ -78,40 +62,11 @@ template <> struct fmt::formatter<NList> {
         fmt::print("\nWHATWHAT ctx: {} THATSWHAT\n", presentation);
         if (macho_arg_id >= 0) {
             auto macho_arg = ctx.arg(macho_arg_id);
-            const MachO *macho_ptr = nullptr;
-//            fmt::basic_format_arg<format_context>::handle *fark = nullptr;
-//            int *fark = nullptr;
-            const void *fark = nullptr;
-            // visit_format_arg(
-            //     [&fark](auto val) {
-            //         using T = decltype(val);
-            //         if (std::is_same_v<T, int>) {
-            //             fmt::print("int\n");
-            //         }
-            //         if (std::is_same_v<T, const void *>) {
-            //             fark = val;
-            //             fmt::print("pointer\n");
-            //         }
-            //         if (std::is_same_v<T, fmt::basic_format_arg<format_context>::handle>) {
-            //             fmt::print("macho??\n");
-            //             // auto v = reinterpret_cast<const void*>(val);
-            //             // auto v = fmt::custom_value<format_context>(val);
-            //             // auto vz = detail::value<decltype(ctx)>{};
-            //             // auto v = detail::arg_mapper<decltype(ctx)>::map();
-            //             // fark = &val;
-            //             fmt::print("fark\n");
-            //             // auto v = static_cast<fmt::basic_format_arg<format_context>::handle>(val);
-            //         }
-            //         //                    auto v = custom.value;
-            //         fmt::print("fuck\n");
-            //     },
-            //     // my_handler(),
-            //     macho_arg);
-
-            auto bar = visit_format_arg(value_extractor<fmt::basic_format_arg<format_context>::handle>(), macho_arg);
-            auto buzz = (detail::custom_value<format_context> *)&bar;
-            buzz->value;
-            fmt::print("");
+            auto arg_handle = visit_format_arg(
+                value_extractor<fmt::basic_format_arg<format_context>::handle>(), macho_arg);
+            auto custom_value = (detail::custom_value<format_context> *)&arg_handle;
+            const auto *macho_ptr = (const MachO *)custom_value->value;
+            return nlist.format_to(out, *macho_ptr);
         }
         return nlist.format_to(out);
     }

@@ -78,6 +78,14 @@ ranges::any_view<const char *> MachO::symtab_strtab_entries() const {
                                     });
 }
 
+const char *MachO::strtab_data() const {
+    const auto *symtab_ptr = symtab();
+    if (!symtab_ptr) {
+        return nullptr;
+    }
+    return symtab_ptr->strtab_data(*this);
+}
+
 #pragma mark dysymtab
 
 const DySymtabCommand *MachO::dysymtab() const {
