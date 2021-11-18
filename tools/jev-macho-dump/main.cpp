@@ -13,7 +13,9 @@ int main(int argc, const char *argv[]) {
     uint8_t *inbuf = Slurp::readfile(infile, &size);
     auto macho_ptr = (const MachO *)inbuf;
     auto &macho = *macho_ptr;
+
     fmt::print("macho: {}\n", (void *)&macho);
+#if 0
     // fmt::print("macho fmt: {}\n", macho);
     fmt::print("macho->cputype: {}\n", macho.cputype);
 
@@ -40,6 +42,7 @@ int main(int argc, const char *argv[]) {
     } else {
         fmt::print("textSeg: {}\n", *textSeg);
     }
+#endif
 
     const SymtabCommand *symtab_ptr = macho.symtab();
     if (!symtab_ptr) {
