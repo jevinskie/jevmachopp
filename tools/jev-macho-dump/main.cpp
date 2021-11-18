@@ -44,6 +44,7 @@ int main(int argc, const char *argv[]) {
     }
 #endif
 
+#if 0
     const SymtabCommand *symtab_ptr = macho.symtab();
     if (!symtab_ptr) {
         fmt::print("symtab: nullptr\n");
@@ -58,6 +59,19 @@ int main(int argc, const char *argv[]) {
 
     for (const auto [idx, ste] : ranges::views::enumerate(macho.symtab_strtab_entries())) {
         fmt::print("strtab[{:3d}]: {:s}\n", idx, ste);
+    }
+#endif
+
+    for (const auto [idx, nl] : ranges::views::enumerate(macho.local_syms())) {
+        fmt::print("local_sym[{:3d}]: {:f}\n", idx, nl, macho);
+    }
+
+    for (const auto [idx, nl] : ranges::views::enumerate(macho.ext_def_syms())) {
+        fmt::print("ext_def_sym[{:3d}]: {:f}\n", idx, nl, macho);
+    }
+
+    for (const auto [idx, nl] : ranges::views::enumerate(macho.undef_syms())) {
+        fmt::print("undef_sym[{:3d}]: {:f}\n", idx, nl, macho);
     }
 
     return 0;

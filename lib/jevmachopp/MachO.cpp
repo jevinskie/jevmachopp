@@ -123,6 +123,44 @@ size_t MachO::local_syms_size() const {
     return dysymtab_ptr->nlocalsym;
 }
 
+std::span<const NList> MachO::ext_def_syms() const {
+    const auto *symtab_ptr = symtab();
+    const auto *dysymtab_ptr = dysymtab();
+    if (!symtab_ptr || !dysymtab_ptr) {
+        return {};
+    }
+    const auto nlists = symtab_ptr->nlists(*this);
+    return {&nlists[dysymtab_ptr->iextdefsym],
+            &nlists[dysymtab_ptr->iextdefsym + dysymtab_ptr->nextdefsym]};
+}
+
+size_t MachO::ext_def_syms_size() const {
+    const auto *dysymtab_ptr = dysymtab();
+    if (!dysymtab_ptr) {
+        return 0;
+    }
+    return dysymtab_ptr->nextdefsym;
+}
+
+std::span<const NList> MachO::undef_syms() const {
+    const auto *symtab_ptr = symtab();
+    const auto *dysymtab_ptr = dysymtab();
+    if (!symtab_ptr || !dysymtab_ptr) {
+        return {};
+    }
+    const auto nlists = symtab_ptr->nlists(*this);
+    return {&nlists[dysymtab_ptr->iundefsym],
+            &nlists[dysymtab_ptr->iundefsym + dysymtab_ptr->nundefsym]};
+}
+
+size_t MachO::undef_syms_size() const {
+    const auto *dysymtab_ptr = dysymtab();
+    if (!dysymtab_ptr) {
+        return 0;
+    }
+    return dysymtab_ptr->nundefsym;
+}
+
 fmt::appender &MachO::format_to(fmt::appender &out) const {
     fmt::format_to(
         out,

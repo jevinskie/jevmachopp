@@ -45,6 +45,10 @@ public:
     const DySymtabCommand *dysymtab() const;
     std::span<const NList> local_syms() const;
     size_t local_syms_size() const;
+    std::span<const NList> ext_def_syms() const;
+    size_t ext_def_syms_size() const;
+    std::span<const NList> undef_syms() const;
+    size_t undef_syms_size() const;
 
     fmt::appender &format_to(fmt::appender &out) const;
 
