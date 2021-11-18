@@ -73,8 +73,8 @@ ranges::any_view<const char *> MachO::symtab_strtab_entries() const {
         return {};
     }
     return ranges::views::transform(symtab_ptr->strtab_entries(*this),
-                                    [](auto stri) -> const char * {
-                                        return "nullptr";
+                                    [](const auto &strchr) -> const char * {
+                                        return &strchr;
                                     });
 }
 
