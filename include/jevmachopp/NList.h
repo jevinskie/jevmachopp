@@ -59,7 +59,6 @@ template <> struct fmt::formatter<NList> {
 
     auto format(NList const &nlist, format_context &ctx) -> decltype(ctx.out()) {
         auto out = ctx.out();
-        fmt::print("\nWHATWHAT ctx: {} THATSWHAT\n", presentation);
         if (macho_arg_id >= 0) {
             auto macho_arg = ctx.arg(macho_arg_id);
             auto arg_handle = visit_format_arg(
