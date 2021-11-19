@@ -177,20 +177,33 @@ size_t MachO::undef_syms_size() const {
     return dysymtab_ptr->nundefsym;
 }
 
-std::span<const uint32_t> MachO::indirect_syms_idxes() const {
-    const auto *dysymtab_ptr = dysymtab();
+std::span<const uint32_t> MachO::indirect_syms_idxes(const DySymtabCommand *dysymtab_ptr) const {
     if (!dysymtab_ptr) {
-        return {};
+        dysymtab_ptr = dysymtab();
+        if (!dysymtab_ptr) {
+            return {};
+        }
     }
     return {(const uint32_t *)((uintptr_t)this + dysymtab_ptr->indirectsymoff),
             dysymtab_ptr->nindirectsyms};
 }
 
-ranges::any_view<const NList &> MachO::indirect_syms() const {
-    const auto *symtab_ptr = symtab();
-    const auto *dysymtab_ptr = dysymtab();
-    if (!symtab_ptr || !dysymtab_ptr) {
-        return {};
+ranges::any_view<const NList &> MachO::indirect_syms(const SymtabCommand *symtab_ptr,
+                                                     const DySymtabCommand *dysymtab_ptr) const {
+    // least rescanning, but ugly
+    // symtab_ptr = set_if_null(symtab_ptr, symtab);
+    // symtab_ptr = set_if_null_w_checked_ret(symtab_ptr, symtab, {});
+    if (!symtab_ptr) {
+        symtab_ptr = symtab();
+        if (!symtab_ptr) {
+            return {};
+        }
+    }
+    if (!dysymtab_ptr) {
+        dysymtab_ptr = dysymtab();
+        if (!dysymtab_ptr) {
+            return {};
+        }
     }
     const auto nlists = symtab_ptr->nlists(*this);
     return ranges::views::transform(indirect_syms_idxes(),

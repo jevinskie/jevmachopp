@@ -53,8 +53,11 @@ public:
     size_t ext_def_syms_size() const;
     std::span<const NList> undef_syms() const;
     size_t undef_syms_size() const;
-    std::span<const uint32_t> indirect_syms_idxes() const;
-    ranges::any_view<const NList &> indirect_syms() const;
+    std::span<const uint32_t>
+    indirect_syms_idxes(const DySymtabCommand *dysymtab_ptr = nullptr) const;
+    ranges::any_view<const NList &>
+    indirect_syms(const SymtabCommand *symtab_ptr = nullptr,
+                  const DySymtabCommand *dysymtab_ptr = nullptr) const;
     size_t indirect_syms_size() const;
 
     fmt::appender &format_to(fmt::appender &out) const;
