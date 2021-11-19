@@ -16,9 +16,10 @@
 #include "jevmachopp/CpuTypeMeta.h"
 #include "jevmachopp/LoadCommand.h"
 
+class DylibCommand;
+class DySymtabCommand;
 class SegmentCommand;
 class SymtabCommand;
-class DySymtabCommand;
 class NList;
 class StrtabIterator;
 
@@ -59,6 +60,11 @@ public:
     indirect_syms(const SymtabCommand *symtab_ptr = nullptr,
                   const DySymtabCommand *dysymtab_ptr = nullptr) const;
     size_t indirect_syms_size() const;
+
+    ranges::any_view<const LoadCommand &> dylibLoadCommands() const;
+    ranges::any_view<const DylibCommand &> dylibCommands() const;
+    ranges::any_view<const LoadCommand &> importedDylibLoadCommands() const;
+    ranges::any_view<const DylibCommand &> importedDylibCommands() const;
 
     fmt::appender &format_to(fmt::appender &out) const;
 

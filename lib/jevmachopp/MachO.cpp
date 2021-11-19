@@ -1,5 +1,6 @@
 #include "jevmachopp/MachO.h"
 #include "jevmachopp/DySymtabCommand.h"
+#include "jevmachopp/DylibCommand.h"
 #include "jevmachopp/SegmentCommand.h"
 #include "jevmachopp/Strtab.h"
 #include "jevmachopp/SymtabCommand.h"
@@ -41,10 +42,10 @@ ranges::any_view<const LoadCommand &> MachO::segmentLoadCommands() const {
 }
 
 ranges::any_view<const SegmentCommand &> MachO::segments() const {
-    return ranges::views::transform(
-        segmentLoadCommands(), [](const LoadCommand &segLC) -> const SegmentCommand & {
-            return *std::get<const SegmentCommand *>(segLC.subcmd()->get());
-        });
+    return ranges::views::transform(segmentLoadCommands(),
+                                    [](const LoadCommand &segLC) -> const SegmentCommand & {
+                                        return *(const SegmentCommand *)segLC.subcmd();
+                                    });
 }
 
 const SegmentCommand *MachO::segmentWithName(const std::string_view &name) const {
@@ -205,6 +206,36 @@ size_t MachO::indirect_syms_size() const {
         return 0;
     }
     return dysymtab_ptr->nindirectsyms;
+}
+
+#pragma mark dylibs
+
+ranges::any_view<const LoadCommand &> MachO::dylibLoadCommands() const {
+    return ranges::views::filter(loadCommands(), [](const LoadCommand &lc) {
+        return lc.cmd == LoadCommandType::ID_DYLIB || lc.cmd == LoadCommandType::LOAD_DYLIB ||
+               lc.cmd == LoadCommandType::LOAD_WEAK_DYLIB ||
+               lc.cmd == LoadCommandType::REEXPORT_DYLIB;
+    });
+}
+
+ranges::any_view<const DylibCommand &> MachO::dylibCommands() const {
+    return ranges::views::transform(dylibLoadCommands(),
+                                    [](const LoadCommand &lc) -> const DylibCommand & {
+                                        return *(const DylibCommand *)lc.subcmd();
+                                    });
+}
+
+ranges::any_view<const LoadCommand &> MachO::importedDylibLoadCommands() const {
+    return ranges::views::filter(loadCommands(), [](const LoadCommand &lc) {
+        return lc.cmd == LoadCommandType::LOAD_DYLIB || lc.cmd == LoadCommandType::LOAD_WEAK_DYLIB;
+    });
+}
+
+ranges::any_view<const DylibCommand &> MachO::importedDylibCommands() const {
+    return ranges::views::transform(importedDylibLoadCommands(),
+                                    [](const LoadCommand &lc) -> const DylibCommand & {
+                                        return *(const DylibCommand *)lc.subcmd();
+                                    });
 }
 
 fmt::appender &MachO::format_to(fmt::appender &out) const {
