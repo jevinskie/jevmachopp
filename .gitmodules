@@ -13,3 +13,6 @@
 [submodule "3rdparty/delegate"]
 	path = 3rdparty/delegate
 	url = https://github.com/rosbacke/delegate
+[submodule "3rdparty/callable_traits"]
+	path = 3rdparty/callable_traits
+	url = https://github.com/boostorg/callable_traits

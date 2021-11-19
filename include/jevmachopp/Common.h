@@ -9,6 +9,9 @@
 
 #include "delegate/delegate.hpp"
 
+#include <boost/callable_traits/function_type.hpp>
+#include <boost/callable_traits/remove_member_cv.hpp>
+
 #include <range/v3/algorithm/find_if.hpp>
 #include <range/v3/range.hpp>
 #include <range/v3/view.hpp>
@@ -123,21 +126,10 @@ as_unsigned(const Src value) {
 
 template <typename> struct remove_member_pointer;
 
-template <typename U, typename F> struct remove_member_pointer<U F::*>
-{
+template <typename U, typename F> struct remove_member_pointer<U F::*> {
     using member_type = U;
     using class_type = F;
 };
-
-template<typename> struct rm_func_cv; // undefined
-template<typename R, typename... ArgTypes>
-struct rm_func_cv<R(ArgTypes...)>  { using type = R(ArgTypes...); };
-template<typename R, typename... ArgTypes>
-struct rm_func_cv<R(ArgTypes...) const>  { using type = R(ArgTypes...); };
-template<typename R, typename... ArgTypes>
-struct rm_func_cv<R(ArgTypes...) volatile>  { using type = R(ArgTypes...); };
-template<typename R, typename... ArgTypes>
-struct rm_func_cv<R(ArgTypes...) const volatile>  { using type = R(ArgTypes...); };
 
 #pragma mark Ranges
 
@@ -178,3 +170,8 @@ T setIfNull(T &ptr, delegate<T()> getter) {
         }                                                                                          \
         (ptr);                                                                                     \
     })
+
+#define DELEGATE_MKMEM2(memFknPtr, object)                                                         \
+    (delegate<boost::callable_traits::remove_member_cv_t<              \
+                           remove_member_pointer<decltype(memFknPtr)>::member_type>>::           \
+         make<memFknPtr>(object))
