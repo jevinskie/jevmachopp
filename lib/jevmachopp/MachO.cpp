@@ -188,14 +188,22 @@ std::span<const uint32_t> MachO::indirect_syms_idxes(const DySymtabCommand *dysy
             dysymtab_ptr->nindirectsyms};
 }
 
+#define MKMEM(memFknPtr, object)                      \
+    (delegate<std::remove_reference_t<memFknPtr>>::make<std::remove_reference_t<decltype(object)>, \
+                               memFknPtr>(object))
+
 ranges::any_view<const NList &> MachO::indirect_syms(const SymtabCommand *symtab_ptr,
                                                      const DySymtabCommand *dysymtab_ptr) const {
     // least rescanning, but ugly
     // symtab_ptr = set_if_null(symtab_ptr, symtab);
     // symtab_ptr = set_if_null_w_checked_ret(symtab_ptr, symtab, {});
 
-    setIfNullErroringRet(symtab_ptr, delegate<const SymtabCommand *()>::make<&MachO::symtab>(*this),
-                         {});
+    auto del = delegate<const SymtabCommand *()>::make<&MachO::symtab>(*this);
+    if (!setIfNull(symtab_ptr, del)) {
+        return {};
+    }
+    // setIfNullErroringRet(symtab_ptr, delegate<const SymtabCommand *()>::make<&MachO::symtab>(*this),
+    //                      {});
     setIfNullErroringRet(dysymtab_ptr,
                          delegate<const DySymtabCommand *()>::make<&MachO::dysymtab>(*this), {});
     const auto nlists = symtab_ptr->nlists(*this);
