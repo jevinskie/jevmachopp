@@ -194,24 +194,10 @@ ranges::any_view<const NList &> MachO::indirect_syms(const SymtabCommand *symtab
     // symtab_ptr = set_if_null(symtab_ptr, symtab);
     // symtab_ptr = set_if_null_w_checked_ret(symtab_ptr, symtab, {});
 
-    if (!setIfNull(symtab_ptr, delegate<const SymtabCommand *()>::make<&MachO::symtab>(*this))) {
-        return {};
-    }
-    // if (!symtab_ptr) {
-    //     symtab_ptr = symtab();
-    //     if (!symtab_ptr) {
-    //         return {};
-    //     }
-    // }
-
+    setIfNullErroringRet(symtab_ptr, delegate<const SymtabCommand *()>::make<&MachO::symtab>(*this),
+                         {});
     setIfNullErroringRet(dysymtab_ptr,
                          delegate<const DySymtabCommand *()>::make<&MachO::dysymtab>(*this), {});
-    // if (!dysymtab_ptr) {
-    //     dysymtab_ptr = dysymtab();
-    //     if (!dysymtab_ptr) {
-    //         return {};
-    //     }
-    // }
     const auto nlists = symtab_ptr->nlists(*this);
     return ranges::views::transform(indirect_syms_idxes(),
                                     [nlists](const int idx) -> const NList & {
