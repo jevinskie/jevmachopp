@@ -53,6 +53,8 @@ public:
     size_t ext_def_syms_size() const;
     std::span<const NList> undef_syms() const;
     size_t undef_syms_size() const;
+    std::span<const NList> indirect_syms() const;
+    size_t indirect_syms_size() const;
 
     fmt::appender &format_to(fmt::appender &out) const;
 

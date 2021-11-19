@@ -89,5 +89,9 @@ int main(int argc, const char *argv[]) {
         fmt::print("undef_sym[{:3d}]: {:f}\n", idx, nl, macho);
     }
 
+    for (const auto [idx, nl] : ranges::views::enumerate(macho.indirect_syms())) {
+        fmt::print("indirect_sym[{:3d}]: {:f}\n", idx, nl, macho);
+    }
+
     return 0;
 }
