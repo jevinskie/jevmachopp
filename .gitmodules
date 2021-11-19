@@ -10,3 +10,6 @@
 [submodule "3rdparty/enum.hpp"]
 	path = 3rdparty/enum.hpp
 	url = https://github.com/BlackMATov/enum.hpp
+[submodule "3rdparty/delegate"]
+	path = 3rdparty/delegate
+	url = https://github.com/rosbacke/delegate

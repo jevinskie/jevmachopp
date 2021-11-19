@@ -44,6 +44,6 @@ add_library(jevmachopp ${MACHOPP_SRC} ${MACHOPP_HDR})
 
 target_link_libraries(jevmachopp enum.hpp fmt range-v3-meta range-v3-concepts range-v3)
 
-target_include_directories(jevmachopp PUBLIC ../../include ../../3rdparty/hedley)
+target_include_directories(jevmachopp PUBLIC ../../include ../../3rdparty/hedley ../../3rdparty/delegate/include)
 
 # target_compile_options(jevmachopp PRIVATE -Xclang -fdump-record-layouts)

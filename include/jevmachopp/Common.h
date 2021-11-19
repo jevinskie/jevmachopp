@@ -7,6 +7,8 @@
 #include <type_traits>
 #include <utility>
 
+#include <delegate/delegate.hpp>
+
 #include <range/v3/algorithm/find_if.hpp>
 #include <range/v3/range.hpp>
 #include <range/v3/view.hpp>
@@ -140,3 +142,21 @@ template <typename Buf, std::size_t BufSz = sizeof(Buf)>
 std::string readMaybeNullTermCString(const char *cstr) {
     return readMaybeNullTermCString(cstr, BufSz);
 }
+
+template <typename T, bool is_ptr = std::is_pointer_v<T>>
+T setIfNull(T &ptr, delegate<T()> getter) {
+    static_assert_cond(is_ptr);
+    if (ptr) {
+        return ptr;
+    }
+    ptr = getter();
+    return ptr;
+}
+
+#define setIfNullErroringRet(ptr, getter, errRes)                                                  \
+    ({                                                                                             \
+        if (!setIfNull((ptr), (getter))) {                                                         \
+            return errRes;                                                                         \
+        }                                                                                          \
+        (ptr);                                                                                     \
+    })
