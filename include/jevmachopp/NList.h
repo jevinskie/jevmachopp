@@ -10,7 +10,8 @@
 class NList {
 public:
     fmt::appender &format_to(fmt::appender &out) const;
-    fmt::appender &format_to(fmt::appender &out, const MachO &macho) const;
+    fmt::appender &format_to(fmt::appender &out, const MachO &macho,
+                             const dylib_names_map_t *map = nullptr) const;
 
 public:
     uint32_t strx;
@@ -37,21 +38,25 @@ template <typename T> struct value_extractor {
 };
 
 template <> struct fmt::formatter<NList> {
-    // Presentation format: 'd' - dumb, 'f' - fancy.
+    // Presentation format: 'd' - dumb, 'f' - fancy, 'm' - mapped fancy
     char presentation = 'd';
     int macho_arg_id = -1;
+    int dylib_names_map_arg_id = -1;
 
     constexpr auto parse(format_parse_context &ctx) -> decltype(ctx.begin()) {
         auto it = ctx.begin(), end = ctx.end();
-        if (it != end && (*it == 'd' || *it == 'f'))
+        if (it != end && (*it == 'd' || *it == 'f' || *it == 'm'))
             presentation = *it++;
 
         // Check if reached the end of the range:
         if (it != end && *it != '}')
             throw format_error("invalid format");
 
-        if (presentation == 'f') {
+        if (presentation == 'f' || presentation == 'm') {
             macho_arg_id = ctx.next_arg_id();
+        }
+        if (presentation == 'm') {
+            dylib_names_map_arg_id = ctx.next_arg_id();
         }
 
         // Return an iterator past the end of the parsed range:
@@ -65,11 +70,18 @@ template <> struct fmt::formatter<NList> {
         auto out = ctx.out();
         if (macho_arg_id >= 0) {
             auto macho_arg = ctx.arg(macho_arg_id);
-            auto arg_handle = visit_format_arg(value_extractor<handle_t>(), macho_arg);
-            auto custom_value = (custom_value_t *)&arg_handle;
-            const auto &macho = *(const MachO *)custom_value->value;
+            auto macho_arg_handle = visit_format_arg(value_extractor<handle_t>(), macho_arg);
+            auto macho_custom_value = (custom_value_t *)&macho_arg_handle;
+            const auto &macho = *(const MachO *)macho_custom_value->value;
             assert(macho.isMagicGood());
-            return nlist.format_to(out, macho);
+            if (dylib_names_map_arg_id >= 0) {
+                auto dylib_names_map_arg = ctx.arg(dylib_names_map_arg_id);
+                auto dylib_names_map_arg_ptr = (const dylib_names_map_t *)visit_format_arg(
+                    value_extractor<const void *>(), dylib_names_map_arg);
+                return nlist.format_to(out, macho, dylib_names_map_arg_ptr);
+            } else {
+                return nlist.format_to(out, macho);
+            }
         }
         return nlist.format_to(out);
     }

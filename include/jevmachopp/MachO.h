@@ -1,6 +1,6 @@
 #pragma once
 
-#include <list>
+#include <array>
 #include <mach/machine.h>
 #include <memory>
 #include <range/v3/range.hpp>
@@ -22,6 +22,8 @@ class SegmentCommand;
 class SymtabCommand;
 class NList;
 class StrtabIterator;
+
+using dylib_names_map_t = std::array<const char *, 0xFF>;
 
 class MachO {
 public:
@@ -65,6 +67,7 @@ public:
     ranges::any_view<const DylibCommand &> dylibCommands() const;
     ranges::any_view<const LoadCommand &> importedDylibLoadCommands() const;
     ranges::any_view<const DylibCommand &> importedDylibCommands() const;
+    dylib_names_map_t dylibNamesMap() const;
 
     fmt::appender &format_to(fmt::appender &out) const;
 

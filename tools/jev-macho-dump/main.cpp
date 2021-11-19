@@ -85,8 +85,10 @@ int main(int argc, const char *argv[]) {
 
     fmt::print("linkedit_seg: {}\n", linkedit_seg);
 
+    const auto dylib_names = macho.dylibNamesMap();
+
     for (const auto [idx, nl] : ranges::views::enumerate(macho.undef_syms())) {
-        fmt::print("undef_sym[{:3d}]: {:f}\n", idx, nl, macho);
+        fmt::print("undef_sym[{:3d}]: {:m}\n", idx, nl, macho, (const void *)&dylib_names);
     }
 
     for (const auto [idx, nl] : ranges::views::enumerate(macho.indirect_syms())) {

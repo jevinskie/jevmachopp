@@ -1,6 +1,8 @@
-#include "jevmachopp/MachO.h"
+#include <algorithm>
+
 #include "jevmachopp/DySymtabCommand.h"
 #include "jevmachopp/DylibCommand.h"
+#include "jevmachopp/MachO.h"
 #include "jevmachopp/SegmentCommand.h"
 #include "jevmachopp/Strtab.h"
 #include "jevmachopp/SymtabCommand.h"
@@ -236,6 +238,16 @@ ranges::any_view<const DylibCommand &> MachO::importedDylibCommands() const {
                                     [](const LoadCommand &lc) -> const DylibCommand & {
                                         return *(const DylibCommand *)lc.subcmd();
                                     });
+}
+
+auto MachO::dylibNamesMap() const -> decltype(dylibNamesMap()) {
+    dylib_names_map_t res = {};
+    auto cmds = importedDylibCommands() | ranges::views::common;
+    std::transform(cmds.begin(), cmds.end(), res.begin(),
+                   [](const DylibCommand &dylibCmd) -> const char * {
+                       return dylibCmd.name();
+                   });
+    return res;
 }
 
 fmt::appender &MachO::format_to(fmt::appender &out) const {
