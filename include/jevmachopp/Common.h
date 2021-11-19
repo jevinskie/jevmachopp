@@ -7,7 +7,7 @@
 #include <type_traits>
 #include <utility>
 
-#include <delegate/delegate.hpp>
+#include "delegate/delegate.hpp"
 
 #include <range/v3/algorithm/find_if.hpp>
 #include <range/v3/range.hpp>
@@ -120,6 +120,24 @@ as_unsigned(const Src value) {
                   "Argument must be a signed or unsigned integer type.");
     return static_cast<decltype(as_unsigned(value))>(value);
 }
+
+template <typename> struct remove_member_pointer;
+
+template <typename U, typename F> struct remove_member_pointer<U F::*>
+{
+    using member_type = U;
+    using class_type = F;
+};
+
+template<typename> struct rm_func_cv; // undefined
+template<typename R, typename... ArgTypes>
+struct rm_func_cv<R(ArgTypes...)>  { using type = R(ArgTypes...); };
+template<typename R, typename... ArgTypes>
+struct rm_func_cv<R(ArgTypes...) const>  { using type = R(ArgTypes...); };
+template<typename R, typename... ArgTypes>
+struct rm_func_cv<R(ArgTypes...) volatile>  { using type = R(ArgTypes...); };
+template<typename R, typename... ArgTypes>
+struct rm_func_cv<R(ArgTypes...) const volatile>  { using type = R(ArgTypes...); };
 
 #pragma mark Ranges
 
