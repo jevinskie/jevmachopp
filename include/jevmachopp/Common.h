@@ -172,6 +172,5 @@ T setIfNull(T &ptr, delegate<T()> getter) {
     })
 
 #define DELEGATE_MKMEM2(memFknPtr, object)                                                         \
-    (delegate<boost::callable_traits::remove_member_cv_t<              \
-                           remove_member_pointer<decltype(memFknPtr)>::member_type>>::           \
-         make<memFknPtr>(object))
+    (delegate<boost::callable_traits::remove_member_cv_t<                                          \
+         remove_member_pointer<decltype(memFknPtr)>::member_type>>::make<memFknPtr>(object))

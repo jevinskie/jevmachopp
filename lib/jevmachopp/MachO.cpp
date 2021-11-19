@@ -188,78 +188,10 @@ std::span<const uint32_t> MachO::indirect_syms_idxes(const DySymtabCommand *dysy
             dysymtab_ptr->nindirectsyms};
 }
 
-template <typename R, typename... Args> struct FunctionTraitsBase {
-    using RetType = R;
-    using ArgTypes = std::tuple<Args...>;
-    static constexpr std::size_t ArgCount = sizeof...(Args);
-};
-
-template <typename F> struct FunctionTraits;
-
-template <typename R, typename... Args>
-struct FunctionTraits<R (*)(Args...)> : FunctionTraitsBase<R, Args...> {
-    using base = FunctionTraitsBase<R, Args...>;
-    using Pointer = R (*)(Args...);
-    using ArgTypes = std::tuple<Args...>;
-    static constexpr std::size_t ArgCount = sizeof...(Args);
-    template <std::size_t N> using NthArg = std::tuple_element_t<N, ArgTypes>;
-    using FirstArg = NthArg<0>;
-    using LastArg = NthArg<ArgCount - 1>;
-};
-
-template <typename R> struct FunctionTraits<R (*)()> : FunctionTraitsBase<R> {
-    using Pointer = R (*)();
-};
-
-#define MKMEM(memFknPtr, object)                                                                   \
-    (delegate<std::remove_reference_t<memFknPtr>>::make<std::remove_reference_t<decltype(object)>, \
-                                                        memFknPtr>(object))
-#include <memory>
-
 ranges::any_view<const NList &> MachO::indirect_syms(const SymtabCommand *symtab_ptr,
                                                      const DySymtabCommand *dysymtab_ptr) const {
-    // least rescanning, but ugly
-    // symtab_ptr = set_if_null(symtab_ptr, symtab);
-    // symtab_ptr = set_if_null_w_checked_ret(symtab_ptr, symtab, {});
-
-#if 1
-    const SymtabCommand (*dummy_fptr)() = nullptr;
-    fmt::print("dummy_fptr type: {}\n", type_name<decltype(dummy_fptr)>());
-    decltype(&MachO::symtab) ugh = nullptr;
-    fmt::print("ugh type: {}\n", type_name<decltype(ugh)>());
-    std::remove_cv_t<decltype(ugh)> ugh2 = nullptr;
-    fmt::print("ugh2 type: {}\n", type_name<decltype(ugh2)>());
-    // const SymtabCommand *() const
-    //    remove_member_pointer<decltype(&MachO::symtab)>::member_type *oww = nullptr;
-    //    fmt::print("oww type: {}\n", type_name<decltype(oww)>());
-    boost::callable_traits::remove_member_cv_t<
-        remove_member_pointer<decltype(&MachO::symtab)>::member_type> *oww2 = nullptr;
-    fmt::print("oww2 type: {}\n", type_name<decltype(oww2)>());
-    boost::callable_traits::remove_member_cv_t<
-        remove_member_pointer<decltype(&MachO::symtab)>::member_type> *oww3 = nullptr;
-    fmt::print("oww3 type: {}\n", type_name<decltype(oww3)>());
-    const auto wtf = &MachO::symtab;
-    const auto xyz = *(void **)&wtf;
-    const auto &foo = &MachO::symtab;
-    const auto bar = (std::remove_pointer_t<decltype(wtf)>)(wtf);
-    const auto buzz = &std::remove_pointer_t<decltype(this)>::symtab;
-    //    const auto bar = *(void**)&foo;
-    fmt::print("foo type: {}\n", type_name<decltype(foo)>());
-    fmt::print("bar type: {}\n", type_name<decltype(foo)>());
-    fmt::print("test type: {}\n", type_name<std::remove_reference_t<decltype(foo)>>());
-    fmt::print("foo: {:p}\n", (const void *)&foo);
-#endif
-    //    auto del2 =
-    //    delegate<FunctionTraits<decltype(MachO::symtab)>::Pointer>::make<&MachO::symtab>(*this);
-    //    auto del = delegate<const SymtabCommand *()>::make<&MachO::symtab>(*this);
-    if (!setIfNull(symtab_ptr, DELEGATE_MKMEM2(&MachO::symtab, *this))) {
-        return {};
-    }
-    // setIfNullErroringRet(symtab_ptr, delegate<const SymtabCommand
-    // *()>::make<&MachO::symtab>(*this),
-    //                      {});
-    setIfNullErroringRet(dysymtab_ptr,
-                         DELEGATE_MKMEM2(&MachO::dysymtab, *this), {});
+    setIfNullErroringRet(symtab_ptr, DELEGATE_MKMEM2(&MachO::symtab, *this), {});
+    setIfNullErroringRet(dysymtab_ptr, DELEGATE_MKMEM2(&MachO::dysymtab, *this), {});
     const auto nlists = symtab_ptr->nlists(*this);
     return ranges::views::transform(indirect_syms_idxes(),
                                     [nlists](const int idx) -> const NList & {
