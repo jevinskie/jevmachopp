@@ -177,16 +177,23 @@ size_t MachO::undef_syms_size() const {
     return dysymtab_ptr->nundefsym;
 }
 
-std::span<const NList> MachO::indirect_syms() const {
+std::span<const uint32_t> MachO::indirect_syms_idxes() const {
     const auto *symtab_ptr = symtab();
     const auto *dysymtab_ptr = dysymtab();
     if (!symtab_ptr || !dysymtab_ptr) {
         return {};
     }
-    const auto nlists = symtab_ptr->nlists(*this);
-    return {(const NList *)((uintptr_t)this + dysymtab_ptr->indirectsymoff),
-            (const NList *)((uintptr_t)this + dysymtab_ptr->indirectsymoff +
-                            sizeof(NList) * dysymtab_ptr->nindirectsyms)};
+    return {(const uint32_t *)((uintptr_t)this + dysymtab_ptr->indirectsymoff),
+            dysymtab_ptr->nindirectsyms};
+}
+
+ranges::any_view<const NList &> MachO::indirect_syms() const {
+    const auto *symtab_ptr = symtab();
+    const auto *dysymtab_ptr = dysymtab();
+    if (!symtab_ptr || !dysymtab_ptr) {
+        return {};
+    }
+    return {};
 }
 
 size_t MachO::indirect_syms_size() const {
