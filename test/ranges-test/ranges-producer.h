@@ -30,4 +30,17 @@ template <> struct fmt::formatter<Version> {
 
 std::list<Version> makeVersions();
 
+inline bool isVersionEven(const Version &ver) {
+    return (ver.major & 1) == 0;
+}
+
+inline auto evenVersions(std::list<Version> &versions) {
+    return ranges::views::filter(versions, isVersionEven) | ranges::views::common;
+}
+
+inline auto evenVersionsLambda(std::list<Version> &versions) {
+    return ranges::views::filter(versions, [](const Version &ver) {
+        return (ver.major & 1) == 0;
+    });
+}
 int foo(void);
