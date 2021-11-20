@@ -12,9 +12,7 @@
 #include <boost/callable_traits/function_type.hpp>
 #include <boost/callable_traits/remove_member_cv.hpp>
 
-#include <range/v3/algorithm/find_if.hpp>
-#include <range/v3/range.hpp>
-#include <range/v3/view.hpp>
+#include <ranges>
 
 using namespace fmt::literals;
 
