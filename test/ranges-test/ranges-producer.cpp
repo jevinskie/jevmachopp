@@ -3,3 +3,7 @@
 int foo(void) {
     return 42;
 }
+
+std::list<Version> makeVersions() {
+    return {{0, 0, 0}, {1, 0, 0}, {2, 0, 0}, {5, 0, 0}, {243, 42, 7}};
+}
