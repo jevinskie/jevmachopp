@@ -27,4 +27,5 @@ add_subdirectory(3rdparty)
 
 add_subdirectory(lib)
 add_subdirectory(tools)
+add_subdirectory(test)
 

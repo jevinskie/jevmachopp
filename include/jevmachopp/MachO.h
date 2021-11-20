@@ -12,6 +12,9 @@
 #include "jevmachopp/CpuTypeMeta.h"
 #include "jevmachopp/LoadCommand.h"
 
+#include <nanorange/views/filter.hpp>
+#include <nanorange/views/subrange.hpp>
+using namespace nano;
 
 class DylibCommand;
 class DySymtabCommand;
@@ -26,7 +29,7 @@ class MachO {
 public:
     bool isMagicGood() const;
 
-    using lc_range = std::ranges::subrange<LoadCommand::Iterator>;
+    using lc_range = ranges::subrange<LoadCommand::Iterator>;
     lc_range loadCommands() const;
     LoadCommand::Iterator lc_cbegin() const;
     LoadCommand::Iterator lc_cend() const;

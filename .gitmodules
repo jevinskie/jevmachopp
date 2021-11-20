@@ -16,3 +16,9 @@
 [submodule "3rdparty/visit"]
 	path = 3rdparty/visit
 	url = https://github.com/rollbear/visit
+[submodule "3rdparty/rx-ranges"]
+	path = 3rdparty/rx-ranges
+	url = https://github.com/simonask/rx-ranges
+[submodule "3rdparty/nanorange"]
+	path = 3rdparty/nanorange
+	url = https://github.com/tcbrindle/NanoRange

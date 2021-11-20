@@ -12,7 +12,8 @@
 #include <boost/callable_traits/function_type.hpp>
 #include <boost/callable_traits/remove_member_cv.hpp>
 
-#include <ranges>
+// #include <nanorange.hpp>
+// using namespace nano;
 
 using namespace fmt::literals;
 
@@ -133,8 +134,8 @@ template <typename U, typename F> struct remove_member_pointer<U F::*> {
 
 namespace ranges {
 template <typename Rng, typename F>
-const std::ranges::range_value_t<Rng> *find_if_or_nullptr(Rng &&rng, F pred) {
-    auto res = std::find_if(rng, pred);
+const Rng *find_if_or_nullptr(Rng &&rng, F pred) {
+    auto res = find_if(rng, pred);
     if (res != std::end(rng)) {
         return &*res;
     }
