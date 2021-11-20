@@ -4,6 +4,7 @@
 
 #include <fmt/core.h>
 
+#include <nanorange/views/common.hpp>
 #include <nanorange/views/filter.hpp>
 #include <nanorange/views/subrange.hpp>
 using namespace nano;
