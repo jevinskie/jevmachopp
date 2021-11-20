@@ -12,22 +12,21 @@ auto evenVersions(std::list<Version> &versions) {
     return ranges::views::filter(versions, isVersionEven);
 }
 
+auto evenVersionsLambda(std::list<Version> &versions) {
+    return ranges::views::filter(versions, [](const Version &ver) {
+        return (ver.major & 1) == 0;
+    });
+}
+
 int main(void) {
     fmt::print("foo(): {:d}\n", foo());
 
     auto versions = makeVersions();
     fmt::print("versions: {}\n", fmt::join(versions, ", "));
-    for (const auto &ver : versions) {
-        fmt::print("ver: {}\n", ver);
-    }
     auto evenVer = evenVersions(versions);
-    auto b = evenVer.begin();
-    auto e = evenVer.end();
-    fmt::print("&*b: {:p} &*e: {:p}\n", fmt::ptr(&*b), fmt::ptr(&*e));
-    for (const auto &ver : evenVer) {
-        fmt::print("ver: {}\n", ver);
-    }
-    // fmt::print("versions: {}\n", fmt::join(evenVer, ", "));
+    fmt::print("evenVer: {}\n", fmt::join(evenVer, ", "));
+    auto evenVerLam = evenVersionsLambda(versions);
+    fmt::print("evenVerLam: {}\n", fmt::join(evenVerLam, ", "));
 
     return 0;
 }
