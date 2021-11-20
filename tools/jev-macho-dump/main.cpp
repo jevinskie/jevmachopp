@@ -7,6 +7,7 @@
 #include <jevmachopp/SymtabCommand.h>
 
 int main(int argc, const char *argv[]) {
+    int idx;
     assert(argc == 2);
     std::string infile(argv[1]);
     uint64_t size;
@@ -72,8 +73,13 @@ int main(int argc, const char *argv[]) {
     }
 #endif
 
-    for (const auto [idx, lc] : ranges::views::enumerate(macho.loadCommands())) {
-        fmt::print("lc[{:2d}]: {}\n", idx, lc);
+    // for (const auto [idx, lc] : ranges::views::enumerate(macho.loadCommands())) {
+    //     fmt::print("lc[{:2d}]: {}\n", idx, lc);
+    // }
+
+    idx = 0;
+    for (const auto &lc : macho.loadCommands()) {
+        fmt::print("lc[{:2d}]: {}\n", idx++, lc);
     }
 
     const SymtabCommand *symtab_ptr = macho.symtab();
@@ -87,12 +93,22 @@ int main(int argc, const char *argv[]) {
 
     const auto dylib_names = macho.dylibNamesMap();
 
-    for (const auto [idx, nl] : ranges::views::enumerate(macho.undef_syms())) {
-        fmt::print("undef_sym[{:3d}]: {:m}\n", idx, nl, macho, (const void *)&dylib_names);
+    // for (const auto [idx, nl] : ranges::views::enumerate(macho.undef_syms())) {
+    //     fmt::print("undef_sym[{:3d}]: {:m}\n", idx, nl, macho, (const void *)&dylib_names);
+    // }
+
+    idx = 0;
+    for (const auto &nl : macho.undef_syms()) {
+        fmt::print("undef_sym[{:3d}]: {:m}\n", idx++, nl, macho, (const void *)&dylib_names);
     }
 
-    for (const auto [idx, nl] : ranges::views::enumerate(macho.indirect_syms())) {
-        fmt::print("indirect_sym[{:3d}]: {:f}\n", idx, nl, macho);
+    // for (const auto [idx, nl] : ranges::views::enumerate(macho.indirect_syms())) {
+    //     fmt::print("indirect_sym[{:3d}]: {:f}\n", idx, nl, macho);
+    // }
+
+    idx = 0;
+    for (const auto &nl : macho.indirect_syms()) {
+        fmt::print("indirect_sym[{:3d}]: {:f}\n", idx++, nl, macho);
     }
 
     return 0;
