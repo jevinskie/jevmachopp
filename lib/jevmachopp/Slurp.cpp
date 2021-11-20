@@ -1,5 +1,6 @@
 #include "jevmachopp/Slurp.h"
 
+#include <cassert>
 #include <stdio.h>
 #include <string>
 #include <sys/fcntl.h>
@@ -14,15 +15,15 @@ uint8_t *Slurp::readfile(const std::string &filename, uint64_t *len, void *prefe
 
     fd = open(filename.c_str(), O_RDONLY);
     if (fd == -1)
-        throw "couldnt open";
+        assert(!"couldnt open");
     if (fstat(fd, &st) != 0)
-        throw "couldnt stat";
+        assert(!"couldnt stat");
 
     *len = (uint64_t)st.st_size;
 
     buf = (uint8_t *)mmap(preferred_addr, st.st_size, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
     if (buf == NULL)
-        throw "couldnt mmap";
+        assert(!"couldnt mmap");
     close(fd);
 
     return buf;

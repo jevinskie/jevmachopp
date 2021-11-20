@@ -1,9 +1,6 @@
 [submodule "3rdparty/fmt"]
 	path = 3rdparty/fmt
 	url = https://github.com/fmtlib/fmt
-[submodule "3rdparty/range-v3"]
-	path = 3rdparty/range-v3
-	url = https://github.com/ericniebler/range-v3/
 [submodule "3rdparty/hedley"]
 	path = 3rdparty/hedley
 	url = https://github.com/nemequ/hedley

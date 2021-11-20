@@ -50,7 +50,7 @@ template <> struct fmt::formatter<NList> {
 
         // Check if reached the end of the range:
         if (it != end && *it != '}')
-            throw format_error("invalid format");
+            assert(!"invalid format");
 
         if (presentation == 'f' || presentation == 'm') {
             macho_arg_id = ctx.next_arg_id();

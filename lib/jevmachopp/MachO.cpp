@@ -37,14 +37,14 @@ MachO::lc_range MachO::loadCommands() const {
 
 #pragma mark segments
 
-ranges::any_view<const LoadCommand &> MachO::segmentLoadCommands() const {
-    return ranges::views::filter(loadCommands(), [](const LoadCommand &lc) {
+auto MachO::segmentLoadCommands() const {
+    return std::ranges::views::filter(loadCommands(), [](const LoadCommand &lc) {
         return lc.cmd == LoadCommandType::SEGMENT_64;
     });
 }
 
-ranges::any_view<const SegmentCommand &> MachO::segments() const {
-    return ranges::views::transform(segmentLoadCommands(),
+auto MachO::segments() const {
+    return std::rages::views::transform(segmentLoadCommands(),
                                     [](const LoadCommand &segLC) -> const SegmentCommand & {
                                         return *(const SegmentCommand *)segLC.subcmd();
                                     });
@@ -92,7 +92,7 @@ std::span<const NList> MachO::symtab_nlists() const {
     return symtab_ptr->nlists(*this);
 }
 
-ranges::any_view<const char *> MachO::symtab_strtab_entries() const {
+std::ranges::subrange<const char *> MachO::symtab_strtab_entries() const {
     const auto *symtab_ptr = symtab();
     if (!symtab_ptr) {
         return {};
@@ -191,7 +191,7 @@ std::span<const uint32_t> MachO::indirect_syms_idxes(const DySymtabCommand *dysy
             dysymtab_ptr->nindirectsyms};
 }
 
-ranges::any_view<const NList &> MachO::indirect_syms(const SymtabCommand *symtab_ptr,
+std::ranges::subrange<const NList &> MachO::indirect_syms(const SymtabCommand *symtab_ptr,
                                                      const DySymtabCommand *dysymtab_ptr) const {
     setIfNullErroringRet(symtab_ptr, DELEGATE_MKMEM2(&MachO::symtab, *this), {});
     setIfNullErroringRet(dysymtab_ptr, DELEGATE_MKMEM2(&MachO::dysymtab, *this), {});
@@ -212,7 +212,7 @@ size_t MachO::indirect_syms_size() const {
 
 #pragma mark dylibs
 
-ranges::any_view<const LoadCommand &> MachO::dylibLoadCommands() const {
+std::ranges::subrange<const LoadCommand &> MachO::dylibLoadCommands() const {
     return ranges::views::filter(loadCommands(), [](const LoadCommand &lc) {
         return lc.cmd == LoadCommandType::ID_DYLIB || lc.cmd == LoadCommandType::LOAD_DYLIB ||
                lc.cmd == LoadCommandType::LOAD_WEAK_DYLIB ||
@@ -220,20 +220,20 @@ ranges::any_view<const LoadCommand &> MachO::dylibLoadCommands() const {
     });
 }
 
-ranges::any_view<const DylibCommand &> MachO::dylibCommands() const {
+std::ranges::subrange<const DylibCommand &> MachO::dylibCommands() const {
     return ranges::views::transform(dylibLoadCommands(),
                                     [](const LoadCommand &lc) -> const DylibCommand & {
                                         return *(const DylibCommand *)lc.subcmd();
                                     });
 }
 
-ranges::any_view<const LoadCommand &> MachO::importedDylibLoadCommands() const {
+std::ranges::subrange<const LoadCommand &> MachO::importedDylibLoadCommands() const {
     return ranges::views::filter(loadCommands(), [](const LoadCommand &lc) {
         return lc.cmd == LoadCommandType::LOAD_DYLIB || lc.cmd == LoadCommandType::LOAD_WEAK_DYLIB;
     });
 }
 
-ranges::any_view<const DylibCommand &> MachO::importedDylibCommands() const {
+std::ranges::subrange<const DylibCommand &> MachO::importedDylibCommands() const {
     return ranges::views::transform(importedDylibLoadCommands(),
                                     [](const LoadCommand &lc) -> const DylibCommand & {
                                         return *(const DylibCommand *)lc.subcmd();
