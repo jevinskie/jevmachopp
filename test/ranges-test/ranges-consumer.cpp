@@ -5,6 +5,6 @@
 #include "fmt/ranges.h"
 
 int main(void) {
-	fmt::print("foo(): {:d}\n", foo());
-	return 0;
+    fmt::print("foo(): {:d}\n", foo());
+    return 0;
 }

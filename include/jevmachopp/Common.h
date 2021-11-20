@@ -133,8 +133,7 @@ template <typename U, typename F> struct remove_member_pointer<U F::*> {
 #pragma mark Ranges
 
 namespace ranges {
-template <typename Rng, typename F>
-const Rng *find_if_or_nullptr(Rng &&rng, F pred) {
+template <typename Rng, typename F> const Rng *find_if_or_nullptr(Rng &&rng, F pred) {
     auto res = find_if(rng, pred);
     if (res != std::end(rng)) {
         return &*res;

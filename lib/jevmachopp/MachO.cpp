@@ -45,9 +45,9 @@ auto MachO::segmentLoadCommands() const {
 
 auto MachO::segments() const {
     return std::rages::views::transform(segmentLoadCommands(),
-                                    [](const LoadCommand &segLC) -> const SegmentCommand & {
-                                        return *(const SegmentCommand *)segLC.subcmd();
-                                    });
+                                        [](const LoadCommand &segLC) -> const SegmentCommand & {
+                                            return *(const SegmentCommand *)segLC.subcmd();
+                                        });
 }
 
 const SegmentCommand *MachO::segmentWithName(const std::string_view &name) const {
@@ -191,8 +191,8 @@ std::span<const uint32_t> MachO::indirect_syms_idxes(const DySymtabCommand *dysy
             dysymtab_ptr->nindirectsyms};
 }
 
-std::ranges::subrange<const NList &> MachO::indirect_syms(const SymtabCommand *symtab_ptr,
-                                                     const DySymtabCommand *dysymtab_ptr) const {
+std::ranges::subrange<const NList &>
+MachO::indirect_syms(const SymtabCommand *symtab_ptr, const DySymtabCommand *dysymtab_ptr) const {
     setIfNullErroringRet(symtab_ptr, DELEGATE_MKMEM2(&MachO::symtab, *this), {});
     setIfNullErroringRet(dysymtab_ptr, DELEGATE_MKMEM2(&MachO::dysymtab, *this), {});
     const auto nlists = symtab_ptr->nlists(*this);
