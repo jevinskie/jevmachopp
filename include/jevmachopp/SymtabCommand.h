@@ -18,7 +18,6 @@ public:
     size_t nlists_sizeof() const;
     std::span<const NList> nlists(const MachO &macho) const;
 
-    using strtab_entry_range = std::ranges::subrange<StrtabIterator>;
     StrtabIterator strtab_cbegin(const MachO &macho) const;
     StrtabIterator strtab_cend(const MachO &macho) const;
     size_t strtab_sizeof() const;

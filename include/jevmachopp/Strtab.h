@@ -40,3 +40,5 @@ public:
 private:
     pointer m_ptr;
 };
+
+using strtab_entry_range = subrange<StrtabIterator>;

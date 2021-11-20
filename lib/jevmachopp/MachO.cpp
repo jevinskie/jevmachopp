@@ -1,11 +1,9 @@
 #include <algorithm>
 
 #include "jevmachopp/DySymtabCommand.h"
-#include "jevmachopp/DylibCommand.h"
 #include "jevmachopp/MachO.h"
 #include "jevmachopp/SegmentCommand.h"
 #include "jevmachopp/Strtab.h"
-#include "jevmachopp/SymtabCommand.h"
 
 #pragma mark MachO header
 
@@ -37,21 +35,8 @@ MachO::lc_range MachO::loadCommands() const {
 
 #pragma mark segments
 
-auto MachO::segmentLoadCommands() const {
-    return std::ranges::views::filter(loadCommands(), [](const LoadCommand &lc) {
-        return lc.cmd == LoadCommandType::SEGMENT_64;
-    });
-}
-
-auto MachO::segments() const {
-    return std::rages::views::transform(segmentLoadCommands(),
-                                        [](const LoadCommand &segLC) -> const SegmentCommand & {
-                                            return *(const SegmentCommand *)segLC.subcmd();
-                                        });
-}
-
 const SegmentCommand *MachO::segmentWithName(const std::string_view &name) const {
-    return ranges::find_if_or_nullptr(segments(), [=](const SegmentCommand &segCmd) {
+    return find_if_or_nullptr(segments(), [=](const SegmentCommand &segCmd) {
         return segCmd.segName() == name;
     });
 }
@@ -75,7 +60,7 @@ const SegmentCommand *MachO::linkeditSeg() const {
 #pragma mark symtab
 
 const SymtabCommand *MachO::symtab() const {
-    const auto *lc = ranges::find_if_or_nullptr(loadCommands(), [=](const LoadCommand &lc) {
+    const auto *lc = find_if_or_nullptr(loadCommands(), [](const LoadCommand &lc) {
         return lc.cmd == LoadCommandType::SYMTAB;
     });
     if (!lc) {
@@ -92,17 +77,6 @@ std::span<const NList> MachO::symtab_nlists() const {
     return symtab_ptr->nlists(*this);
 }
 
-std::ranges::subrange<const char *> MachO::symtab_strtab_entries() const {
-    const auto *symtab_ptr = symtab();
-    if (!symtab_ptr) {
-        return {};
-    }
-    return ranges::views::transform(symtab_ptr->strtab_entries(*this),
-                                    [](const auto &strchr) -> const char * {
-                                        return &strchr;
-                                    });
-}
-
 const char *MachO::strtab_data() const {
     const auto *symtab_ptr = symtab();
     if (!symtab_ptr) {
@@ -114,7 +88,7 @@ const char *MachO::strtab_data() const {
 #pragma mark dysymtab
 
 const DySymtabCommand *MachO::dysymtab() const {
-    const auto *lc = ranges::find_if_or_nullptr(loadCommands(), [=](const LoadCommand &lc) {
+    const auto *lc = find_if_or_nullptr(loadCommands(), [=](const LoadCommand &lc) {
         return lc.cmd == LoadCommandType::DYSYMTAB;
     });
     if (!lc) {
@@ -191,17 +165,6 @@ std::span<const uint32_t> MachO::indirect_syms_idxes(const DySymtabCommand *dysy
             dysymtab_ptr->nindirectsyms};
 }
 
-std::ranges::subrange<const NList &>
-MachO::indirect_syms(const SymtabCommand *symtab_ptr, const DySymtabCommand *dysymtab_ptr) const {
-    setIfNullErroringRet(symtab_ptr, DELEGATE_MKMEM2(&MachO::symtab, *this), {});
-    setIfNullErroringRet(dysymtab_ptr, DELEGATE_MKMEM2(&MachO::dysymtab, *this), {});
-    const auto nlists = symtab_ptr->nlists(*this);
-    return ranges::views::transform(indirect_syms_idxes(),
-                                    [nlists](const int idx) -> const NList & {
-                                        return nlists[idx];
-                                    });
-}
-
 size_t MachO::indirect_syms_size() const {
     const auto *dysymtab_ptr = dysymtab();
     if (!dysymtab_ptr) {
@@ -212,43 +175,17 @@ size_t MachO::indirect_syms_size() const {
 
 #pragma mark dylibs
 
-std::ranges::subrange<const LoadCommand &> MachO::dylibLoadCommands() const {
-    return ranges::views::filter(loadCommands(), [](const LoadCommand &lc) {
-        return lc.cmd == LoadCommandType::ID_DYLIB || lc.cmd == LoadCommandType::LOAD_DYLIB ||
-               lc.cmd == LoadCommandType::LOAD_WEAK_DYLIB ||
-               lc.cmd == LoadCommandType::REEXPORT_DYLIB;
-    });
-}
-
-std::ranges::subrange<const DylibCommand &> MachO::dylibCommands() const {
-    return ranges::views::transform(dylibLoadCommands(),
-                                    [](const LoadCommand &lc) -> const DylibCommand & {
-                                        return *(const DylibCommand *)lc.subcmd();
-                                    });
-}
-
-std::ranges::subrange<const LoadCommand &> MachO::importedDylibLoadCommands() const {
-    return ranges::views::filter(loadCommands(), [](const LoadCommand &lc) {
-        return lc.cmd == LoadCommandType::LOAD_DYLIB || lc.cmd == LoadCommandType::LOAD_WEAK_DYLIB;
-    });
-}
-
-std::ranges::subrange<const DylibCommand &> MachO::importedDylibCommands() const {
-    return ranges::views::transform(importedDylibLoadCommands(),
-                                    [](const LoadCommand &lc) -> const DylibCommand & {
-                                        return *(const DylibCommand *)lc.subcmd();
-                                    });
-}
-
 auto MachO::dylibNamesMap() const -> decltype(dylibNamesMap()) {
     dylib_names_map_t res = {};
-    auto cmds = importedDylibCommands() | ranges::views::common;
-    std::transform(cmds.begin(), cmds.end(), res.begin(),
-                   [](const DylibCommand &dylibCmd) -> const char * {
-                       return dylibCmd.name();
-                   });
+    ranges::copy(ranges::views::transform(importedDylibCommands(),
+                                          [](const DylibCommand &dylibCmd) -> const char * {
+                                              return dylibCmd.name();
+                                          }),
+                 res.data());
     return res;
 }
+
+#pragma mark fmt
 
 fmt::appender &MachO::format_to(fmt::appender &out) const {
     fmt::format_to(

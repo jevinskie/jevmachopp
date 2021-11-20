@@ -18,6 +18,8 @@ add_compile_definitions(FMT_USE_USER_DEFINED_LITERALS=1 FMT_USE_NONTYPE_TEMPLATE
 # add_link_options(-flto=full -Wl,-dead_strip)
 add_compile_options(-fno-rtti -fno-exceptions -fno-unwind-tables -fno-asynchronous-unwind-tables)
 
+add_compile_options(-ferror-limit=100)
+
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_EXTENSIONS YES)
 

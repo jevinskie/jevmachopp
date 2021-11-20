@@ -1,4 +1,5 @@
 #include "jevmachopp/NList.h"
+#include "jevmachopp/MachO.h"
 
 using namespace fmt::literals;
 
@@ -11,6 +12,7 @@ fmt::appender &NList::format_to(fmt::appender &out) const {
 
 fmt::appender &NList::format_to(fmt::appender &out, const MachO &macho,
                                 const dylib_names_map_t *map) const {
+    assert(macho.isMagicGood());
     auto name = macho.strtab_data() + strx;
     fmt::format_to(
         out,

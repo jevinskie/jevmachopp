@@ -1,11 +1,12 @@
 #pragma once
 
 #include "jevmachopp/Common.h"
-#include "jevmachopp/MachO.h"
 
 #include <cassert>
 #include <mach-o/nlist.h>
 #include <string>
+
+class MachO;
 
 class NList {
 public:
@@ -73,7 +74,6 @@ template <> struct fmt::formatter<NList> {
             auto macho_arg_handle = visit_format_arg(value_extractor<handle_t>(), macho_arg);
             auto macho_custom_value = (custom_value_t *)&macho_arg_handle;
             const auto &macho = *(const MachO *)macho_custom_value->value;
-            assert(macho.isMagicGood());
             if (dylib_names_map_arg_id >= 0) {
                 auto dylib_names_map_arg = ctx.arg(dylib_names_map_arg_id);
                 auto dylib_names_map_arg_ptr = (const dylib_names_map_t *)visit_format_arg(

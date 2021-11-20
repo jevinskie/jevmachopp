@@ -3,6 +3,7 @@
 #include <fmt/compile.h>
 #include <fmt/core.h>
 #include <hedley.h>
+#include <span>
 #include <string_view>
 #include <type_traits>
 #include <utility>
@@ -12,10 +13,21 @@
 #include <boost/callable_traits/function_type.hpp>
 #include <boost/callable_traits/remove_member_cv.hpp>
 
-// #include <nanorange.hpp>
-// using namespace nano;
+#include <nanorange/algorithm/copy.hpp>
+#include <nanorange/views/empty.hpp>
+#include <nanorange/views/filter.hpp>
+#include <nanorange/views/subrange.hpp>
+#include <nanorange/views/transform.hpp>
+using namespace nano;
 
 using namespace fmt::literals;
+
+#pragma Common Types
+
+using dylib_names_map_t = std::array<const char *, 0xFF>;
+using indirect_syms_idxes_t = std::span<const uint32_t>;
+
+#pragma Type Utilities
 
 template <typename T> constexpr auto type_name() {
     std::string_view name, prefix, suffix;
@@ -132,15 +144,14 @@ template <typename U, typename F> struct remove_member_pointer<U F::*> {
 
 #pragma mark Ranges
 
-namespace ranges {
-template <typename Rng, typename F> const Rng *find_if_or_nullptr(Rng &&rng, F pred) {
-    auto res = find_if(rng, pred);
+template <typename Rng, typename F>
+const range_value_t<Rng> *find_if_or_nullptr(Rng &&rng, F pred) {
+    auto res = ranges::find_if(rng, pred);
     if (res != std::end(rng)) {
         return &*res;
     }
     return nullptr;
 }
-} // namespace ranges
 
 #pragma mark Utilities
 
