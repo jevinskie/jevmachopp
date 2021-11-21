@@ -10,6 +10,7 @@ set(MACHOPP_SRC
     LoadSubCommand.cpp
     LinkeditDataCommand.cpp
     MachO.cpp
+    MachOHeaderEnums.cpp
     NList.cpp
     Section.cpp
     SegmentCommand.cpp
@@ -24,7 +25,6 @@ set(MACHOPP_HDR_STANDALONE
     CpuType.h
     CpuSubType.h
     LoadCommandType.h
-    MachOHeaderEnums.h
 )
 
 set(MACHOPP_HDR)
@@ -46,6 +46,6 @@ add_library(jevmachopp ${MACHOPP_SRC} ${MACHOPP_HDR})
 
 target_link_libraries(jevmachopp PUBLIC Boost::callable_traits enum.hpp fmt nanorange visit)
 
-target_include_directories(jevmachopp PUBLIC ../../include ../../3rdparty/static_string/include ../../3rdparty/hedley ../../3rdparty/delegate/include)
+target_include_directories(jevmachopp PUBLIC ../../include ../../3rdparty/static_string/include ../../3rdparty/static_vector/include ../../3rdparty/hedley ../../3rdparty/delegate/include)
 
 # target_compile_options(jevmachopp PRIVATE -Xclang -fdump-record-layouts)

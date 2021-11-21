@@ -189,8 +189,7 @@ auto MachO::dylibNamesMap() const -> decltype(dylibNamesMap()) {
 
 fmt::appender &MachO::format_to(fmt::appender &out) const {
     fmt::format_to(
-        out,
-        "<MachO @ {:p} cputype: {} fileType: {} flags: {:#010x} ncmds: {:d} sizeofcmds: {:#x} "_cf,
+        out, "<MachO @ {:p} cputype: {} fileType: {} flags: {} ncmds: {:d} sizeofcmds: {:#x} "_cf,
         (void *)this, cputype, filetype, flags, ncmds, sizeofcmds);
     fmt::format_to(out, "{}"_cf, fmt::join(loadCommands(), ", "));
     fmt::format_to(out, ">"_cf);

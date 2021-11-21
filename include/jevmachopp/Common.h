@@ -28,6 +28,7 @@
 using namespace nano;
 
 using namespace fmt::literals;
+using namespace std::string_literals;
 
 #pragma Common Types
 

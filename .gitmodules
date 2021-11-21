@@ -22,3 +22,6 @@
 [submodule "3rdparty/static_string"]
 	path = 3rdparty/static_string
 	url = https://github.com/boostorg/static_string
+[submodule "3rdparty/static_vector"]
+	path = 3rdparty/static_vector
+	url = https://github.com/gnzlbg/static_vector

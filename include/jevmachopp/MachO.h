@@ -142,7 +142,7 @@ public:
     MachOFileType filetype;
     uint32_t ncmds;
     uint32_t sizeofcmds;
-    uint32_t flags;
+    MachOFlags flags;
     uint32_t reserved;
 
 public:
