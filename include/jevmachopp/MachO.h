@@ -11,6 +11,7 @@
 #include "jevmachopp/CpuTypeMeta.h"
 #include "jevmachopp/DylibCommand.h"
 #include "jevmachopp/LoadCommand.h"
+#include "jevmachopp/MachOHeaderEnums.h"
 #include "jevmachopp/Strtab.h"
 #include "jevmachopp/SymtabCommand.h"
 
@@ -138,7 +139,7 @@ public:
 public:
     uint32_t magic;
     CpuTypeMeta cputype;
-    uint32_t filetype;
+    MachOFileType filetype;
     uint32_t ncmds;
     uint32_t sizeofcmds;
     uint32_t flags;

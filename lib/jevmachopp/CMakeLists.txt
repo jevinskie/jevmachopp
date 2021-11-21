@@ -24,6 +24,7 @@ set(MACHOPP_HDR_STANDALONE
     CpuType.h
     CpuSubType.h
     LoadCommandType.h
+    MachOHeaderEnums.h
 )
 
 set(MACHOPP_HDR)
