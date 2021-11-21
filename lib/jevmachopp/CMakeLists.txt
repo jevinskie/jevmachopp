@@ -5,7 +5,7 @@ set(MACHOPP_SRC
     DylibCommand.cpp
     DySymtabCommand.cpp
     EncryptionInfoCommand.cpp
-    FilesetCommand.cpp
+    FilesetEntryCommand.cpp
     LoadCommand.cpp
     LoadSubCommand.cpp
     LinkeditDataCommand.cpp

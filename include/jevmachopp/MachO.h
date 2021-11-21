@@ -119,6 +119,20 @@ public:
     }
     dylib_names_map_t dylibNamesMap() const;
 
+#pragma mark filesets
+    auto filesetEntryLoadCommands() const {
+        return ranges::views::filter(loadCommands(), [](const LoadCommand &lc) {
+            return lc.cmd == LoadCommandType::FILESET_ENTRY;
+        });
+    }
+
+    auto filesetEntryCommands() const {
+        return views::transform(filesetEntryLoadCommands(),
+                                [](const LoadCommand &fseLC) -> const FilesetEntryCommand & {
+                                    return *(const FilesetEntryCommand *)fseLC.subcmd();
+                                });
+    }
+
     fmt::appender &format_to(fmt::appender &out) const;
 
 public:

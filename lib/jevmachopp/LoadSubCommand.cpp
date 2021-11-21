@@ -5,6 +5,7 @@
 #include "jevmachopp/DySymtabCommand.h"
 #include "jevmachopp/DylibCommand.h"
 #include "jevmachopp/EncryptionInfoCommand.h"
+#include "jevmachopp/FilesetEntryCommand.h"
 #include "jevmachopp/LinkeditDataCommand.h"
 #include "jevmachopp/SegmentCommand.h"
 #include "jevmachopp/SymtabCommand.h"
@@ -19,6 +20,8 @@ const LoadCommand *LoadSubCommand::loadCommand() const {
 
 const SubCommandVariant LoadSubCommand::get() const {
     switch (loadCommand()->cmd) {
+    case LoadCommandType::FILESET_ENTRY:
+        return SubCommandVariant{(const FilesetEntryCommand *)this};
     case LoadCommandType::SYMTAB:
         return SubCommandVariant{(const SymtabCommand *)this};
     case LoadCommandType::DYSYMTAB:

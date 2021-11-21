@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <fmt/core.h>
+#include <jevmachopp/FilesetEntryCommand.h>
 #include <jevmachopp/MachO.h>
 #include <jevmachopp/NList.h>
 #include <jevmachopp/SegmentCommand.h>
@@ -86,9 +87,9 @@ int main(int argc, const char *argv[]) {
         printf("lc[%2d]: @ %p type: 0x%08x\n", idx++, &lc, as_unsigned(lc.cmd));
     }
 
-    const SymtabCommand *symtab_ptr = macho.symtab();
-    assert(symtab_ptr);
-    const SymtabCommand &symtab = *symtab_ptr;
+    // const SymtabCommand *symtab_ptr = macho.symtab();
+    // assert(symtab_ptr);
+    // const SymtabCommand &symtab = *symtab_ptr;
     const SegmentCommand *linkedit_seg_ptr = macho.linkeditSeg();
     assert(linkedit_seg_ptr);
     const SegmentCommand &linkedit_seg = *linkedit_seg_ptr;
@@ -96,27 +97,34 @@ int main(int argc, const char *argv[]) {
     // fmt::print("linkedit_seg: {}\n", linkedit_seg);
     printf("linkedit_seg: %p\n", &linkedit_seg);
 
-    const auto dylib_names = macho.dylibNamesMap();
+    // const auto dylib_names = macho.dylibNamesMap();
 
     // for (const auto [idx, nl] : ranges::views::enumerate(macho.undef_syms())) {
     //     fmt::print("undef_sym[{:3d}]: {:m}\n", idx, nl, macho, (const void *)&dylib_names);
     // }
 
-    idx = 0;
-    for (const auto &nl : macho.undef_syms()) {
-        // fmt::print("undef_sym[{:3d}]: {:m}\n", idx++, nl, macho, (const void *)&dylib_names);
-        printf("undef_sym[%3d]: \"%s\" from \"%s\"\n", idx++, nl.name(macho, symtab),
-               nl.dylibName(dylib_names));
-    }
+    // idx = 0;
+    // for (const auto &nl : macho.undef_syms()) {
+    //     // fmt::print("undef_sym[{:3d}]: {:m}\n", idx++, nl, macho, (const void *)&dylib_names);
+    //     printf("undef_sym[%3d]: \"%s\" from \"%s\"\n", idx++, nl.name(macho, symtab),
+    //            nl.dylibName(dylib_names));
+    // }
 
     // for (const auto [idx, nl] : ranges::views::enumerate(macho.indirect_syms())) {
     //     fmt::print("indirect_sym[{:3d}]: {:f}\n", idx, nl, macho);
     // }
 
+    // idx = 0;
+    // for (const auto &nl : macho.indirect_syms()) {
+    //     // fmt::print("indirect_sym[{:3d}]: {:f}\n", idx++, nl, macho);
+    //     printf("indirect_sym[%3d]: \"%s\"\n", idx++, nl.name(macho, symtab));
+    // }
+
     idx = 0;
-    for (const auto &nl : macho.indirect_syms()) {
+    for (const auto &fseCmd : macho.filesetEntryCommands()) {
         // fmt::print("indirect_sym[{:3d}]: {:f}\n", idx++, nl, macho);
-        printf("indirect_sym[%3d]: \"%s\"\n", idx++, nl.name(macho, symtab));
+        printf("fse[%3d]: vmaddr: 0x%016llx fileoff: 0x%08llx name: \"%s\"\n", idx++, fseCmd.vmaddr,
+               fseCmd.fileoff, fseCmd.name());
     }
 
     return 0;
