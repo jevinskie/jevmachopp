@@ -43,6 +43,6 @@ strtab_entry_range SymtabCommand::strtab_entries(const MachO &macho) const {
 }
 
 fmt::appender &SymtabCommand::format_to(fmt::appender &out) const {
-    fmt::format_to(out, "<SymtabCommand @ {:p}>"_cf, (void *)loadCommand());
+    fmt::format_to(out, "<SymtabCommand @ {:p}>", (void *)loadCommand());
     return out;
 }

@@ -36,7 +36,7 @@ DylibCommand::Version DylibCommand::compatibilityVersion() const {
 fmt::appender &DylibCommand::format_to(fmt::appender &out) const {
     fmt::format_to(
         out,
-        "<DylibCommand @ {:p} \"{:s}\" timestamp: {:#010x} current_version: {} compatibility_version: {}>"_cf,
+        "<DylibCommand @ {:p} \"{:s}\" timestamp: {:#010x} current_version: {} compatibility_version: {}>",
         (void *)loadCommand(), name(), timestamp, currentVersion(), compatibilityVersion());
     return out;
 }

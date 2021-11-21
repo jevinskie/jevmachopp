@@ -27,7 +27,7 @@ const char *NList::dylibName(const dylib_names_map_t &map) const {
 
 fmt::appender &NList::format_to(fmt::appender &out) const {
     fmt::format_to(
-        out, "<NList @ {:p} strx: {:#x} type: {:#04x} sect: {:d} desc: {:#06x} value: {:#018x}>"_cf,
+        out, "<NList @ {:p} strx: {:#x} type: {:#04x} sect: {:d} desc: {:#06x} value: {:#018x}>",
         (void *)this, strx, type, sect, desc, value);
     return out;
 }
@@ -37,11 +37,11 @@ fmt::appender &NList::format_to(fmt::appender &out, const MachO &macho,
     assert(macho.isMagicGood());
     fmt::format_to(
         out,
-        "<NList @ {:p} strx: {:#x} type: {:#04x} sect: {:d} desc: {:#06x} value: {:#018x} name: \"{:s}\""_cf,
+        "<NList @ {:p} strx: {:#x} type: {:#04x} sect: {:d} desc: {:#06x} value: {:#018x} name: \"{:s}\"",
         (void *)this, strx, type, sect, desc, value, name(macho));
     if (map) {
-        fmt::format_to(out, " dylib: \"{:s}\""_cf, dylibName(*map));
+        fmt::format_to(out, " dylib: \"{:s}\"", dylibName(*map));
     }
-    fmt::format_to(out, ">"_cf);
+    fmt::format_to(out, ">");
     return out;
 }

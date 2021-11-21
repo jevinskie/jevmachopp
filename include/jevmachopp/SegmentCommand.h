@@ -51,7 +51,7 @@ template <> struct fmt::formatter<SegmentCommand> {
     template <typename FormatContext>
     auto format(SegmentCommand const &segCmd, FormatContext &ctx) {
         auto out = ctx.out();
-        fmt::format_to(out, "<SegmentCommand @ {:p} \"{:s}\">"_cf, (void *)segCmd.loadCommand(),
+        fmt::format_to(out, "<SegmentCommand @ {:p} \"{:s}\">", (void *)segCmd.loadCommand(),
                        segCmd.segName());
         return out;
     }

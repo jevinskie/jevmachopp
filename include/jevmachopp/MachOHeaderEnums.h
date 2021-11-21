@@ -32,7 +32,7 @@ template <> struct fmt::formatter<MachOFileType> {
 
     template <typename FormatContext>
     auto format(MachOFileType const &fileType, FormatContext &ctx) {
-        return fmt::format_to(ctx.out(), "<MachOFileType {:s} ({:#010x})>"_cf,
+        return fmt::format_to(ctx.out(), "<MachOFileType {:s} ({:#010x})>",
                               MachOFileType_traits::to_string_or_empty(fileType),
                               to_underlying_int(fileType));
     }

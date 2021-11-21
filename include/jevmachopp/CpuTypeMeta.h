@@ -25,7 +25,7 @@ template <> struct fmt::formatter<CpuTypeMeta> {
 
     template <typename FormatContext> auto format(CpuTypeMeta const &metatype, FormatContext &ctx) {
         return fmt::format_to(ctx.out(),
-                              "<CpuTypeMeta type: {:s} ({:#010x}) subtype: ({:#010x})>"_cf,
+                              "<CpuTypeMeta type: {:s} ({:#010x}) subtype: ({:#010x})>",
                               CpuType_traits::to_string_or_empty(metatype.type),
                               as_unsigned(metatype.type), as_unsigned(metatype.subtype));
     }
