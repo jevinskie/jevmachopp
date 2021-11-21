@@ -2,12 +2,14 @@
 #include "jevmachopp/LoadCommand.h"
 #include "jevmachopp/LoadCommandType.h"
 
+#include "jevmachopp/BuildVersionCommand.h"
 #include "jevmachopp/DySymtabCommand.h"
 #include "jevmachopp/DylibCommand.h"
 #include "jevmachopp/EncryptionInfoCommand.h"
 #include "jevmachopp/FilesetEntryCommand.h"
 #include "jevmachopp/LinkeditDataCommand.h"
 #include "jevmachopp/SegmentCommand.h"
+#include "jevmachopp/SourceVersionCommand.h"
 #include "jevmachopp/SymtabCommand.h"
 #include "jevmachopp/UUIDCommand.h"
 #include "jevmachopp/UnknownCommand.h"
@@ -20,6 +22,10 @@ const LoadCommand *LoadSubCommand::loadCommand() const {
 
 const SubCommandVariant LoadSubCommand::get() const {
     switch (loadCommand()->cmd) {
+    case LoadCommandType::SOURCE_VERSION:
+        return SubCommandVariant{(const SourceVersionCommand *)this};
+    case LoadCommandType::BUILD_VERSION:
+        return SubCommandVariant{(const BuildVersionCommand *)this};
     case LoadCommandType::FILESET_ENTRY:
         return SubCommandVariant{(const FilesetEntryCommand *)this};
     case LoadCommandType::SYMTAB:

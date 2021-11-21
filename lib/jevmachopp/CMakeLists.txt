@@ -1,5 +1,6 @@
 
 set(MACHOPP_SRC
+    BuildVersionCommand.cpp
     Common.cpp
     CpuTypeMeta.cpp
     DylibCommand.cpp
@@ -15,8 +16,10 @@ set(MACHOPP_SRC
     Section.cpp
     SegmentCommand.cpp
     Slurp.cpp
+    SourceVersionCommand.cpp
     Strtab.cpp
     SymtabCommand.cpp
+    Version.cpp
     UnknownCommand.cpp
     UUIDCommand.cpp
 )

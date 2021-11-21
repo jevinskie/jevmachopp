@@ -22,14 +22,11 @@ bool DylibCommand::isRexport() const {
     return loadCommand()->cmd == LoadCommandType::REEXPORT_DYLIB;
 }
 
-DylibCommand::Version::Version(uint32_t ver)
-    : major(ver >> 16), minor((ver >> 8) & 0xff), patch(ver & 0xff) {}
-
-DylibCommand::Version DylibCommand::currentVersion() const {
+Version DylibCommand::currentVersion() const {
     return current_version;
 }
 
-DylibCommand::Version DylibCommand::compatibilityVersion() const {
+Version DylibCommand::compatibilityVersion() const {
     return compatibility_version;
 }
 
