@@ -112,6 +112,6 @@ template <> struct fmt::formatter<CpuSubType> {
     }
 
     template <typename FormatContext> auto format(CpuSubType const &subtype, FormatContext &ctx) {
-        return fmt::format_to(ctx.out(), "<CpuSubType ({:#010x})>", as_unsigned(subtype));
+        return fmt::format_to(ctx.out(), "<CpuSubType ({:#010x})>"_cf, as_unsigned(subtype));
     }
 };

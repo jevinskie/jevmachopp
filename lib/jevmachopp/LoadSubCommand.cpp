@@ -54,7 +54,7 @@ const SubCommandVariant LoadSubCommand::get() const {
 fmt::appender &LoadSubCommand::format_to(fmt::appender &out) const {
     rollbear::visit(
         [=](auto &&o) {
-            fmt::format_to(out, "{}", *o);
+            fmt::format_to(out, "{}"_cf, *o);
         },
         get());
     return out;

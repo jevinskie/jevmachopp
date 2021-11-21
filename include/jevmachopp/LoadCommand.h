@@ -69,7 +69,7 @@ template <> struct fmt::formatter<LoadCommand> {
     }
 
     template <typename FormatContext> auto format(LoadCommand const &lc, FormatContext &ctx) {
-        return fmt::format_to(ctx.out(), "<LoadCommand @ {:p} {} {}>", (void *)&lc, lc.cmd,
+        return fmt::format_to(ctx.out(), "<LoadCommand @ {:p} {} {}>"_cf, (void *)&lc, lc.cmd,
                               *lc.subcmd());
     }
 };

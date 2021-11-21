@@ -35,7 +35,7 @@ template <> struct fmt::formatter<CpuType> {
     }
 
     template <typename FormatContext> auto format(CpuType const &type, FormatContext &ctx) {
-        return fmt::format_to(ctx.out(), "<CpuType {:s} ({:#010x})>",
+        return fmt::format_to(ctx.out(), "<CpuType {:s} ({:#010x})>"_cf,
                               CpuType_traits::to_string_or_empty(type), as_unsigned(type));
     }
 };

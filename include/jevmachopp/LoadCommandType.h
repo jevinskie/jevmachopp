@@ -73,7 +73,7 @@ template <> struct fmt::formatter<LoadCommandType> {
     }
 
     template <typename FormatContext> auto format(LoadCommandType const &lct, FormatContext &ctx) {
-        return fmt::format_to(ctx.out(), "<LoadCommandType {:s} ({:#010x})>",
+        return fmt::format_to(ctx.out(), "<LoadCommandType {:s} ({:#010x})>"_cf,
                               LoadCommandType_traits::to_string_or_empty(lct),
                               to_underlying_int(lct));
     }
