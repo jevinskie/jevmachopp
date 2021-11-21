@@ -1,5 +1,4 @@
 add_subdirectory(callable_traits)
-# add_subdirectory(static_string)
 
 add_subdirectory(enum.hpp)
 add_subdirectory(fmt)
