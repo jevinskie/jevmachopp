@@ -9,9 +9,8 @@
 int main(int argc, const char *argv[]) {
     int idx;
     assert(argc == 2);
-    std::string infile(argv[1]);
     uint64_t size;
-    uint8_t *inbuf = Slurp::readfile(infile, &size);
+    uint8_t *inbuf = Slurp::readfile(argv[1], &size);
     auto macho_ptr = (const MachO *)inbuf;
     auto &macho = *macho_ptr;
 
@@ -82,7 +81,9 @@ int main(int argc, const char *argv[]) {
     idx = 0;
     for (const auto &lc : macho.loadCommands()) {
         // fmt::print("lc[{:2d}]: {}\n", idx++, lc);
-        printf("lc[%2d]: %s\n", idx++, LoadCommandType_traits::to_string_or_empty(lc.cmd).data());
+        // printf("lc[%2d]: %s\n", idx++,
+        // LoadCommandType_traits::to_string_or_empty(lc.cmd).data());
+        printf("lc[%2d]: @ %p type: 0x%08x\n", idx++, &lc, as_unsigned(lc.cmd));
     }
 
     const SymtabCommand *symtab_ptr = macho.symtab();

@@ -1,17 +1,24 @@
 #pragma once
 
-#include <fmt/compile.h>
-#include <fmt/core.h>
-#include <hedley.h>
+#include <cstring>
 #include <span>
 #include <string_view>
 #include <type_traits>
 #include <utility>
 
+#include <fmt/compile.h>
+#include <fmt/core.h>
+#include <hedley.h>
+
 #include "delegate/delegate.hpp"
 
 #include <boost/callable_traits/function_type.hpp>
 #include <boost/callable_traits/remove_member_cv.hpp>
+
+#define BOOST_STATIC_STRING_THROW(ex) assert(!HEDLEY_STRINGIFY(ex))
+#define BOOST_NORETURN [[noreturn]]
+
+#include <boost/static_string/static_string.hpp>
 
 #include <nanorange/algorithm/copy.hpp>
 #include <nanorange/views/empty.hpp>
@@ -153,13 +160,27 @@ const range_value_t<Rng> *find_if_or_nullptr(Rng &&rng, F pred) {
     return nullptr;
 }
 
+#pragma mark fmt
+
+template <std::size_t N>
+struct fmt::formatter<boost::static_string<N>> : fmt::formatter<fmt::string_view> {
+    auto format(const boost::static_string<N> &str, format_context &ctx) const
+        -> decltype(ctx.out()) {
+        return formatter<string_view>::format(str.data(), ctx);
+    }
+};
+
 #pragma mark Utilities
 
-std::string readMaybeNullTermCString(const char *cstr, size_t cstr_buf_sz);
-
 template <typename Buf, std::size_t BufSz = sizeof(Buf)>
-std::string readMaybeNullTermCString(const char *cstr) {
-    return readMaybeNullTermCString(cstr, BufSz);
+boost::static_string<BufSz> readMaybeNullTermCString(const char *cstr) {
+    if (!cstr)
+        return "";
+    if (std::memchr(cstr, '\0', BufSz)) {
+        return {cstr};
+    } else {
+        return {cstr, BufSz};
+    }
 }
 
 template <typename T, bool is_ptr = std::is_pointer_v<T>>

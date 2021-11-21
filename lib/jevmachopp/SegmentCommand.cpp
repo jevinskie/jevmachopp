@@ -5,10 +5,6 @@
 
 #include "fmt/core.h"
 
-std::string SegmentCommand::segName() const {
-    return readMaybeNullTermCString<decltype(segname)>(segname);
-}
-
 const Section *SegmentCommand::sect_cbegin() const {
     return (const Section *)(this + 1);
 }

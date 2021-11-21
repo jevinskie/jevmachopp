@@ -1,13 +1,24 @@
 #include "jevmachopp/Common.h"
 
-#include <cstring>
+namespace boost {
 
-std::string readMaybeNullTermCString(const char *cstr, size_t cstr_buf_sz) {
-    if (!cstr)
-        return "";
-    if (std::memchr(cstr, '\0', cstr_buf_sz)) {
-        return std::string{cstr};
-    } else {
-        return std::string{cstr, cstr_buf_sz};
-    }
+#if defined(BOOST_NO_EXCEPTIONS)
+
+BOOST_NORETURN void throw_exception(std::exception const &e) {
+    assert(!__PRETTY_FUNCTION__);
+}
+
+BOOST_NORETURN void throw_exception(std::exception const &e, boost::source_location const &loc) {
+    assert(!__PRETTY_FUNCTION__);
+}
+#endif
+
+} // namespace boost
+
+extern "C"
+void *_ZTVSt12length_error;
+
+extern "C"
+void _ZNSt11logic_errorC2EPKc(const void *thiz, const char *err) {
+    assert(!__PRETTY_FUNCTION__);
 }

@@ -12,8 +12,12 @@ public:
     void operator=(const Section &) = delete;
 
 public:
-    std::string sectName() const;
-    std::string segName() const;
+    auto sectName() const {
+        return readMaybeNullTermCString<decltype(sectname)>(sectname);
+    }
+    auto segName() const {
+        return readMaybeNullTermCString<decltype(segname)>(segname);
+    }
     fmt::appender &format_to(fmt::appender &out) const;
 
 public:

@@ -10,15 +10,15 @@
 [submodule "3rdparty/delegate"]
 	path = 3rdparty/delegate
 	url = https://github.com/rosbacke/delegate
-[submodule "3rdparty/callable_traits"]
-	path = 3rdparty/callable_traits
-	url = https://github.com/boostorg/callable_traits
 [submodule "3rdparty/visit"]
 	path = 3rdparty/visit
 	url = https://github.com/rollbear/visit
-[submodule "3rdparty/rx-ranges"]
-	path = 3rdparty/rx-ranges
-	url = https://github.com/simonask/rx-ranges
 [submodule "3rdparty/nanorange"]
 	path = 3rdparty/nanorange
 	url = https://github.com/tcbrindle/NanoRange
+[submodule "3rdparty/callable_traits"]
+	path = 3rdparty/callable_traits
+	url = https://github.com/boostorg/callable_traits
+[submodule "3rdparty/static_string"]
+	path = 3rdparty/static_string
+	url = https://github.com/boostorg/static_string

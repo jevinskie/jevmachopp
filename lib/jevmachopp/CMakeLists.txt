@@ -42,8 +42,8 @@ endforeach()
 # MACHOPP_HDR added for Xcode project generation
 add_library(jevmachopp ${MACHOPP_SRC} ${MACHOPP_HDR})
 
-target_link_libraries(jevmachopp Boost::callable_traits enum.hpp fmt nanorange visit)
+target_link_libraries(jevmachopp PUBLIC Boost::callable_traits enum.hpp fmt nanorange visit)
 
-target_include_directories(jevmachopp PUBLIC ../../include ../../3rdparty/hedley ../../3rdparty/delegate/include)
+target_include_directories(jevmachopp PUBLIC ../../include ../../3rdparty/static_string/include ../../3rdparty/hedley ../../3rdparty/delegate/include)
 
 # target_compile_options(jevmachopp PRIVATE -Xclang -fdump-record-layouts)

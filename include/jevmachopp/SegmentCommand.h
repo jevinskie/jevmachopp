@@ -18,7 +18,9 @@ public:
     void operator=(const SegmentCommand &) = delete;
 
 public:
-    std::string segName() const;
+    auto segName() const {
+        return readMaybeNullTermCString<decltype(segname)>(segname);
+    }
     const Section *sect_cbegin() const;
     const Section *sect_cend() const;
     size_t sect_size() const;
