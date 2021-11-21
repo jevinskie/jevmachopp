@@ -7,9 +7,16 @@
 #include <string>
 
 class MachO;
+class SymtabCommand;
 
 class NList {
 public:
+    const char *name(const char *strtab_data) const;
+    const char *name(const MachO &macho, const SymtabCommand &symtabCmd) const;
+    const char *name(const MachO &macho) const;
+
+    uint8_t dylibOrdinal() const;
+    const char *dylibName(const dylib_names_map_t &map) const;
     fmt::appender &format_to(fmt::appender &out) const;
     fmt::appender &format_to(fmt::appender &out, const MachO &macho,
                              const dylib_names_map_t *map = nullptr) const;

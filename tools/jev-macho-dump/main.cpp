@@ -15,7 +15,9 @@ int main(int argc, const char *argv[]) {
     auto macho_ptr = (const MachO *)inbuf;
     auto &macho = *macho_ptr;
 
-    fmt::print("macho: {}\n", (void *)&macho);
+    // fmt::print("macho: {}\n", (void *)&macho);
+    printf("macho: %p\n", &macho);
+
 #if 0
     // fmt::print("macho fmt: {}\n", macho);
     fmt::print("macho->cputype: {}\n", macho.cputype);
@@ -79,7 +81,8 @@ int main(int argc, const char *argv[]) {
 
     idx = 0;
     for (const auto &lc : macho.loadCommands()) {
-        fmt::print("lc[{:2d}]: {}\n", idx++, lc);
+        // fmt::print("lc[{:2d}]: {}\n", idx++, lc);
+        printf("lc[%2d]: %s\n", idx++, LoadCommandType_traits::to_string_or_empty(lc.cmd).data());
     }
 
     const SymtabCommand *symtab_ptr = macho.symtab();
@@ -89,7 +92,8 @@ int main(int argc, const char *argv[]) {
     assert(linkedit_seg_ptr);
     const SegmentCommand &linkedit_seg = *linkedit_seg_ptr;
 
-    fmt::print("linkedit_seg: {}\n", linkedit_seg);
+    // fmt::print("linkedit_seg: {}\n", linkedit_seg);
+    printf("linkedit_seg: %p\n", &linkedit_seg);
 
     const auto dylib_names = macho.dylibNamesMap();
 
@@ -99,7 +103,9 @@ int main(int argc, const char *argv[]) {
 
     idx = 0;
     for (const auto &nl : macho.undef_syms()) {
-        fmt::print("undef_sym[{:3d}]: {:m}\n", idx++, nl, macho, (const void *)&dylib_names);
+        // fmt::print("undef_sym[{:3d}]: {:m}\n", idx++, nl, macho, (const void *)&dylib_names);
+        printf("undef_sym[%3d]: \"%s\" from \"%s\"\n", idx++, nl.name(macho, symtab),
+               nl.dylibName(dylib_names));
     }
 
     // for (const auto [idx, nl] : ranges::views::enumerate(macho.indirect_syms())) {
@@ -108,7 +114,8 @@ int main(int argc, const char *argv[]) {
 
     idx = 0;
     for (const auto &nl : macho.indirect_syms()) {
-        fmt::print("indirect_sym[{:3d}]: {:f}\n", idx++, nl, macho);
+        // fmt::print("indirect_sym[{:3d}]: {:f}\n", idx++, nl, macho);
+        printf("indirect_sym[%3d]: \"%s\"\n", idx++, nl.name(macho, symtab));
     }
 
     return 0;
