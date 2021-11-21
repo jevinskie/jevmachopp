@@ -58,7 +58,9 @@ public:
     const SymtabCommand *symtab() const;
     std::span<const NList> symtab_nlists() const;
     auto symtab_strtab_entries(const SymtabCommand *symtab_ptr = nullptr) const {
-        setIfNull(symtab_ptr, DELEGATE_MKMEM2(&MachO::symtab, *this));
+        setIfNull(symtab_ptr, [this]() {
+            return symtab();
+        });
         return ranges::views::transform(symtab_ptr ? symtab_ptr->strtab_entries(*this)
                                                    : strtab_entry_range{},
                                         [](const auto &strchr) -> const char * {
@@ -77,8 +79,12 @@ public:
     indirect_syms_idxes_t indirect_syms_idxes(const DySymtabCommand *dysymtab_ptr = nullptr) const;
     auto indirect_syms(const SymtabCommand *symtab_ptr = nullptr,
                        const DySymtabCommand *dysymtab_ptr = nullptr) const {
-        setIfNull(symtab_ptr, DELEGATE_MKMEM2(&MachO::symtab, *this));
-        setIfNull(dysymtab_ptr, DELEGATE_MKMEM2(&MachO::dysymtab, *this));
+        setIfNull(symtab_ptr, [this]() {
+            return symtab();
+        });
+        setIfNull(dysymtab_ptr, [this]() {
+            return dysymtab();
+        });
 
         std::span<const NList> nlists = {};
         if (symtab_ptr) {

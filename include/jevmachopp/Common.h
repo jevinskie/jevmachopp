@@ -10,8 +10,6 @@
 #include <fmt/core.h>
 #include <hedley.h>
 
-#include "delegate/delegate.hpp"
-
 #include <boost/callable_traits/function_type.hpp>
 #include <boost/callable_traits/remove_member_cv.hpp>
 
@@ -21,6 +19,7 @@
 #include <boost/static_string/static_string.hpp>
 
 #include <nanorange/algorithm/copy.hpp>
+#include <nanorange/concepts.hpp>
 #include <nanorange/views/empty.hpp>
 #include <nanorange/views/filter.hpp>
 #include <nanorange/views/subrange.hpp>
@@ -184,9 +183,12 @@ boost::static_string<BufSz> readMaybeNullTermCString(const char *cstr) {
     }
 }
 
-template <typename T, bool is_ptr = std::is_pointer_v<T>>
-T setIfNull(T &ptr, delegate<T()> getter) {
-    static_assert_cond(is_ptr);
+template <typename T, typename G>
+requires requires(T &ptr, G getter) {
+    convertible_to<decltype(getter()), T>;
+    std::is_pointer_v<T>;
+}
+T setIfNull(T &ptr, G getter) {
     if (ptr) {
         return ptr;
     }
@@ -201,7 +203,3 @@ T setIfNull(T &ptr, delegate<T()> getter) {
         }                                                                                          \
         (ptr);                                                                                     \
     })
-
-#define DELEGATE_MKMEM2(memFknPtr, object)                                                         \
-    (delegate<boost::callable_traits::remove_member_cv_t<                                          \
-         remove_member_pointer<decltype(memFknPtr)>::member_type>>::make<memFknPtr>(object))

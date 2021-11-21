@@ -7,9 +7,6 @@
 [submodule "3rdparty/enum.hpp"]
 	path = 3rdparty/enum.hpp
 	url = https://github.com/BlackMATov/enum.hpp
-[submodule "3rdparty/delegate"]
-	path = 3rdparty/delegate
-	url = https://github.com/rosbacke/delegate
 [submodule "3rdparty/visit"]
 	path = 3rdparty/visit
 	url = git@git.je.vin:jevin/rollbear-visit.git
