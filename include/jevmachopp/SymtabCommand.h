@@ -27,9 +27,9 @@ public:
     fmt::appender &format_to(fmt::appender &out) const;
 
 public:
-    uint32_t symoff; // nlist array offset from <FIXME WHERE?>
+    uint32_t symoff; // nlist array offset from MachO header
     uint32_t nsyms;
-    uint32_t stroff;  // strtab offset from <FIXME WHERE?>
+    uint32_t stroff;  // strtab offset from MachO header
     uint32_t strsize; // bytes
 
 public:
