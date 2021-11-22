@@ -2,7 +2,7 @@
 
 #include "jevmachopp/Common.h"
 
-#include "jevmachopp/vendor/apple/mach-o/nlist.h"
+#include <mach-o/nlist.h>
 #include <cassert>
 #include <string>
 
