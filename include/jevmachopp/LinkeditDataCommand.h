@@ -2,7 +2,6 @@
 
 #include "jevmachopp/Common.h"
 #include "jevmachopp/LoadSubCommand.h"
-#include <mach-o/loader.h>
 
 class LinkeditDataCommand : public LoadSubCommand {
 public:
@@ -19,8 +18,13 @@ public:
     void operator=(const LinkeditDataCommand &) = delete;
 };
 
+#if __has_include(<mach-o/loader.h>)
+#include <mach-o/loader.h>
 static_assert_size_same_minus_header(LinkeditDataCommand, struct dylib_command,
                                      struct load_command);
+#else
+static_assert_size_is(LinkeditDataCommand, 16);
+#endif
 
 template <> struct fmt::formatter<LinkeditDataCommand> {
     constexpr auto parse(format_parse_context &ctx) -> decltype(ctx.begin()) {

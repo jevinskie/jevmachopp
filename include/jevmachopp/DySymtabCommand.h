@@ -4,7 +4,6 @@
 #include "jevmachopp/LoadSubCommand.h"
 #include "jevmachopp/NList.h"
 
-#include <mach-o/loader.h>
 #include <string>
 
 class DySymtabCommand : public LoadSubCommand {
@@ -36,7 +35,12 @@ public:
     void operator=(const DySymtabCommand &) = delete;
 };
 
+#if __has_include(<mach-o/loader.h>)
+#include <mach-o/loader.h>
 static_assert_size_same_minus_header(DySymtabCommand, struct dysymtab_command, struct load_command);
+#else
+static_assert_size_is(DySymtabCommand, 72);
+#endif
 
 template <> struct fmt::formatter<DySymtabCommand> {
 

@@ -4,8 +4,6 @@
 #include "jevmachopp/LoadSubCommand.h"
 #include "jevmachopp/Version.h"
 
-#include <mach-o/loader.h>
-
 class SourceVersionCommand : public LoadSubCommand {
 public:
     fmt::appender &format_to(fmt::appender &out) const;
@@ -18,8 +16,13 @@ public:
     void operator=(const SourceVersionCommand &) = delete;
 };
 
+#if __has_include(<mach-o/loader.h>)
+#include <mach-o/loader.h>
 static_assert_size_same_minus_header(SourceVersionCommand, struct source_version_command,
                                      struct load_command);
+#else
+static_assert_size_is(SourceVersionCommand, 8);
+#endif
 
 template <> struct fmt::formatter<SourceVersionCommand> {
 

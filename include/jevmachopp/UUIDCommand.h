@@ -1,6 +1,5 @@
 #pragma once
 
-#include <mach-o/loader.h>
 #include <stdint.h>
 
 #include <fmt/core.h>
@@ -17,7 +16,12 @@ public:
     uint8_t uuid[16];
 };
 
+#if __has_include(<mach-o/loader.h>)
+#include <mach-o/loader.h>
 static_assert_size_same_minus_header(UUIDCommand, struct uuid_command, struct load_command);
+#else
+static_assert_size_is(UUIDCommand, 16);
+#endif
 
 template <> struct fmt::formatter<UUIDCommand> {
 

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <mach-o/loader.h>
 #include <stdint.h>
 #include <vector>
 
@@ -19,8 +18,13 @@ public:
     uint32_t pad;
 };
 
+#if __has_include(<mach-o/loader.h>)
+#include <mach-o/loader.h>
 static_assert_size_same_minus_header(EncryptionInfoCommand, struct encryption_info_command_64,
                                      struct load_command);
+#else
+static_assert_size_is(EncryptionInfoCommand, 16);
+#endif
 
 template <> struct fmt::formatter<EncryptionInfoCommand> {
 

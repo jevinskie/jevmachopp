@@ -8,7 +8,7 @@
 
 using load_command_type_t = std::uint32_t;
 
-constexpr load_command_type_t REQ_DYLD = 0x80000000u;
+constexpr load_command_type_t JEV_LC_REQ_DYLD = 0x80000000u;
 
 // clang-format off
 ENUM_HPP_CLASS_DECL(LoadCommandType, load_command_type_t,
@@ -35,24 +35,24 @@ ENUM_HPP_CLASS_DECL(LoadCommandType, load_command_type_t,
     (SUB_LIBRARY = 0x15)
     (TWOLEVEL_HINTS = 0x16)
     (PREBIND_CKSUM = 0x17)
-    (LOAD_WEAK_DYLIB = 0x18 | REQ_DYLD)
+    (LOAD_WEAK_DYLIB = 0x18 | JEV_LC_REQ_DYLD)
     (SEGMENT_64 = 0x19)
     (ROUTINES_64 = 0x1a)
     (UUID = 0x1b)
-    (RPATH = 0x1c | REQ_DYLD)
+    (RPATH = 0x1c | JEV_LC_REQ_DYLD)
     (CODE_SIGNATURE = 0x1d)
     (SEGMENT_SPLIT_INFO = 0x1e)
-    (REEXPORT_DYLIB = 0x1f | REQ_DYLD)
+    (REEXPORT_DYLIB = 0x1f | JEV_LC_REQ_DYLD)
     (LAZY_LOAD_DYLIB = 0x20)
     (ENCRYPTION_INFO = 0x21)
     (DYLD_INFO = 0x22)
-    (DYLD_INFO_ONLY = 0x22 | REQ_DYLD)
-    (LOAD_UPWARD_DYLIB = 0x23 | REQ_DYLD)
+    (DYLD_INFO_ONLY = 0x22 | JEV_LC_REQ_DYLD)
+    (LOAD_UPWARD_DYLIB = 0x23 | JEV_LC_REQ_DYLD)
     (VERSION_MIN_MACOSX = 0x24)
     (VERSION_MIN_IPHONEOS = 0x25)
     (FUNCTION_STARTS = 0x26)
     (DYLD_ENVIRONMENT = 0x27)
-    (MAIN = 0x28 | REQ_DYLD)
+    (MAIN = 0x28 | JEV_LC_REQ_DYLD)
     (DATA_IN_CODE = 0x29)
     (SOURCE_VERSION = 0x2A)
     (DYLIB_CODE_SIGN_DRS = 0x2B)
@@ -63,9 +63,9 @@ ENUM_HPP_CLASS_DECL(LoadCommandType, load_command_type_t,
     (VERSION_MIN_WATCHOS = 0x30)
     (NOTE = 0x31)
     (BUILD_VERSION = 0x32)
-    (DYLD_EXPORTS_TRIE = 0x33 | REQ_DYLD)
-    (DYLD_CHAINED_FIXUPS = 0x34 | REQ_DYLD)
-    (FILESET_ENTRY = 0x35 | REQ_DYLD)
+    (DYLD_EXPORTS_TRIE = 0x33 | JEV_LC_REQ_DYLD)
+    (DYLD_CHAINED_FIXUPS = 0x34 | JEV_LC_REQ_DYLD)
+    (FILESET_ENTRY = 0x35 | JEV_LC_REQ_DYLD)
 )
 // clang-format on
 

@@ -3,7 +3,6 @@
 #include "jevmachopp/Common.h"
 #include "jevmachopp/LoadSubCommand.h"
 #include "jevmachopp/Version.h"
-#include <mach-o/loader.h>
 #include <string>
 
 class DylibCommand : public LoadSubCommand {
@@ -28,7 +27,12 @@ public:
     void operator=(const DylibCommand &) = delete;
 };
 
+#if __has_include(<mach-o/loader.h>)
+#include <mach-o/loader.h>
 static_assert_size_same_minus_header(DylibCommand, struct dylib_command, struct load_command);
+#else
+static_assert_size_is(DylibCommand, 16);
+#endif
 
 template <> struct fmt::formatter<DylibCommand> {
 

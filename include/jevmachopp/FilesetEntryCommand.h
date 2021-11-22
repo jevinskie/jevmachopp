@@ -3,8 +3,6 @@
 #include "jevmachopp/Common.h"
 #include "jevmachopp/LoadSubCommand.h"
 
-#include <mach-o/loader.h>
-
 class FilesetEntryCommand : public LoadSubCommand {
 public:
     const char *name() const;
@@ -21,8 +19,13 @@ public:
     void operator=(const FilesetEntryCommand &) = delete;
 };
 
+#if __has_include(<mach-o/loader.h>)
+#include <mach-o/loader.h>
 static_assert_size_same_minus_header(FilesetEntryCommand, struct fileset_entry_command,
                                      struct load_command);
+#else
+static_assert_size_is(FilesetEntryCommand, 24);
+#endif
 
 template <> struct fmt::formatter<FilesetEntryCommand> {
 

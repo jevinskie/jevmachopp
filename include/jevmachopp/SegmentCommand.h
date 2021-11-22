@@ -1,9 +1,6 @@
 #pragma once
 
 #include <cstddef>
-#include <list>
-#include <mach-o/loader.h>
-#include <mach/vm_prot.h>
 #include <memory>
 #include <span>
 #include <stdint.h>
@@ -12,6 +9,8 @@
 #include "jevmachopp/Common.h"
 #include "jevmachopp/LoadSubCommand.h"
 #include "jevmachopp/Section.h"
+
+using jev_vm_prot_t = int;
 
 class SegmentCommand : public LoadSubCommand {
 public:
@@ -34,14 +33,19 @@ public:
     uint64_t vmsize;
     uint64_t fileoff;
     uint64_t filesize;
-    vm_prot_t maxprot;
-    vm_prot_t initprot;
+    jev_vm_prot_t maxprot;
+    jev_vm_prot_t initprot;
     uint32_t nsects;
     uint32_t flags;
 };
 
+#if __has_include(<mach-o/loader.h>)
+#include <mach-o/loader.h>
 static_assert_size_same_minus_header(SegmentCommand, struct segment_command_64,
                                      struct load_command);
+#else
+static_assert_size_is(SegmentCommand, 64);
+#endif
 
 template <> struct fmt::formatter<SegmentCommand> {
 

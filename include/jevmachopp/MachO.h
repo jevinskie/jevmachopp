@@ -2,7 +2,6 @@
 
 #include <array>
 #include <cstddef>
-#include <mach/machine.h>
 #include <memory>
 #include <stdint.h>
 #include <string>
@@ -157,7 +156,12 @@ public:
     void operator=(const MachO &) = delete;
 };
 
+#if __has_include(<mach-o/loader.h>)
+#include <mach-o/loader.h>
 static_assert_size_same(MachO, struct mach_header_64);
+#else
+static_assert_size_is(MachO, 32);
+#endif
 
 template <> struct fmt::formatter<MachO> {
 

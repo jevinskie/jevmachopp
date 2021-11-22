@@ -1,7 +1,5 @@
 #pragma once
 
-#include <list>
-#include <mach-o/loader.h>
 #include <stdint.h>
 
 #include "jevmachopp/Common.h"
@@ -35,7 +33,12 @@ public:
     uint32_t reserved3;
 };
 
+#if __has_include(<mach-o/loader.h>)
+#include <mach-o/loader.h>
 static_assert_size_same(Section, struct section_64);
+#else
+static_assert_size_is(Section, 80);
+#endif
 
 template <> struct fmt::formatter<Section> {
 

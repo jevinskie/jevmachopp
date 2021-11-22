@@ -3,7 +3,6 @@
 #include "jevmachopp/Common.h"
 
 #include <cassert>
-#include <mach-o/nlist.h>
 #include <string>
 
 class MachO;
@@ -33,7 +32,12 @@ public:
     void operator=(const NList &) = delete;
 };
 
+#if __has_include(<mach-o/nlist.h>)
+#include <mach-o/nlist.h>
 static_assert_size_same(NList, struct nlist_64);
+#else
+static_assert_size_is(NList, 16);
+#endif
 
 template <typename T> struct value_extractor {
     T operator()(T value) {

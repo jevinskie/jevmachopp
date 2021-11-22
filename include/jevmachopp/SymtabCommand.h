@@ -6,7 +6,6 @@
 #include "jevmachopp/Strtab.h"
 
 #include <cstddef>
-#include <mach-o/loader.h>
 #include <span>
 
 class MachO;
@@ -38,7 +37,12 @@ public:
     void operator=(const SymtabCommand &) = delete;
 };
 
+#if __has_include(<mach-o/loader.h>)
+#include <mach-o/loader.h>
 static_assert_size_same_minus_header(SymtabCommand, struct symtab_command, struct load_command);
+#else
+static_assert_size_is(SymtabCommand, 16);
+#endif
 
 template <> struct fmt::formatter<SymtabCommand> {
 
