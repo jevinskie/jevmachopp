@@ -9,7 +9,7 @@
 #pragma mark MachO header
 
 bool MachO::isMagicGood() const {
-    return magic == MH_MAGIC_64;
+    return magic == JEV_MH_MAGIC_64;
 }
 
 #pragma mark load commands

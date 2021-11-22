@@ -26,6 +26,10 @@ class SymtabCommand;
 class NList;
 class StrtabIterator;
 
+using MachOMagic = std::uint32_t;
+
+constexpr MachOMagic JEV_MH_MAGIC_64 = 0xfeedfacfu;
+
 class MachO {
 public:
     bool isMagicGood() const;
@@ -143,7 +147,7 @@ public:
     fmt::appender &format_to(fmt::appender &out) const;
 
 public:
-    uint32_t magic;
+    MachOMagic magic;
     CpuTypeMeta cputype;
     MachOFileType filetype;
     uint32_t ncmds;

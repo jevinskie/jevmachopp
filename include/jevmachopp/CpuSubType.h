@@ -3,7 +3,6 @@
 #include "jevmachopp/Common.h"
 
 #include <cstdint>
-#include <mach/machine.h>
 
 #include <fmt/format.h>
 
