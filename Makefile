@@ -21,7 +21,7 @@ FMT_DEFINE_FLAGS := -DFMT_EXCEPTIONS=0 -DFMT_LOCALE -DFMT_USE_DOUBLE=0 -DFMT_USE
 DEFINE_FLAGS := $(BOOST_DEFINE_FLAGS) $(FMT_DEFINE_FLAGS)
 INCLUDE_FLAGS := -I $(ROOT_DIR)/include -I $(ROOT_DIR)/3rdparty/fmt/include -I $(ROOT_DIR)/3rdparty/hedley -I $(ROOT_DIR)/3rdparty/callable_traits/include -I $(ROOT_DIR)/3rdparty/static_string/include -I $(ROOT_DIR)/3rdparty/static_vector/include -I $(ROOT_DIR)/3rdparty/enum.hpp/headers -I $(ROOT_DIR)/3rdparty/nanorange/include -I $(ROOT_DIR)/3rdparty/visit/include
 
-C_CXX_FLAGS = -fpermissive
+C_CXX_FLAGS = -fpermissive -Os -fno-rtti -fno-exceptions -fno-unwind-tables -fno-asynchronous-unwind-tables
 CFLAGS := $(C_CXX_FLAGS) -std=gnu11 $(DEFINE_FLAGS) $(INCLUDE_FLAGS)
 CXXFLAGS := $(C_CXX_FLAGS) -std=gnu++2b $(DEFINE_FLAGS) $(INCLUDE_FLAGS)
 
