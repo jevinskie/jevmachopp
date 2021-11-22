@@ -2,8 +2,8 @@
 
 #include "jevmachopp/Common.h"
 
-#include <mach-o/nlist.h>
 #include <cassert>
+#include <mach-o/nlist.h>
 #include <string>
 
 class MachO;

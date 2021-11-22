@@ -1,8 +1,8 @@
 #pragma once
 
-#include <mach-o/loader.h>
 #include <cstddef>
 #include <list>
+#include <mach-o/loader.h>
 #include <mach/vm_prot.h>
 #include <memory>
 #include <span>

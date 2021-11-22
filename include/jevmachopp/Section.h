@@ -1,7 +1,7 @@
 #pragma once
 
-#include <mach-o/loader.h>
 #include <list>
+#include <mach-o/loader.h>
 #include <stdint.h>
 
 #include "jevmachopp/Common.h"

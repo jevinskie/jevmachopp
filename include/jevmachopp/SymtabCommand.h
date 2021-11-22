@@ -5,8 +5,8 @@
 #include "jevmachopp/NList.h"
 #include "jevmachopp/Strtab.h"
 
-#include <mach-o/loader.h>
 #include <cstddef>
+#include <mach-o/loader.h>
 #include <span>
 
 class MachO;
