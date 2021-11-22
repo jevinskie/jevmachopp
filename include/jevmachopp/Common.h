@@ -29,12 +29,22 @@ using namespace nano;
 using namespace fmt::literals;
 using namespace std::string_literals;
 
-#pragma Common Types
+#pragma mark Printing
+
+#define USE_FMT 0
+
+#if USE_FMT
+#define FMT_PRINT(...) fmt::print(__VA_ARGS__)
+#else
+#define FMT_PRINT(...)
+#endif
+
+#pragma mark Common Types
 
 using dylib_names_map_t = std::array<const char *, 0xFF>;
 using indirect_syms_idxes_t = std::span<const uint32_t>;
 
-#pragma Type Utilities
+#pragma mark Type Utilities
 
 template <typename T> constexpr auto type_name() {
     std::string_view name, prefix, suffix;

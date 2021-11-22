@@ -25,6 +25,7 @@ set(MACHOPP_SRC
 )
 
 set(MACHOPP_HDR_STANDALONE
+    c/jevmacho.h
     CpuType.h
     CpuSubType.h
     LoadCommandType.h
