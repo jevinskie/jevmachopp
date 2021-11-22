@@ -10,11 +10,11 @@ const NList *SymtabCommand::nlists_cend(const MachO &macho) const {
     return (const NList *)((uintptr_t)nlists_cbegin(macho) + nlists_sizeof());
 }
 
-size_t SymtabCommand::nlists_size() const {
+std::size_t SymtabCommand::nlists_size() const {
     return nsyms;
 }
 
-size_t SymtabCommand::nlists_sizeof() const {
+std::size_t SymtabCommand::nlists_sizeof() const {
     return nlists_size() * sizeof(NList);
 }
 
@@ -30,7 +30,7 @@ StrtabIterator SymtabCommand::strtab_cend(const MachO &macho) const {
     return StrtabIterator(strtab_data(macho) + strtab_sizeof());
 }
 
-size_t SymtabCommand::strtab_sizeof() const {
+std::size_t SymtabCommand::strtab_sizeof() const {
     return strsize;
 }
 

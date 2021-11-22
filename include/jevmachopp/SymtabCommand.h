@@ -6,6 +6,7 @@
 #include "jevmachopp/Strtab.h"
 
 #include <mach-o/loader.h>
+#include <cstddef>
 #include <span>
 
 class MachO;
@@ -14,13 +15,13 @@ class SymtabCommand : public LoadSubCommand {
 public:
     const NList *nlists_cbegin(const MachO &macho) const;
     const NList *nlists_cend(const MachO &macho) const;
-    size_t nlists_size() const;
-    size_t nlists_sizeof() const;
+    std::size_t nlists_size() const;
+    std::size_t nlists_sizeof() const;
     std::span<const NList> nlists(const MachO &macho) const;
 
     StrtabIterator strtab_cbegin(const MachO &macho) const;
     StrtabIterator strtab_cend(const MachO &macho) const;
-    size_t strtab_sizeof() const;
+    std::size_t strtab_sizeof() const;
     const char *strtab_data(const MachO &macho) const;
     strtab_entry_range strtab_entries(const MachO &macho) const;
 

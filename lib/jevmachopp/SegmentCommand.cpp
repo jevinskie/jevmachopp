@@ -13,11 +13,11 @@ const Section *SegmentCommand::sect_cend() const {
     return (const Section *)((uintptr_t)(this + 1) + sect_sizeof());
 }
 
-size_t SegmentCommand::sect_size() const {
+std::size_t SegmentCommand::sect_size() const {
     return nsects;
 }
 
-size_t SegmentCommand::sect_sizeof() const {
+std::size_t SegmentCommand::sect_sizeof() const {
     return sect_size() * sizeof(Section);
 }
 

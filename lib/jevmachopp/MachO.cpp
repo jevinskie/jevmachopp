@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <cstddef>
 
 #include "jevmachopp/DySymtabCommand.h"
 #include "jevmachopp/MachO.h"
@@ -21,11 +22,11 @@ LoadCommand::Iterator MachO::lc_cend() const {
     return LoadCommand::Iterator((const LoadCommand *)((uintptr_t)(this + 1) + lc_sizeof()));
 }
 
-size_t MachO::lc_size() const {
+std::size_t MachO::lc_size() const {
     return ncmds;
 }
 
-size_t MachO::lc_sizeof() const {
+std::size_t MachO::lc_sizeof() const {
     return sizeofcmds;
 }
 
@@ -108,7 +109,7 @@ std::span<const NList> MachO::local_syms() const {
             &nlists[dysymtab_ptr->ilocalsym + dysymtab_ptr->nlocalsym]};
 }
 
-size_t MachO::local_syms_size() const {
+std::size_t MachO::local_syms_size() const {
     const auto *dysymtab_ptr = dysymtab();
     if (!dysymtab_ptr) {
         return 0;
@@ -127,7 +128,7 @@ std::span<const NList> MachO::ext_def_syms() const {
             &nlists[dysymtab_ptr->iextdefsym + dysymtab_ptr->nextdefsym]};
 }
 
-size_t MachO::ext_def_syms_size() const {
+std::size_t MachO::ext_def_syms_size() const {
     const auto *dysymtab_ptr = dysymtab();
     if (!dysymtab_ptr) {
         return 0;
@@ -146,7 +147,7 @@ std::span<const NList> MachO::undef_syms() const {
             &nlists[dysymtab_ptr->iundefsym + dysymtab_ptr->nundefsym]};
 }
 
-size_t MachO::undef_syms_size() const {
+std::size_t MachO::undef_syms_size() const {
     const auto *dysymtab_ptr = dysymtab();
     if (!dysymtab_ptr) {
         return 0;
@@ -165,7 +166,7 @@ std::span<const uint32_t> MachO::indirect_syms_idxes(const DySymtabCommand *dysy
             dysymtab_ptr->nindirectsyms};
 }
 
-size_t MachO::indirect_syms_size() const {
+std::size_t MachO::indirect_syms_size() const {
     const auto *dysymtab_ptr = dysymtab();
     if (!dysymtab_ptr) {
         return 0;

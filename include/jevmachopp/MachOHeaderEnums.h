@@ -3,10 +3,10 @@
 #include "jevmachopp/Common.h"
 
 #include "fmt/core.h"
+#include <mach-o/loader.h>
 #include <cstdint>
 #include <enum.hpp/enum.hpp>
 #include <experimental/fixed_capacity_vector>
-#include <mach-o/loader.h>
 #include <string>
 
 // clang-format off

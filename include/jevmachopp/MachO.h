@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <cstddef>
 #include <mach/machine.h>
 #include <memory>
 #include <stdint.h>
@@ -34,8 +35,8 @@ public:
     lc_range loadCommands() const;
     LoadCommand::Iterator lc_cbegin() const;
     LoadCommand::Iterator lc_cend() const;
-    size_t lc_size() const;
-    size_t lc_sizeof() const;
+    std::size_t lc_size() const;
+    std::size_t lc_sizeof() const;
 
 #pragma mark segments
     auto segmentLoadCommands() const {
@@ -71,11 +72,11 @@ public:
 
     const DySymtabCommand *dysymtab() const;
     std::span<const NList> local_syms() const;
-    size_t local_syms_size() const;
+    std::size_t local_syms_size() const;
     std::span<const NList> ext_def_syms() const;
-    size_t ext_def_syms_size() const;
+    std::size_t ext_def_syms_size() const;
     std::span<const NList> undef_syms() const;
-    size_t undef_syms_size() const;
+    std::size_t undef_syms_size() const;
     indirect_syms_idxes_t indirect_syms_idxes(const DySymtabCommand *dysymtab_ptr = nullptr) const;
     auto indirect_syms(const SymtabCommand *symtab_ptr = nullptr,
                        const DySymtabCommand *dysymtab_ptr = nullptr) const {
@@ -96,7 +97,7 @@ public:
                                             return nlists[idx];
                                         });
     }
-    size_t indirect_syms_size() const;
+    std::size_t indirect_syms_size() const;
 
 #pragma mark dylibs
     auto dylibLoadCommands() const {

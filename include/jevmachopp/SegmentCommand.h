@@ -1,7 +1,8 @@
 #pragma once
 
-#include <list>
 #include <mach-o/loader.h>
+#include <cstddef>
+#include <list>
 #include <mach/vm_prot.h>
 #include <memory>
 #include <span>
@@ -23,8 +24,8 @@ public:
     }
     const Section *sect_cbegin() const;
     const Section *sect_cend() const;
-    size_t sect_size() const;
-    size_t sect_sizeof() const;
+    std::size_t sect_size() const;
+    std::size_t sect_sizeof() const;
     std::span<const Section> sections() const;
 
 public:

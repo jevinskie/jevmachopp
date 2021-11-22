@@ -3,9 +3,9 @@
 #include "jevmachopp/Common.h"
 
 #include "fmt/core.h"
+#include <mach-o/loader.h>
 #include <cstdint>
 #include <enum.hpp/enum.hpp>
-#include <mach-o/loader.h>
 
 // clang-format off
 ENUM_HPP_CLASS_DECL(LoadCommandType, std::uint32_t,

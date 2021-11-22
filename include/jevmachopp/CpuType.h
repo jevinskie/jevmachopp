@@ -7,24 +7,26 @@
 
 #include <enum.hpp/enum.hpp>
 
+using jev_cpu_type_t = std::int32_t;
+
 // clang-format off
-ENUM_HPP_CLASS_DECL(CpuType, std::int32_t,
-    (ANY = CPU_TYPE_ANY)
-    (VAX = CPU_TYPE_VAX)
-    (MC680x0 = CPU_TYPE_MC680x0)
-    (X86 = CPU_TYPE_X86)
-    // (I386 = CPU_TYPE_X86) // dupe of X86
-    (X86_64 = CPU_TYPE_X86_64)
-    (MC98000 = CPU_TYPE_MC98000)
-    (HPPA = CPU_TYPE_HPPA)
-    (ARM = CPU_TYPE_ARM)
-    (ARM64 = CPU_TYPE_ARM64)
-    (ARM64_32 = CPU_TYPE_ARM64_32)
-    (MC88000 = CPU_TYPE_MC88000)
-    (SPARC = CPU_TYPE_SPARC)
-    (I860 = CPU_TYPE_I860)
-    (POWERPC = CPU_TYPE_POWERPC)
-    (POWERPC64 = CPU_TYPE_POWERPC64)
+ENUM_HPP_CLASS_DECL(CpuType, jev_cpu_type_t,
+    (ANY = -1)
+    (VAX = 1)
+    (MC680x0 = 6)
+    (X86 = 7)
+    // (I386 = X86) // dupe of X86
+    (X86_64 = X86 | 0x01000000)
+    (MC98000 = 10)
+    (HPPA = 11)
+    (ARM = 12)
+    (ARM64 = ARM | 0x01000000)
+    (ARM64_32 = ARM | 0x02000000)
+    (MC88000 = 13)
+    (SPARC = 14)
+    (I860 = 15)
+    (POWERPC = 18)
+    (POWERPC64 = POWERPC | 0x01000000)
 )
 // clang-format on
 
