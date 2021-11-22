@@ -17,8 +17,8 @@ const char *NList::name(const MachO &macho) const {
 }
 
 uint8_t NList::dylibOrdinal() const {
-    assert((type & N_TYPE) == N_UNDF && sect == NO_SECT);
-    return GET_LIBRARY_ORDINAL(desc);
+    assert((type & JEV_N_TYPE) == JEV_N_UNDF && sect == JEV_NO_SECT);
+    return ((desc) >> 8) & 0xff;
 }
 
 const char *NList::dylibName(const dylib_names_map_t &map) const {
