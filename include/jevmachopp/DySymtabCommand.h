@@ -38,9 +38,8 @@ public:
 #if __has_include(<mach-o/loader.h>)
 #include <mach-o/loader.h>
 static_assert_size_same_minus_header(DySymtabCommand, struct dysymtab_command, struct load_command);
-#else
-static_assert_size_is(DySymtabCommand, 72);
 #endif
+static_assert_size_is(DySymtabCommand, 72);
 
 template <> struct fmt::formatter<DySymtabCommand> {
 

@@ -19,9 +19,8 @@ public:
 #if __has_include(<mach-o/loader.h>)
 #include <mach-o/loader.h>
 static_assert_size_same_minus_header(UUIDCommand, struct uuid_command, struct load_command);
-#else
-static_assert_size_is(UUIDCommand, 16);
 #endif
+static_assert_size_is(UUIDCommand, 16);
 
 template <> struct fmt::formatter<UUIDCommand> {
 

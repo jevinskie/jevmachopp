@@ -22,9 +22,8 @@ public:
 #include <mach-o/loader.h>
 static_assert_size_same_minus_header(EncryptionInfoCommand, struct encryption_info_command_64,
                                      struct load_command);
-#else
-static_assert_size_is(EncryptionInfoCommand, 16);
 #endif
+static_assert_size_is(EncryptionInfoCommand, 16);
 
 template <> struct fmt::formatter<EncryptionInfoCommand> {
 

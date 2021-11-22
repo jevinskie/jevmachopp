@@ -36,9 +36,8 @@ public:
 #if __has_include(<mach-o/loader.h>)
 #include <mach-o/loader.h>
 static_assert_size_same(Section, struct section_64);
-#else
-static_assert_size_is(Section, 80);
 #endif
+static_assert_size_is(Section, 80);
 
 template <> struct fmt::formatter<Section> {
 

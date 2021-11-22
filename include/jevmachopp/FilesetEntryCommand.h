@@ -23,9 +23,8 @@ public:
 #include <mach-o/loader.h>
 static_assert_size_same_minus_header(FilesetEntryCommand, struct fileset_entry_command,
                                      struct load_command);
-#else
-static_assert_size_is(FilesetEntryCommand, 24);
 #endif
+static_assert_size_is(FilesetEntryCommand, 24);
 
 template <> struct fmt::formatter<FilesetEntryCommand> {
 

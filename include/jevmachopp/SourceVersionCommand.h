@@ -20,9 +20,8 @@ public:
 #include <mach-o/loader.h>
 static_assert_size_same_minus_header(SourceVersionCommand, struct source_version_command,
                                      struct load_command);
-#else
-static_assert_size_is(SourceVersionCommand, 8);
 #endif
+static_assert_size_is(SourceVersionCommand, 8);
 
 template <> struct fmt::formatter<SourceVersionCommand> {
 

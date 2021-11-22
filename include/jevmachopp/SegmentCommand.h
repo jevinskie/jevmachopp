@@ -43,9 +43,8 @@ public:
 #include <mach-o/loader.h>
 static_assert_size_same_minus_header(SegmentCommand, struct segment_command_64,
                                      struct load_command);
-#else
-static_assert_size_is(SegmentCommand, 64);
 #endif
+static_assert_size_is(SegmentCommand, 64);
 
 template <> struct fmt::formatter<SegmentCommand> {
 

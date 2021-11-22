@@ -22,9 +22,8 @@ public:
 #include <mach-o/loader.h>
 static_assert_size_same_minus_header(LinkeditDataCommand, struct dylib_command,
                                      struct load_command);
-#else
-static_assert_size_is(LinkeditDataCommand, 16);
 #endif
+static_assert_size_is(LinkeditDataCommand, 16);
 
 template <> struct fmt::formatter<LinkeditDataCommand> {
     constexpr auto parse(format_parse_context &ctx) -> decltype(ctx.begin()) {

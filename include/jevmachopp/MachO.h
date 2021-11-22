@@ -163,9 +163,8 @@ public:
 #if __has_include(<mach-o/loader.h>)
 #include <mach-o/loader.h>
 static_assert_size_same(MachO, struct mach_header_64);
-#else
-static_assert_size_is(MachO, 32);
 #endif
+static_assert_size_is(MachO, 32);
 
 template <> struct fmt::formatter<MachO> {
 

@@ -35,9 +35,8 @@ public:
 #if __has_include(<mach-o/nlist.h>)
 #include <mach-o/nlist.h>
 static_assert_size_same(NList, struct nlist_64);
-#else
-static_assert_size_is(NList, 16);
 #endif
+static_assert_size_is(NList, 16);
 
 template <typename T> struct value_extractor {
     T operator()(T value) {
