@@ -42,7 +42,9 @@ strtab_entry_range SymtabCommand::strtab_entries(const MachO &macho) const {
     return {strtab_cbegin(macho), strtab_cend(macho)};
 }
 
+#if USE_FMT
 fmt::appender &SymtabCommand::format_to(fmt::appender &out) const {
     fmt::format_to(out, "<SymtabCommand @ {:p}>"_cf, (void *)loadCommand());
     return out;
 }
+#endif

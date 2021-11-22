@@ -5,7 +5,9 @@
 
 class LinkeditDataCommand : public LoadSubCommand {
 public:
+#if USE_FMT
     fmt::appender &format_to(fmt::appender &out) const;
+#endif
 
 public:
     uint32_t name_offset;
@@ -25,6 +27,7 @@ static_assert_size_same_minus_header(LinkeditDataCommand, struct dylib_command,
 #endif
 static_assert_size_is(LinkeditDataCommand, 16);
 
+#if USE_FMT
 template <> struct fmt::formatter<LinkeditDataCommand> {
     constexpr auto parse(format_parse_context &ctx) -> decltype(ctx.begin()) {
         return ctx.begin();
@@ -35,3 +38,4 @@ template <> struct fmt::formatter<LinkeditDataCommand> {
         return ledLC.format_to(out);
     }
 };
+#endif

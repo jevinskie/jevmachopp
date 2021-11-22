@@ -25,6 +25,7 @@ const char *NList::dylibName(const dylib_names_map_t &map) const {
     return map[dylibOrdinal() - 1];
 }
 
+#if USE_FMT
 fmt::appender &NList::format_to(fmt::appender &out) const {
     fmt::format_to(
         out, "<NList @ {:p} strx: {:#x} type: {:#04x} sect: {:d} desc: {:#06x} value: {:#018x}>"_cf,
@@ -45,3 +46,4 @@ fmt::appender &NList::format_to(fmt::appender &out, const MachO &macho,
     fmt::format_to(out, ">"_cf);
     return out;
 }
+#endif

@@ -8,7 +8,9 @@
 
 class DySymtabCommand : public LoadSubCommand {
 public:
+#if USE_FMT
     fmt::appender &format_to(fmt::appender &out) const;
+#endif
 
 public:
     uint32_t ilocalsym;
@@ -41,6 +43,7 @@ static_assert_size_same_minus_header(DySymtabCommand, struct dysymtab_command, s
 #endif
 static_assert_size_is(DySymtabCommand, 72);
 
+#if USE_FMT
 template <> struct fmt::formatter<DySymtabCommand> {
 
     template <typename ParseContext> constexpr auto parse(ParseContext &ctx) {
@@ -53,3 +56,4 @@ template <> struct fmt::formatter<DySymtabCommand> {
         return dySymtabCmd.format_to(out);
     }
 };
+#endif

@@ -7,10 +7,12 @@ Version::Version(uint32_t ver) : major(ver >> 16), minor((ver >> 8) & 0xff), pat
 Version::Version(uint16_t major, uint8_t minor, uint8_t patch)
     : major(major), minor(minor), patch(patch) {}
 
+#if USE_FMT
 fmt::appender &Version::format_to(fmt::appender &out) const {
     fmt::format_to(out, "{:d}.{:d}.{:d}"_cf, major, minor, patch);
     return out;
 }
+#endif
 
 #pragma mark SourceVersion
 
@@ -38,7 +40,9 @@ uint16_t SourceVersion::e() const {
     return (version >> 0) & ((2 << 10) - 1);
 }
 
+#if USE_FMT
 fmt::appender &SourceVersion::format_to(fmt::appender &out) const {
     fmt::format_to(out, "{:d}.{:d}.{:d}.{:d}.{:d}"_cf, a(), b(), c(), d(), e());
     return out;
 }
+#endif

@@ -144,7 +144,9 @@ public:
                                 });
     }
 
+#if USE_FMT
     fmt::appender &format_to(fmt::appender &out) const;
+#endif
 
 public:
     MachOMagic magic;
@@ -166,6 +168,7 @@ static_assert_size_same(MachO, struct mach_header_64);
 #endif
 static_assert_size_is(MachO, 32);
 
+#if USE_FMT
 template <> struct fmt::formatter<MachO> {
 
     template <typename ParseContext> constexpr auto parse(ParseContext &ctx) {
@@ -177,3 +180,4 @@ template <> struct fmt::formatter<MachO> {
         return macho.format_to(out);
     }
 };
+#endif

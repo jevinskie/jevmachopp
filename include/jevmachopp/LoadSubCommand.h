@@ -32,11 +32,14 @@ public:
 public:
     const LoadCommand *loadCommand() const;
     const SubCommandVariant get() const;
+#if USE_FMT
     fmt::appender &format_to(fmt::appender &out) const;
+#endif
 };
 
 static_assert_size_is(LoadSubCommand, 1);
 
+#if USE_FMT
 template <> struct fmt::formatter<LoadSubCommand> {
 
     template <typename ParseContext> constexpr auto parse(ParseContext &ctx) {
@@ -49,3 +52,4 @@ template <> struct fmt::formatter<LoadSubCommand> {
         return out;
     }
 };
+#endif

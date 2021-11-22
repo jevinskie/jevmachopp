@@ -6,7 +6,9 @@
 
 class BuildVersionCommand : public LoadSubCommand {
 public:
+#if USE_FMT
     fmt::appender &format_to(fmt::appender &out) const;
+#endif
 
 public:
     uint32_t platform;
@@ -26,6 +28,7 @@ static_assert_size_same_minus_header(BuildVersionCommand, struct build_version_c
 #endif
 static_assert_size_is(BuildVersionCommand, 16);
 
+#if USE_FMT
 template <> struct fmt::formatter<BuildVersionCommand> {
 
     template <typename ParseContext> constexpr auto parse(ParseContext &ctx) {
@@ -38,3 +41,4 @@ template <> struct fmt::formatter<BuildVersionCommand> {
         return buildVerCmd.format_to(out);
     }
 };
+#endif

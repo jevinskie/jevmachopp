@@ -14,7 +14,9 @@ public:
     bool isRexport() const;
     Version currentVersion() const;
     Version compatibilityVersion() const;
+#if USE_FMT
     fmt::appender &format_to(fmt::appender &out) const;
+#endif
 
 public:
     uint32_t name_offset;
@@ -33,6 +35,7 @@ static_assert_size_same_minus_header(DylibCommand, struct dylib_command, struct 
 #endif
 static_assert_size_is(DylibCommand, 16);
 
+#if USE_FMT
 template <> struct fmt::formatter<DylibCommand> {
 
     template <typename ParseContext> constexpr auto parse(ParseContext &ctx) {
@@ -45,3 +48,4 @@ template <> struct fmt::formatter<DylibCommand> {
         return dylibCmd.format_to(out);
     }
 };
+#endif

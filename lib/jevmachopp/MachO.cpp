@@ -190,6 +190,7 @@ auto MachO::dylibNamesMap() const -> decltype(dylibNamesMap()) {
 
 #pragma mark fmt
 
+#if USE_FMT
 fmt::appender &MachO::format_to(fmt::appender &out) const {
     fmt::format_to(
         out, "<MachO @ {:p} cputype: {} fileType: {} flags: {} ncmds: {:d} sizeofcmds: {:#x} "_cf,
@@ -198,6 +199,7 @@ fmt::appender &MachO::format_to(fmt::appender &out) const {
     fmt::format_to(out, ">"_cf);
     return out;
 }
+#endif
 
 #pragma mark C
 

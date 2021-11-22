@@ -16,7 +16,9 @@ public:
     auto segName() const {
         return readMaybeNullTermCString<decltype(segname)>(segname);
     }
+#if USE_FMT
     fmt::appender &format_to(fmt::appender &out) const;
+#endif
 
 public:
     char sectname[16];
@@ -39,6 +41,7 @@ static_assert_size_same(Section, struct section_64);
 #endif
 static_assert_size_is(Section, 80);
 
+#if USE_FMT
 template <> struct fmt::formatter<Section> {
 
     template <typename ParseContext> constexpr auto parse(ParseContext &ctx) {
@@ -50,3 +53,4 @@ template <> struct fmt::formatter<Section> {
         return sect.format_to(out);
     }
 };
+#endif

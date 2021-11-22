@@ -20,9 +20,11 @@ public:
 
     uint8_t dylibOrdinal() const;
     const char *dylibName(const dylib_names_map_t &map) const;
+#if USE_FMT
     fmt::appender &format_to(fmt::appender &out) const;
     fmt::appender &format_to(fmt::appender &out, const MachO &macho,
                              const dylib_names_map_t *map = nullptr) const;
+#endif
 
 public:
     uint32_t strx;
@@ -52,6 +54,7 @@ template <typename T> struct value_extractor {
     }
 };
 
+#if USE_FMT
 template <> struct fmt::formatter<NList> {
     // Presentation format: 'd' - dumb, 'f' - fancy, 'm' - mapped fancy
     char presentation = 'd';
@@ -100,3 +103,4 @@ template <> struct fmt::formatter<NList> {
         return nlist.format_to(out);
     }
 };
+#endif

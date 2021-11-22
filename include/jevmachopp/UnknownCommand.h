@@ -14,11 +14,14 @@ public:
     void operator=(const UnknownCommand &) = delete;
 
 public:
+#if USE_FMT
     fmt::appender &format_to(fmt::appender &out) const;
+#endif
 };
 
 static_assert_size_is(UnknownCommand, 1);
 
+#if USE_FMT
 template <> struct fmt::formatter<UnknownCommand> {
 
     template <typename ParseContext> constexpr auto parse(ParseContext &ctx) {
@@ -32,3 +35,4 @@ template <> struct fmt::formatter<UnknownCommand> {
         return out;
     }
 };
+#endif

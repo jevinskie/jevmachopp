@@ -57,6 +57,7 @@ const SubCommandVariant LoadSubCommand::get() const {
     }
 }
 
+#if USE_FMT
 fmt::appender &LoadSubCommand::format_to(fmt::appender &out) const {
     rollbear::visit(
         [=](auto &&o) {
@@ -65,3 +66,4 @@ fmt::appender &LoadSubCommand::format_to(fmt::appender &out) const {
         get());
     return out;
 }
+#endif

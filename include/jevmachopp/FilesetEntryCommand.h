@@ -6,7 +6,9 @@
 class FilesetEntryCommand : public LoadSubCommand {
 public:
     const char *name() const;
+#if USE_FMT
     fmt::appender &format_to(fmt::appender &out) const;
+#endif
 
 public:
     uint64_t vmaddr;
@@ -26,6 +28,7 @@ static_assert_size_same_minus_header(FilesetEntryCommand, struct fileset_entry_c
 #endif
 static_assert_size_is(FilesetEntryCommand, 24);
 
+#if USE_FMT
 template <> struct fmt::formatter<FilesetEntryCommand> {
 
     template <typename ParseContext> constexpr auto parse(ParseContext &ctx) {
@@ -38,3 +41,4 @@ template <> struct fmt::formatter<FilesetEntryCommand> {
         return filesetEntryCmd.format_to(out);
     }
 };
+#endif

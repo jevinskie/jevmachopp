@@ -6,7 +6,9 @@
 
 class SourceVersionCommand : public LoadSubCommand {
 public:
+#if USE_FMT
     fmt::appender &format_to(fmt::appender &out) const;
+#endif
 
 public:
     SourceVersion version; // A.B.C.D.E
@@ -23,6 +25,7 @@ static_assert_size_same_minus_header(SourceVersionCommand, struct source_version
 #endif
 static_assert_size_is(SourceVersionCommand, 8);
 
+#if USE_FMT
 template <> struct fmt::formatter<SourceVersionCommand> {
 
     template <typename ParseContext> constexpr auto parse(ParseContext &ctx) {
@@ -35,3 +38,4 @@ template <> struct fmt::formatter<SourceVersionCommand> {
         return sourceVerCmd.format_to(out);
     }
 };
+#endif

@@ -23,8 +23,9 @@ public:
     std::size_t strtab_sizeof() const;
     const char *strtab_data(const MachO &macho) const;
     strtab_entry_range strtab_entries(const MachO &macho) const;
-
+#if USE_FMT
     fmt::appender &format_to(fmt::appender &out) const;
+#endif
 
 public:
     uint32_t symoff; // nlist array offset from MachO header
@@ -43,6 +44,7 @@ static_assert_size_same_minus_header(SymtabCommand, struct symtab_command, struc
 #endif
 static_assert_size_is(SymtabCommand, 16);
 
+#if USE_FMT
 template <> struct fmt::formatter<SymtabCommand> {
 
     template <typename ParseContext> constexpr auto parse(ParseContext &ctx) {
@@ -55,3 +57,4 @@ template <> struct fmt::formatter<SymtabCommand> {
         return symtabCmd.format_to(out);
     }
 };
+#endif

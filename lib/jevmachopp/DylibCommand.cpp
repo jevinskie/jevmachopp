@@ -30,6 +30,7 @@ Version DylibCommand::compatibilityVersion() const {
     return compatibility_version;
 }
 
+#if USE_FMT
 fmt::appender &DylibCommand::format_to(fmt::appender &out) const {
     fmt::format_to(
         out,
@@ -37,3 +38,4 @@ fmt::appender &DylibCommand::format_to(fmt::appender &out) const {
         (void *)loadCommand(), name(), timestamp, currentVersion(), compatibilityVersion());
     return out;
 }
+#endif
