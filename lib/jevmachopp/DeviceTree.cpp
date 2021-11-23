@@ -1,16 +1,6 @@
 #include "jevmachopp/DeviceTree.h"
 #include "jevmachopp/c/jevdtree.h"
 
-#pragma mark DTNode
-
-#pragma mark DTNode - fmt
-
-fmt::appender &DTNode::format_to(fmt::appender &out) const {
-    fmt::format_to(out, "<DTNode @ {:p} # props: {:d} # children: {:d}>"_cf, (void *)this, nprops,
-                   nchildren);
-    return out;
-}
-
 #pragma mark DTProp
 
 #pragma mark DTProp - Accessors
@@ -20,10 +10,49 @@ const char *DTProp::name() const {
     return name_buf;
 }
 
+std::uint32_t DTProp::size_raw() const {
+    return sz & ~(0x80000000u);
+}
+
+std::uint32_t DTProp::size_padded() const {
+    return (size_raw() + 3) & ~(3u);
+}
+
 #pragma mark DTProp - fmt
 
 fmt::appender &DTProp::format_to(fmt::appender &out) const {
-    fmt::format_to(out, "<DTProp @ {:p} name: \"{:s}\" size: {:d}>"_cf, (void *)this, name(), sz);
+    fmt::format_to(out, "<DTProp @ {:p} name: \"{:s}\" size raw: {:d} size padded: {:d}>"_cf,
+                   (void *)this, name(), size_raw(), size_padded());
+    return out;
+}
+
+#pragma mark DTNode
+
+#pragma mark DTNode - properties
+
+DTProp::prop_range DTNode::properties() const {
+    return {properties_cbegin(), properties_cend()};
+}
+
+DTProp::Iterator DTNode::properties_cbegin() const {
+    return DTProp::Iterator{(const DTProp *)(this + 1), properties_size()};
+}
+
+DTProp::Iterator DTNode::properties_cend() const {
+    return DTProp::Iterator{};
+}
+
+std::uint32_t DTNode::properties_size() const {
+    return nprops;
+}
+
+#pragma mark DTNode - fmt
+
+fmt::appender &DTNode::format_to(fmt::appender &out) const {
+    fmt::format_to(out, "<DTNode @ {:p} # props: {:d} # children: {:d} props: "_cf, (void *)this,
+                   nprops, nchildren);
+    fmt::format_to(out, "{}"_cf, fmt::join(properties(), ", "));
+    fmt::format_to(out, ">"_cf);
     return out;
 }
 
