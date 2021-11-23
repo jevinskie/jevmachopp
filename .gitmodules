@@ -21,4 +21,4 @@
 	url = https://github.com/boostorg/static_string
 [submodule "3rdparty/static_vector"]
 	path = 3rdparty/static_vector
-	url = https://github.com/gnzlbg/static_vector
+	url = git@git.je.vin:jevin/static_vector.git
