@@ -2,9 +2,9 @@
 
 #include "jevmachopp/Common.h"
 
-#pragma mark DTreeNode
+#pragma mark DTNode
 
-class DTreeNode {
+class DTNode {
 public:
 #if USE_FMT
     fmt::appender &format_to(fmt::appender &out) const;
@@ -15,29 +15,29 @@ public:
     uint32_t nchildren;
 
 public:
-    DTreeNode(const DTreeNode &) = delete;
-    void operator=(const DTreeNode &) = delete;
+    DTNode(const DTNode &) = delete;
+    void operator=(const DTNode &) = delete;
 };
 
-static_assert_size_is(DTreeNode, 8);
+static_assert_size_is(DTNode, 8);
 
 #if USE_FMT
-template <> struct fmt::formatter<DTreeNode> {
+template <> struct fmt::formatter<DTNode> {
 
     template <typename ParseContext> constexpr auto parse(ParseContext &ctx) {
         return ctx.begin();
     }
 
-    template <typename FormatContext> auto format(DTreeNode const &node, FormatContext &ctx) {
+    template <typename FormatContext> auto format(DTNode const &node, FormatContext &ctx) {
         auto out = ctx.out();
         return node.format_to(out);
     }
 };
 #endif
 
-#pragma mark DTreeProp
+#pragma mark DTProp
 
-class DTreeProp {
+class DTProp {
 public:
     auto name() const {
         return readMaybeNullTermCString<decltype(name_buf)>(name_buf);
@@ -52,20 +52,20 @@ public:
     uint32_t sz;
 
 public:
-    DTreeProp(const DTreeProp &) = delete;
-    void operator=(const DTreeProp &) = delete;
+    DTProp(const DTProp &) = delete;
+    void operator=(const DTProp &) = delete;
 };
 
-static_assert_size_is(DTreeProp, 36);
+static_assert_size_is(DTProp, 36);
 
 #if USE_FMT
-template <> struct fmt::formatter<DTreeProp> {
+template <> struct fmt::formatter<DTProp> {
 
     template <typename ParseContext> constexpr auto parse(ParseContext &ctx) {
         return ctx.begin();
     }
 
-    template <typename FormatContext> auto format(DTreeProp const &prop, FormatContext &ctx) {
+    template <typename FormatContext> auto format(DTProp const &prop, FormatContext &ctx) {
         auto out = ctx.out();
         return prop.format_to(out);
     }
