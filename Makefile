@@ -24,9 +24,11 @@ INCLUDE_FLAGS := -I $(ROOT_DIR)/include -I $(ROOT_DIR)/3rdparty/fmt/include -I $
 # C_CXX_FLAGS := -Os
 C_CXX_FLAGS := $(C_CXX_FLAGS) -fpermissive -fno-rtti -fno-exceptions -fno-unwind-tables -fno-asynchronous-unwind-tables
 # C_CXX_FLAGS += $(C_CXX_FLAGS) -flto -fuse-linker-plugin -ffat-lto-objects
-JEV_CFLAGS := $(CFLAGS) $(C_CXX_FLAGS) -std=gnu11 $(DEFINE_FLAGS) $(INCLUDE_FLAGS)
-JEV_CXXFLAGS := $(CFLAGS) $(CXXFLAGS) $(C_CXX_FLAGS) -std=gnu++2b $(DEFINE_FLAGS) $(INCLUDE_FLAGS)
-
+JEV_CFLAGS := $(CFLAGS)
+JEV_CFLAGS := $(filter-out -ffreestanding,$(JEV_CFLAGS))
+JEV_CFLAGS := $(filter-out -nostdinc,$(JEV_CFLAGS))
+JEV_CFLAGS := $(JEV_CFLAGS) $(C_CXX_FLAGS) -std=gnu11 $(DEFINE_FLAGS) $(INCLUDE_FLAGS)
+JEV_CXXFLAGS := $(JEV_CFLAGS) $(CXXFLAGS) $(C_CXX_FLAGS) -std=gnu++2b $(DEFINE_FLAGS) $(INCLUDE_FLAGS)
 
 # make print-LIBJEVMACHOPP_OBJS
 print-%:
