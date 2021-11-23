@@ -1,6 +1,8 @@
 #include "jevmachopp/DeviceTree.h"
 #include "jevmachopp/c/jevdtree.h"
 
+#include <numeric>
+
 #pragma mark DTProp
 
 #pragma mark DTProp - Accessors
@@ -16,6 +18,10 @@ std::uint32_t DTProp::size_raw() const {
 
 std::uint32_t DTProp::size_padded() const {
     return (size_raw() + 3) & ~(3u);
+}
+
+const uint8_t *DTProp::data() const {
+    return (const uint8_t *)(this + 1);
 }
 
 #pragma mark DTProp - fmt
@@ -44,6 +50,32 @@ DTProp::Iterator DTNode::properties_cend() const {
 
 std::uint32_t DTNode::properties_size() const {
     return nprops;
+}
+
+std::uint32_t DTNode::properties_sizeof() const {
+    return std::accumulate(properties_cbegin(), properties_cend(), 0,
+                           [](const auto &a, const auto &b) {
+                               // FIXME
+                               return 0;
+                           });
+}
+
+#pragma mark DTNode - children
+
+DTNode::child_range DTNode::children() const {
+    return {children_cbegin(), children_cend()};
+}
+
+DTNode::Iterator DTNode::children_cbegin() const {
+    return DTNode::Iterator{(const DTNode *)(this + 1), children_size()};
+}
+
+DTNode::Iterator DTNode::children_cend() const {
+    return DTNode::Iterator{};
+}
+
+std::uint32_t DTNode::children_size() const {
+    return nchildren;
 }
 
 #pragma mark DTNode - fmt
