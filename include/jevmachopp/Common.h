@@ -39,6 +39,11 @@ using namespace std::string_literals;
 #define FMT_PRINT(...)
 #endif
 
+#if ASAHI
+extern "C" int debug_printf(const char *format, ...)  __attribute__((format(printf, 1, 2)));
+#define printf(...) debug_printf(__VA_ARGS__)
+#endif
+
 #pragma mark Common Types
 
 using dylib_names_map_t = std::array<const char *, 0xFF>;
