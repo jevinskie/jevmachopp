@@ -54,9 +54,8 @@ std::uint32_t DTNode::properties_size() const {
 
 std::uint32_t DTNode::properties_sizeof() const {
     return std::accumulate(properties_cbegin(), properties_cend(), 0,
-                           [](const auto &a, const auto &b) {
-                               // FIXME
-                               return 0;
+                           [](const auto &accum, const auto &prop) {
+                               return accum + sizeof(prop) + prop.size_padded();
                            });
 }
 
@@ -67,7 +66,8 @@ DTNode::child_range DTNode::children() const {
 }
 
 DTNode::Iterator DTNode::children_cbegin() const {
-    return DTNode::Iterator{(const DTNode *)(this + 1), children_size()};
+    return DTNode::Iterator{(const DTNode *)((uintptr_t)(this + 1) + properties_sizeof()),
+                            children_size()};
 }
 
 DTNode::Iterator DTNode::children_cend() const {
@@ -78,12 +78,27 @@ std::uint32_t DTNode::children_size() const {
     return nchildren;
 }
 
+std::uint32_t DTNode::children_sizeof() const {
+    return std::accumulate(children_cbegin(), children_cend(), 0,
+                           [](const auto &accum, const auto &child) {
+                               return accum + child.node_sizeof();
+                           });
+}
+
+#pragma mark DTNode - etc
+
+std::uint32_t DTNode::node_sizeof() const {
+    return sizeof(*this) + properties_sizeof() + children_sizeof();
+}
+
 #pragma mark DTNode - fmt
 
 fmt::appender &DTNode::format_to(fmt::appender &out) const {
     fmt::format_to(out, "<DTNode @ {:p} # props: {:d} # children: {:d} props: "_cf, (void *)this,
                    nprops, nchildren);
     fmt::format_to(out, "{}"_cf, fmt::join(properties(), ", "));
+    fmt::format_to(out, " children: "_cf);
+    fmt::format_to(out, "{}"_cf, fmt::join(children(), ", "));
     fmt::format_to(out, ">"_cf);
     return out;
 }

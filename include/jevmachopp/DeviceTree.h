@@ -15,7 +15,11 @@ public:
         using reference = const DTProp &;
 
         Iterator() : m_ptr(nullptr), m_sz(0) {}
-        Iterator(pointer ptr, std::uint32_t sz) : m_ptr(ptr), m_sz(sz) {}
+        Iterator(pointer ptr, std::uint32_t sz) : m_ptr(ptr), m_sz(sz) {
+            if (!sz) {
+                *this = std::move(Iterator{});
+            }
+        }
 
         reference operator*() const {
             return *m_ptr;
@@ -102,7 +106,11 @@ class DTNode {
         using reference = const DTNode &;
 
         Iterator() : m_ptr(nullptr), m_sz(0) {}
-        Iterator(pointer ptr, std::uint32_t sz) : m_ptr(ptr), m_sz(sz) {}
+        Iterator(pointer ptr, std::uint32_t sz) : m_ptr(ptr), m_sz(sz) {
+            if (!sz) {
+                *this = std::move(Iterator{});
+            }
+        }
 
         reference operator*() const {
             return *m_ptr;
@@ -153,6 +161,9 @@ public:
     DTNode::Iterator children_cbegin() const;
     DTNode::Iterator children_cend() const;
     std::uint32_t children_size() const;
+    std::uint32_t children_sizeof() const;
+
+    std::uint32_t node_sizeof() const;
 
 #if USE_FMT
     fmt::appender &format_to(fmt::appender &out) const;
