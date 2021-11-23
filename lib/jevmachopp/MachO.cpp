@@ -211,6 +211,11 @@ void dump_macho(const void *macho_header) {
     FMT_PRINT("macho: {}\n", (void *)&macho);
     printf("macho: %p\n", &macho);
 
+    if (!macho.isMagicGood()) {
+        printf("macho magic is bad, bailing out. magic: 0x%08x\n", macho.magic);
+        return;
+    }
+
     FMT_PRINT("macho fmt: {}\n", macho);
     FMT_PRINT("macho->cputype: {}\n", macho.cputype);
 
