@@ -316,7 +316,7 @@ void dump_macho(const void *macho_header) {
     idx = 0;
     for (const auto &fseCmd : macho.filesetEntryCommands()) {
         // FMT_PRINT("indirect_sym[{:3d}]: {:f}\n", idx++, nl, macho);
-        printf("fse[%3d]: vmaddr: 0x%016lx fileoff: 0x%08lx name: \"%s\"\n", idx++, fseCmd.vmaddr,
-               fseCmd.fileoff, fseCmd.name());
+        printf("fse[%3d]: vmaddr: %p fileoff: %p name: \"%s\"\n", idx++,
+               (const void *)fseCmd.vmaddr, (const void *)fseCmd.fileoff, fseCmd.name());
     }
 }
