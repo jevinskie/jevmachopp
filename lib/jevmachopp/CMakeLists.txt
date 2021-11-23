@@ -3,6 +3,7 @@ set(MACHOPP_SRC
     BuildVersionCommand.cpp
     Common.cpp
     CpuTypeMeta.cpp
+    DeviceTree.cpp
     DylibCommand.cpp
     DySymtabCommand.cpp
     EncryptionInfoCommand.cpp
