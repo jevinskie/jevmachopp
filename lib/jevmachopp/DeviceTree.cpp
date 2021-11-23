@@ -13,6 +13,13 @@ fmt::appender &DTNode::format_to(fmt::appender &out) const {
 
 #pragma mark DTProp
 
+#pragma mark DTProp - Accessors
+
+const char *DTProp::name() const {
+    assert(memchr(name_buf, '\0', sizeof(name_buf)));
+    return name_buf;
+}
+
 #pragma mark DTProp - fmt
 
 fmt::appender &DTProp::format_to(fmt::appender &out) const {

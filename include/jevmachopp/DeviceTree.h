@@ -39,9 +39,45 @@ template <> struct fmt::formatter<DTNode> {
 
 class DTProp {
 public:
-    auto name() const {
-        return readMaybeNullTermCString<decltype(name_buf)>(name_buf);
-    }
+    class Iterator {
+    public:
+        using iterator_category = std::forward_iterator_tag;
+        using difference_type = std::ptrdiff_t;
+        using value_type = const DTProp;
+        using pointer = const DTProp *;
+        using reference = const DTProp &;
+
+        Iterator() : m_ptr(nullptr) {}
+        Iterator(pointer ptr) : m_ptr(ptr) {}
+
+        reference operator*() const {
+            return *m_ptr;
+        }
+        pointer operator->() {
+            return m_ptr;
+        }
+        Iterator &operator++() {
+            m_ptr = (pointer)((uintptr_t)m_ptr + m_ptr->sz);
+            return *this;
+        }
+        Iterator operator++(int) {
+            Iterator tmp = *this;
+            ++(*this);
+            return tmp;
+        }
+        friend bool operator==(const Iterator &a, const Iterator &b) {
+            return a.m_ptr == b.m_ptr;
+        };
+        friend bool operator!=(const Iterator &a, const Iterator &b) {
+            return a.m_ptr != b.m_ptr;
+        };
+
+    private:
+        pointer m_ptr;
+    };
+
+public:
+    const char *name() const;
     const uint8_t *data() const;
 #if USE_FMT
     fmt::appender &format_to(fmt::appender &out) const;
