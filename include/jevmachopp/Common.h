@@ -41,12 +41,10 @@ using namespace std::string_literals;
 
 #pragma mark Printing
 
-#define USE_FMT 0
-
-#if USE_FMT
-#define FMT_PRINT(...) fmt::print(__VA_ARGS__)
-#else
+#if defined(USE_FMT) && !USE_FMT
 #define FMT_PRINT(...)
+#else
+#define FMT_PRINT(...) fmt::print(__VA_ARGS__)
 #endif
 
 #pragma mark Common Types
