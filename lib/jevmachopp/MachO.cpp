@@ -281,36 +281,31 @@ void dump_macho(const void *macho_header) {
     }
 
     const SymtabCommand *symtab_ptr = macho.symtab();
-    assert(symtab_ptr);
-    const SymtabCommand &symtab = *symtab_ptr;
-    const SegmentCommand *linkedit_seg_ptr = macho.linkeditSeg();
-    assert(linkedit_seg_ptr);
-    const SegmentCommand &linkedit_seg = *linkedit_seg_ptr;
+    if (symtab_ptr) {
+        const SymtabCommand &symtab = *symtab_ptr;
 
-    // FMT_PRINT("linkedit_seg: {}\n", linkedit_seg);
-    printf("linkedit_seg: %p\n", &linkedit_seg);
+        const auto dylib_names = macho.dylibNamesMap();
 
-    const auto dylib_names = macho.dylibNamesMap();
+        // for (const auto [idx, nl] : ranges::views::enumerate(macho.undef_syms())) {
+        //     FMT_PRINT("undef_sym[{:3d}]: {:m}\n", idx, nl, macho, (const void *)&dylib_names);
+        // }
 
-    // for (const auto [idx, nl] : ranges::views::enumerate(macho.undef_syms())) {
-    //     FMT_PRINT("undef_sym[{:3d}]: {:m}\n", idx, nl, macho, (const void *)&dylib_names);
-    // }
+        idx = 0;
+        for (const auto &nl : macho.undef_syms()) {
+            // FMT_PRINT("undef_sym[{:3d}]: {:m}\n", idx++, nl, macho, (const void *)&dylib_names);
+            printf("undef_sym[%3d]: \"%s\" from \"%s\"\n", idx++, nl.name(macho, symtab),
+                   nl.dylibName(dylib_names));
+        }
 
-    idx = 0;
-    for (const auto &nl : macho.undef_syms()) {
-        // FMT_PRINT("undef_sym[{:3d}]: {:m}\n", idx++, nl, macho, (const void *)&dylib_names);
-        printf("undef_sym[%3d]: \"%s\" from \"%s\"\n", idx++, nl.name(macho, symtab),
-               nl.dylibName(dylib_names));
-    }
+        // for (const auto [idx, nl] : ranges::views::enumerate(macho.indirect_syms())) {
+        //     FMT_PRINT("indirect_sym[{:3d}]: {:f}\n", idx, nl, macho);
+        // }
 
-    // for (const auto [idx, nl] : ranges::views::enumerate(macho.indirect_syms())) {
-    //     FMT_PRINT("indirect_sym[{:3d}]: {:f}\n", idx, nl, macho);
-    // }
-
-    idx = 0;
-    for (const auto &nl : macho.indirect_syms()) {
-        // FMT_PRINT("indirect_sym[{:3d}]: {:f}\n", idx++, nl, macho);
-        printf("indirect_sym[%3d]: \"%s\"\n", idx++, nl.name(macho, symtab));
+        idx = 0;
+        for (const auto &nl : macho.indirect_syms()) {
+            // FMT_PRINT("indirect_sym[{:3d}]: {:f}\n", idx++, nl, macho);
+            printf("indirect_sym[%3d]: \"%s\"\n", idx++, nl.name(macho, symtab));
+        }
     }
 
     idx = 0;
