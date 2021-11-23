@@ -1,12 +1,5 @@
 #pragma once
 
-#include <array>
-#include <cstddef>
-#include <memory>
-#include <stdint.h>
-#include <string>
-#include <typeinfo>
-
 #include "jevmachopp/Common.h"
 #include "jevmachopp/CpuTypeMeta.h"
 #include "jevmachopp/DylibCommand.h"
@@ -14,6 +7,13 @@
 #include "jevmachopp/MachOHeaderEnums.h"
 #include "jevmachopp/Strtab.h"
 #include "jevmachopp/SymtabCommand.h"
+
+#include <array>
+#include <cstddef>
+#include <memory>
+#include <stdint.h>
+#include <string>
+#include <typeinfo>
 
 #include <nanorange/views/filter.hpp>
 #include <nanorange/views/subrange.hpp>

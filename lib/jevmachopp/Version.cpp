@@ -2,10 +2,10 @@
 
 #pragma mark Version
 
-Version::Version(uint32_t ver) : major(ver >> 16), minor((ver >> 8) & 0xff), patch(ver & 0xff) {}
+Version::Version(uint32_t ver) : patch(ver & 0xff), minor((ver >> 8) & 0xff), major(ver >> 16) {}
 
 Version::Version(uint16_t major, uint8_t minor, uint8_t patch)
-    : major(major), minor(minor), patch(patch) {}
+    : patch(patch), minor(minor), major(major) {}
 
 #if USE_FMT
 fmt::appender &Version::format_to(fmt::appender &out) const {

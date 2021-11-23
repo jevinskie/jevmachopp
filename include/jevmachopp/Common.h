@@ -13,7 +13,17 @@
 #include <boost/callable_traits/function_type.hpp>
 #include <boost/callable_traits/remove_member_cv.hpp>
 
-#define BOOST_STATIC_STRING_THROW(ex) assert(!HEDLEY_STRINGIFY(ex))
+#if !M1N1
+#define BOOST_STATIC_STRING_THROW(ex)                                                              \
+    do {                                                                                           \
+        fprintf(stderr, "Exception: %s\n", ex);                                                    \
+        abort();                                                                                   \
+    } while (0)
+#else
+extern "C" __attribute__((noreturn)) void __assert_fail(const char *assertion, const char *file,
+                                                        unsigned int line, const char *function);
+#define BOOST_STATIC_STRING_THROW(ex) __assert_fail(ex, __FILE__, __LINE__, __func__)
+#endif
 #define BOOST_NORETURN [[noreturn]]
 
 #include <boost/static_string/static_string.hpp>
@@ -37,11 +47,6 @@ using namespace std::string_literals;
 #define FMT_PRINT(...) fmt::print(__VA_ARGS__)
 #else
 #define FMT_PRINT(...)
-#endif
-
-#if ASAHI
-extern "C" int debug_printf(const char *format, ...)  __attribute__((format(printf, 1, 2)));
-#define printf(...) debug_printf(__VA_ARGS__)
 #endif
 
 #pragma mark Common Types

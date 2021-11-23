@@ -18,7 +18,7 @@
 	url = https://github.com/boostorg/callable_traits
 [submodule "3rdparty/static_string"]
 	path = 3rdparty/static_string
-	url = https://github.com/boostorg/static_string
+	url = git@git.je.vin:jevin/static_string.git
 [submodule "3rdparty/static_vector"]
 	path = 3rdparty/static_vector
 	url = git@git.je.vin:jevin/static_vector.git

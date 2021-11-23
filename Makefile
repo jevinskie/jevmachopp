@@ -6,8 +6,11 @@ ifeq ($(ROOT_DIR), $(PWD))
 	$(error Must build out of tree!)
 endif
 
-LIBJEVMACHOPP_SRCS := $(wildcard $(ROOT_DIR)/lib/jevmachopp/*.cpp)
-LIBJEVMACHOPP_OBJS := $(notdir $(LIBJEVMACHOPP_SRCS:.cpp=.o))
+LIBJEVMACHOPP_CXX_SRCS := $(wildcard $(ROOT_DIR)/lib/jevmachopp/*.cpp)
+LIBJEVMACHOPP_CXX_OBJS := $(notdir $(LIBJEVMACHOPP_CXX_SRCS:.cpp=.o))
+LIBJEVMACHOPP_ASM_SRCS := $(wildcard $(ROOT_DIR)/lib/jevmachopp/*.S)
+LIBJEVMACHOPP_ASM_OBJS := $(notdir $(LIBJEVMACHOPP_ASM_SRCS:.S=.o))
+LIBJEVMACHOPP_OBJS := $(LIBJEVMACHOPP_CXX_OBJS) $(LIBJEVMACHOPP_ASM_OBJS)
 # no slurp/mmap on baremetal
 LIBJEVMACHOPP_OBJS := $(filter-out Slurp.o,$(LIBJEVMACHOPP_OBJS))
 
@@ -23,12 +26,17 @@ INCLUDE_FLAGS := -I $(ROOT_DIR)/include -I $(ROOT_DIR)/3rdparty/fmt/include -I $
 
 # C_CXX_FLAGS := -Os
 C_CXX_FLAGS := $(C_CXX_FLAGS) -fpermissive -fno-rtti -fno-exceptions -fno-unwind-tables -fno-asynchronous-unwind-tables
+C_CXX_FLAGS += -Wno-unknown-pragmas
 # C_CXX_FLAGS += $(C_CXX_FLAGS) -flto -fuse-linker-plugin -ffat-lto-objects
 JEV_CFLAGS := $(CFLAGS)
 JEV_CFLAGS := $(filter-out -ffreestanding,$(JEV_CFLAGS))
 JEV_CFLAGS := $(filter-out -nostdinc,$(JEV_CFLAGS))
 JEV_CFLAGS := $(JEV_CFLAGS) $(C_CXX_FLAGS) -std=gnu11 $(DEFINE_FLAGS) $(INCLUDE_FLAGS)
 JEV_CXXFLAGS := $(JEV_CFLAGS) $(CXXFLAGS) $(C_CXX_FLAGS) -std=gnu++2b $(DEFINE_FLAGS) $(INCLUDE_FLAGS)
+JEV_CXXFLAGS := $(filter-out -Werror=strict-prototypes,$(JEV_CXXFLAGS))
+JEV_CXXFLAGS := $(filter-out -Werror=implicit-function-declaration,$(JEV_CXXFLAGS))
+JEV_CXXFLAGS := $(filter-out -Werror=implicit-int,$(JEV_CXXFLAGS))
+JEV_CXXFLAGS := $(filter-out -std=gnu11,$(JEV_CXXFLAGS))
 
 # make print-LIBJEVMACHOPP_OBJS
 print-%:
@@ -42,6 +50,9 @@ clean:
 	rm -f $(TARGETS) $(LIBJEVMACHOPP_OBJS)
 
 %.o: $(ROOT_DIR)/lib/jevmachopp/%.cpp
+	$(CXX) $(JEV_CXXFLAGS) -c -o $@ $^
+
+%.o: $(ROOT_DIR)/lib/jevmachopp/%.S
 	$(CXX) $(JEV_CXXFLAGS) -c -o $@ $^
 
 libjevmachopp.a: $(LIBJEVMACHOPP_OBJS)
