@@ -26,6 +26,7 @@ set(MACHOPP_SRC
 )
 
 set(MACHOPP_HDR_STANDALONE
+    c/jevdtree.h
     c/jevmacho.h
     CpuType.h
     CpuSubType.h

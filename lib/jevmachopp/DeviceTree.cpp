@@ -11,6 +11,15 @@ fmt::appender &DTreeNode::format_to(fmt::appender &out) const {
     return out;
 }
 
+#pragma mark DTreeProp
+
+#pragma mark DTreeProp - fmt
+
+fmt::appender &DTreeProp::format_to(fmt::appender &out) const {
+    fmt::format_to(out, "<DTreeProp @ {:p} name: \"{:s}\" size: {:d}>"_cf, (void *)this, name, sz);
+    return out;
+}
+
 #pragma mark C
 
 void dump_dtree(const void *dtree_buf) {
