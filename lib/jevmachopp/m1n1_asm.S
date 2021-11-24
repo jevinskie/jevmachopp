@@ -7,7 +7,6 @@ printf:
     b debug_printf
     .size   printf, .-printf
 
-
     .global xnu_jump_stub
     .type   xnu_jump_stub, %function
 xnu_jump_stub:
@@ -17,8 +16,13 @@ xnu_jump_stub:
     ic ivau, x2
     add x2, x2, #8
     sub x3, x3, #8
-    cbnz x3, 1b
+    cbnz x3, xnu_jump_stub
 
-    ldr x1, ={0x243}
+    ldr x1, xnu_jump_stub_target
     br x1
     .size   xnu_jump_stub, .-xnu_jump_stub
+    .global xnu_jump_stub_target
+    .type   xnu_jump_stub_target, %object
+xnu_jump_stub_target:
+    .quad 0xDEADC0DEFEEDFACE
+    .size   xnu_jump_stub_target, .-xnu_jump_stub_target
