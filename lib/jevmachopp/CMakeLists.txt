@@ -8,6 +8,7 @@ set(MACHOPP_SRC
     DySymtabCommand.cpp
     EncryptionInfoCommand.cpp
     FilesetEntryCommand.cpp
+    Hex.cpp
     LoadCommand.cpp
     LoadSubCommand.cpp
     LinkeditDataCommand.cpp

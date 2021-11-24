@@ -33,8 +33,10 @@ bool DTProp::isReplacement() const {
 #pragma mark DTProp - fmt
 
 fmt::appender &DTProp::format_to(fmt::appender &out) const {
-    fmt::format_to(out, "<DTProp @ {:p} name: \"{:s}\" size raw: {:d} size padded: {:d}>"_cf,
-                   (void *)this, name(), size_raw(), size_padded());
+    auto hexstr = buf2hexstr<512>(data(), size_raw());
+    fmt::format_to(out,
+                   "<DTProp @ {:p} name: \"{:s}\" size raw: {:d} size padded: {:d} data: {:s}>"_cf,
+                   (void *)this, name(), size_raw(), size_padded(), hexstr);
     return out;
 }
 
@@ -160,8 +162,6 @@ void dump_dtree(const void *dtree_buf) {
             fmt::print("iuou prop: {}\n", iuou_prop);
             assert(iuou_prop.size_raw() == 4);
             auto *iuou_prop_buf_rw = (uint8_t *)iuou_prop.data();
-            auto hexstr = buf2hexstr(iuou_prop_buf_rw, iuou_prop.size_raw());
-            fmt::print("iuou prop: hexstr {:s}\n", hexstr);
             iuou_prop_buf_rw[0] = 1; // little endian... right?
             fmt::print("iuou prop: {}\n", iuou_prop);
         }
