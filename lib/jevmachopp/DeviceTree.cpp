@@ -87,6 +87,13 @@ std::uint32_t DTNode::children_sizeof() const {
 
 #pragma mark DTNode - etc
 
+const char *DTNode::name() const {
+    const DTProp *name_prop = find_if_or_nullptr(properties(), [](const auto &prop) {
+        return prop.name() == "name"s;
+    });
+    return name_prop ? (const char *)name_prop->data() : "NONAME";
+}
+
 std::uint32_t DTNode::node_sizeof() const {
     return sizeof(*this) + properties_sizeof() + children_sizeof();
 }
@@ -94,8 +101,8 @@ std::uint32_t DTNode::node_sizeof() const {
 #pragma mark DTNode - fmt
 
 fmt::appender &DTNode::format_to(fmt::appender &out) const {
-    fmt::format_to(out, "<DTNode @ {:p} # props: {:d} # children: {:d} props: "_cf, (void *)this,
-                   nprops, nchildren);
+    fmt::format_to(out, "<DTNode @ {:p} name: \"{:s}\" # props: {:d} # children: {:d} props: "_cf,
+                   (void *)this, name(), nprops, nchildren);
     fmt::format_to(out, "{}"_cf, fmt::join(properties(), ", "));
     fmt::format_to(out, " children: "_cf);
     fmt::format_to(out, "{}"_cf, fmt::join(children(), ", "));

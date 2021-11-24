@@ -163,6 +163,7 @@ public:
     std::uint32_t children_size() const;
     std::uint32_t children_sizeof() const;
 
+    const char *name() const;
     std::uint32_t node_sizeof() const;
 
 #if USE_FMT
