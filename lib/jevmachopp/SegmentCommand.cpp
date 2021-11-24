@@ -3,8 +3,6 @@
 
 #include <cstring>
 
-#include "fmt/core.h"
-
 const Section *SegmentCommand::sect_cbegin() const {
     return (const Section *)(this + 1);
 }

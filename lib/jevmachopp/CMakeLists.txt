@@ -1,12 +1,9 @@
 
 set(MACHOPP_SRC
     BuildVersionCommand.cpp
-    Common.cpp
-    CpuTypeMeta.cpp
     DeviceTree.cpp
     DylibCommand.cpp
     DySymtabCommand.cpp
-    EncryptionInfoCommand.cpp
     FilesetEntryCommand.cpp
     Hex.cpp
     LoadCommand.cpp
@@ -19,19 +16,22 @@ set(MACHOPP_SRC
     SegmentCommand.cpp
     Slurp.cpp
     SourceVersionCommand.cpp
-    Strtab.cpp
     SymtabCommand.cpp
     Version.cpp
     UnknownCommand.cpp
-    UUIDCommand.cpp
 )
 
 set(MACHOPP_HDR_STANDALONE
     c/jevdtree.h
     c/jevmacho.h
+    Common.h
     CpuType.h
+    CpuTypeMeta.h
     CpuSubType.h
+    EncryptionInfoCommand.h
     LoadCommandType.h
+    Strtab.h
+    UUIDCommand.h
 )
 
 set(MACHOPP_HDR)
