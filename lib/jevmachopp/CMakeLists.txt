@@ -12,6 +12,7 @@ set(MACHOPP_SRC
     MachO.cpp
     MachOHeaderEnums.cpp
     NList.cpp
+    NVRAM.cpp
     Section.cpp
     SegmentCommand.cpp
     Slurp.cpp
@@ -24,6 +25,7 @@ set(MACHOPP_SRC
 set(MACHOPP_HDR_STANDALONE
     c/jevdtree.h
     c/jevmacho.h
+    c/jevnvram.h
     Common.h
     CpuType.h
     CpuTypeMeta.h
