@@ -13,7 +13,7 @@ const char *DTProp::name() const {
 }
 
 std::uint32_t DTProp::size_raw() const {
-    return sz & ~(0x80000000u);
+    return sz & ~(PROP_SIZE_REPLACEMENT_TAG);
 }
 
 std::uint32_t DTProp::size_padded() const {
@@ -22,6 +22,10 @@ std::uint32_t DTProp::size_padded() const {
 
 const uint8_t *DTProp::data() const {
     return (const uint8_t *)(this + 1);
+}
+
+bool DTProp::isReplacement() const {
+    return (sz & PROP_SIZE_REPLACEMENT_TAG) != 0;
 }
 
 #pragma mark DTProp - fmt
@@ -59,6 +63,12 @@ std::uint32_t DTNode::properties_sizeof() const {
                            });
 }
 
+const DTProp *DTNode::propertyNamed(const std::string_view &name) const {
+    return find_if_or_nullptr(properties(), [=](const DTProp &prop) {
+        return prop.name() == name;
+    });
+}
+
 #pragma mark DTNode - children
 
 DTNode::child_range DTNode::children() const {
@@ -85,13 +95,17 @@ std::uint32_t DTNode::children_sizeof() const {
                            });
 }
 
-#pragma mark DTNode - etc
+#pragma mark DTNode - Accessors
+
+const char *DTNode::name_or_nullptr() const {
+    const DTProp *name_prop = propertyNamed("name");
+    return name_prop ? (const char *)name_prop->data() : nullptr;
+}
 
 const char *DTNode::name() const {
-    const DTProp *name_prop = find_if_or_nullptr(properties(), [](const auto &prop) {
-        return prop.name() == "name"s;
-    });
-    return name_prop ? (const char *)name_prop->data() : "NONAME";
+    const char *name_ptr = name_or_nullptr();
+    assert(name_ptr);
+    return name_ptr;
 }
 
 std::uint32_t DTNode::node_sizeof() const {

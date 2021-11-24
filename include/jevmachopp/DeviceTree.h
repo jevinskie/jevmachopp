@@ -2,6 +2,8 @@
 
 #include "jevmachopp/Common.h"
 
+#include <string_view>
+
 #pragma mark DTProp
 
 class DTProp {
@@ -58,12 +60,14 @@ public:
 
 public:
     using prop_range = subrange<DTProp::Iterator>;
+    static constexpr std::uint32_t PROP_SIZE_REPLACEMENT_TAG = 0x80000000u;
 
 public:
     const char *name() const;
     std::uint32_t size_raw() const;
     std::uint32_t size_padded() const;
     const uint8_t *data() const;
+    bool isReplacement() const;
 #if USE_FMT
     fmt::appender &format_to(fmt::appender &out) const;
 #endif
@@ -156,14 +160,17 @@ public:
     DTProp::Iterator properties_cend() const;
     std::uint32_t properties_size() const;
     std::uint32_t properties_sizeof() const;
+    const DTProp *propertyNamed(const std::string_view &name) const;
 
     DTNode::child_range children() const;
     DTNode::Iterator children_cbegin() const;
     DTNode::Iterator children_cend() const;
     std::uint32_t children_size() const;
     std::uint32_t children_sizeof() const;
+    const DTNode *childNamed(const std::string_view &name) const;
 
     const char *name() const;
+    const char *name_or_nullptr() const;
     std::uint32_t node_sizeof() const;
 
 #if USE_FMT
