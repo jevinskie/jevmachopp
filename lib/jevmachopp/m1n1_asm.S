@@ -1,8 +1,8 @@
-	.arch armv8-a
-	.text
+    .arch armv8-a
+    .text
 
-	.global	printf
-	.type	printf, %function
+    .global printf
+    .type   printf, %function
 printf:
-	b debug_printf
-	.size	printf, .-printf
+    b debug_printf
+    .size   printf, .-printf

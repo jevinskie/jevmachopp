@@ -46,6 +46,7 @@ bool DTProp::isReplacement() const {
 
 #pragma mark DTProp - fmt
 
+#if USE_FMT
 fmt::appender &DTProp::format_to(fmt::appender &out) const {
     auto hexstr = buf2hexstr<65536>(data(), size_raw());
     fmt::format_to(out,
@@ -53,6 +54,7 @@ fmt::appender &DTProp::format_to(fmt::appender &out) const {
                    (void *)this, name(), size_raw(), size_padded(), hexstr);
     return out;
 }
+#endif
 
 #pragma mark DTNode
 
@@ -142,6 +144,7 @@ std::uint32_t DTNode::node_sizeof() const {
 
 #pragma mark DTNode - fmt
 
+#if USE_FMT
 fmt::appender &DTNode::format_to(fmt::appender &out) const {
     fmt::format_to(out, "<DTNode @ {:p} name: \"{:s}\" # props: {:d} # children: {:d} props: "_cf,
                    (void *)this, name(), nprops, nchildren);
@@ -151,6 +154,7 @@ fmt::appender &DTNode::format_to(fmt::appender &out) const {
     fmt::format_to(out, ">"_cf);
     return out;
 }
+#endif
 
 #pragma mark C
 
