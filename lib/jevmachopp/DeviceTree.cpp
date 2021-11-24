@@ -1,6 +1,8 @@
 #include "jevmachopp/DeviceTree.h"
+#include "jevmachopp/Hex.h"
 #include "jevmachopp/c/jevdtree.h"
 
+#include <cstring>
 #include <numeric>
 
 #pragma mark DTProp
@@ -8,7 +10,7 @@
 #pragma mark DTProp - Accessors
 
 const char *DTProp::name() const {
-    assert(memchr(name_buf, '\0', sizeof(name_buf)));
+    assert(std::memchr(name_buf, '\0', sizeof(name_buf)));
     return name_buf;
 }
 
@@ -95,6 +97,16 @@ std::uint32_t DTNode::children_sizeof() const {
                            });
 }
 
+const DTNode *DTNode::childNamed(const std::string_view &name) const {
+    return find_if_or_nullptr(children(), [=](const DTNode &child) {
+        const auto *name_ptr = child.name_or_nullptr();
+        if (!name_ptr) {
+            return false;
+        }
+        return name_ptr == name;
+    });
+}
+
 #pragma mark DTNode - Accessors
 
 const char *DTNode::name_or_nullptr() const {
@@ -135,7 +147,25 @@ void dump_dtree(const void *dtree_buf) {
 
     auto dtree_root_node_ptr = (const DTNode *)dtree_buf;
     auto &dtree_root_node = *dtree_root_node_ptr;
-    fmt::print("dtree_root_node: {}\n", dtree_root_node);
+    // fmt::print("dtree_root_node: {}\n", dtree_root_node);
+
+    auto chosen_node_ptr = dtree_root_node.childNamed("chosen");
+    if (chosen_node_ptr) {
+        auto &chosen_node = *chosen_node_ptr;
+        fmt::print("chosen_node: {}\n", chosen_node);
+
+        auto iuou_prop_ptr = chosen_node.propertyNamed("internal-use-only-unit");
+        if (iuou_prop_ptr) {
+            auto &iuou_prop = *iuou_prop_ptr;
+            fmt::print("iuou prop: {}\n", iuou_prop);
+            assert(iuou_prop.size_raw() == 4);
+            auto *iuou_prop_buf_rw = (uint8_t *)iuou_prop.data();
+            auto hexstr = buf2hexstr(iuou_prop_buf_rw, iuou_prop.size_raw());
+            fmt::print("iuou prop: hexstr {:s}\n", hexstr);
+            iuou_prop_buf_rw[0] = 1; // little endian... right?
+            fmt::print("iuou prop: {}\n", iuou_prop);
+        }
+    }
 
 #endif
 }
