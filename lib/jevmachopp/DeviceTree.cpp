@@ -26,6 +26,20 @@ const uint8_t *DTProp::data() const {
     return (const uint8_t *)(this + 1);
 }
 
+const char *DTProp::as_cstr() const {
+    return (const char *)data();
+}
+
+const uint32_t &DTProp::as_u32() const {
+    assert(size_raw() == sizeof(uint32_t));
+    return *(const uint32_t *)data();
+}
+
+const uint64_t &DTProp::as_u64() const {
+    assert(size_raw() == sizeof(uint64_t));
+    return *(const uint64_t *)data();
+}
+
 bool DTProp::isReplacement() const {
     return (sz & PROP_SIZE_REPLACEMENT_TAG) != 0;
 }
@@ -33,7 +47,7 @@ bool DTProp::isReplacement() const {
 #pragma mark DTProp - fmt
 
 fmt::appender &DTProp::format_to(fmt::appender &out) const {
-    auto hexstr = buf2hexstr<512>(data(), size_raw());
+    auto hexstr = buf2hexstr<65536>(data(), size_raw());
     fmt::format_to(out,
                    "<DTProp @ {:p} name: \"{:s}\" size raw: {:d} size padded: {:d} data: {:s}>"_cf,
                    (void *)this, name(), size_raw(), size_padded(), hexstr);
@@ -161,8 +175,7 @@ void dump_dtree(const void *dtree_buf) {
             auto &iuou_prop = *iuou_prop_ptr;
             fmt::print("iuou prop: {}\n", iuou_prop);
             assert(iuou_prop.size_raw() == 4);
-            auto *iuou_prop_buf_rw = (uint8_t *)iuou_prop.data();
-            iuou_prop_buf_rw[0] = 1; // little endian... right?
+            (uint32_t &)iuou_prop.as_u32() = 1;
             fmt::print("iuou prop: {}\n", iuou_prop);
         }
     }

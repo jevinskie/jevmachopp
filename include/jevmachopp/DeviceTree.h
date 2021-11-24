@@ -68,6 +68,11 @@ public:
     std::uint32_t size_padded() const;
     const uint8_t *data() const;
     bool isReplacement() const;
+
+    const char *as_cstr() const;
+    const uint32_t &as_u32() const;
+    const uint64_t &as_u64() const;
+
 #if USE_FMT
     fmt::appender &format_to(fmt::appender &out) const;
 #endif
