@@ -19,7 +19,7 @@ public:
     packed_cstr_eterm_range vars() const;
     PackedCStrIteratorEmtpyTerm vars_cbegin() const;
     PackedCStrIteratorEmtpyTerm vars_cend() const;
-    const char *varNamed(const std::string_view &name) const;
+    const char *varNamed(const char *name) const;
 
 #if USE_FMT
     fmt::appender &format_to(fmt::appender &out) const;
@@ -88,10 +88,17 @@ template <> struct fmt::formatter<AppleNVRAMHeader> {
 };
 #endif
 
+struct NVRAMProxyData {
+    const AppleNVRAMHeader &nvram_hdr;
+    const CHRPNVRAMHeader &common_hdr;
+    const CHRPNVRAMHeader &system_hdr;
+};
+
 namespace NVRAM {
 
 const std::string_view varName(const char *varEqValStr);
-const char *varVal(const char *varEqValStr);
+const char *varValue(const char *varEqValStr);
+NVRAMProxyData extractProxyData(const void *nvram_proxy_data_buf);
 uint32_t decodedDataLen(const std::span<const uint8_t> &escaped);
 uint32_t unescapeBytesToData(const std::span<const uint8_t> &escaped, std::span<uint8_t> &&decoded);
 uint32_t escapeDataToData(const std::span<const uint8_t> &decoded, std::span<uint8_t> &encoded);

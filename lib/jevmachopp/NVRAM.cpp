@@ -38,8 +38,10 @@ PackedCStrIteratorEmtpyTerm CHRPNVRAMHeader::vars_cend() const {
     return {};
 }
 
-const char *CHRPNVRAMHeader::varNamed(const std::string_view &name) const {
-    return nullptr;
+const char *CHRPNVRAMHeader::varNamed(const char *name) const {
+    return find_if_or_nullptr(vars(), [=](const char &varEqValStr) {
+        return NVRAM::varName(&varEqValStr) == name;
+    });
 }
 
 #pragma mark CHRPNVRAMHeader - fmt
@@ -75,7 +77,7 @@ const std::string_view varName(const char *varEqValStr) {
     return {varEqValStr, (uintptr_t)eq_chr_ptr - (uintptr_t)varEqValStr};
 }
 
-const char *varVal(const char *varEqValStr) {
+const char *varValue(const char *varEqValStr) {
     const auto len = std::strlen(varEqValStr);
     const char *eq_chr_ptr = (const char *)std::memchr(varEqValStr, '=', len);
     if (!eq_chr_ptr) {
@@ -84,6 +86,18 @@ const char *varVal(const char *varEqValStr) {
     return eq_chr_ptr + 1;
 }
 
+NVRAMProxyData extractProxyData(const void *nvram_proxy_data_buf) {
+    const auto apple_hdr_ptr = (const AppleNVRAMHeader *)nvram_proxy_data_buf;
+    const auto &apple_hdr = *apple_hdr_ptr;
+    const auto common_hdr_ptr = (const CHRPNVRAMHeader *)(apple_hdr_ptr + 1);
+    const auto &common_hdr = *common_hdr_ptr;
+    const auto system_hdr_ptr =
+        (const CHRPNVRAMHeader *)((uintptr_t)common_hdr_ptr + common_hdr.size_bytes());
+    const auto &system_hdr = *system_hdr_ptr;
+    return {apple_hdr, common_hdr, system_hdr};
+}
+
+// dangerous
 uint32_t decodedDataLen(const std::span<const uint8_t> &escaped) {
     uint32_t totalLength = 0;
     uint32_t offset, offset2;
@@ -111,6 +125,7 @@ uint32_t decodedDataLen(const std::span<const uint8_t> &escaped) {
     return ok ? totalLength : 0;
 }
 
+// dangerous
 uint32_t unescapeBytesToData(const std::span<const uint8_t> &escaped,
                              std::span<uint8_t> &&decoded) {
     const auto enc_buf_sz = escaped.size_bytes();
@@ -183,29 +198,31 @@ uint32_t escapeDataToData(const std::span<const uint8_t> &decoded, std::span<uin
 void dump_nvram(const void *nvram_buf) {
     printf("nvram @ %p\n", nvram_buf);
 
-    auto apple_hdr_ptr = (const AppleNVRAMHeader *)nvram_buf;
-    auto &apple_hdr = *apple_hdr_ptr;
-    auto common_hdr_ptr = (const CHRPNVRAMHeader *)(apple_hdr_ptr + 1);
-    auto &common_hdr = *common_hdr_ptr;
-    auto system_hdr_ptr =
-        (const CHRPNVRAMHeader *)((uintptr_t)common_hdr_ptr + common_hdr.size_bytes());
-    auto &system_hdr = *system_hdr_ptr;
+    const auto proxyData = NVRAM::extractProxyData(nvram_buf);
 
 #if USE_FMT
 
-    fmt::print("apple_hdr: {}\n", apple_hdr);
-    fmt::print("common_hdr: {}\n", common_hdr);
+    fmt::print("nvram_hdr: {}\n", proxyData.nvram_hdr);
+    fmt::print("common_hdr: {}\n", proxyData.common_hdr);
 
-    for (const char &varEqValStr : common_hdr.vars()) {
+    for (const char &varEqValStr : proxyData.common_hdr.vars()) {
         const auto varName = NVRAM::varName(&varEqValStr);
         fmt::print("common varName: {:s}\n", varName);
     }
 
-    fmt::print("system_hdr: {}\n", system_hdr);
+    fmt::print("system_hdr: {}\n", proxyData.system_hdr);
 
-    for (const char &varEqValStr : system_hdr.vars()) {
+    for (const char &varEqValStr : proxyData.system_hdr.vars()) {
         const auto varName = NVRAM::varName(&varEqValStr);
         fmt::print("system varName: {:s}\n", varName);
+    }
+
+    const char *bootArgsVarEqValStr = proxyData.system_hdr.varNamed("boot-args");
+    if (bootArgsVarEqValStr) {
+        const char *bootArgs = NVRAM::varValue(bootArgsVarEqValStr);
+        fmt::print("nvram boot-args: {:s}\n", bootArgs);
+    } else {
+        fmt::print("boot-args missing\n");
     }
 
 #if 0
