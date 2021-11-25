@@ -209,7 +209,7 @@ void dump_macho(const void *macho_header) {
     auto &macho = *macho_ptr;
 
     FMT_PRINT("macho: {}\n", (void *)&macho);
-    printf("macho: %p\n", &macho);
+    printf("macho: %p\n", (const void *)&macho);
 
     if (!macho.isMagicGood()) {
         printf("macho magic is bad, bailing out. magic: 0x%08x\n", macho.magic);
@@ -282,7 +282,7 @@ void dump_macho(const void *macho_header) {
         // FMT_PRINT("lc[{:2d}]: {}\n", idx++, lc);
         // printf("lc[%2d]: %s\n", idx++,
         // LoadCommandType_traits::to_string_or_empty(lc.cmd).data());
-        printf("lc[%2d]: @ %p type: 0x%08x\n", idx++, &lc, as_unsigned(lc.cmd));
+        printf("lc[%2d]: @ %p type: 0x%08x\n", idx++, (const void *)&lc, as_unsigned(lc.cmd));
     }
 
     const SymtabCommand *symtab_ptr = macho.symtab();
