@@ -100,10 +100,12 @@ public:
 #endif
 
 public:
-    const CHRPNVRAMHeader &hdr;
+    const CHRPNVRAMHeader hdr;
 
 public:
-    NVRAMPartition(const CHRPNVRAMHeader &hdr) : hdr(hdr) {}
+    // NVRAMPartition(const CHRPNVRAMHeader &hdr) : hdr(hdr) {}
+    NVRAMPartition(const NVRAMPartition &) = delete;
+    void operator=(const NVRAMPartition &) = delete;
 };
 
 // static_assert_size_same(NVRAMPartition, CHRPNVRAMHeader);
@@ -133,8 +135,8 @@ public:
 
 public:
     const AppleNVRAMHeader &nvram_hdr;
-    const NVRAMPartition common_part;
-    const NVRAMPartition system_part;
+    const NVRAMPartition &common_part;
+    const NVRAMPartition &system_part;
 
 public:
     NVRAMProxyData(const AppleNVRAMHeader &nvram_hdr, const NVRAMPartition &common_part,

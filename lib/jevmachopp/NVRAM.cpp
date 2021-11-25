@@ -83,8 +83,7 @@ const char *NVRAMPartition::varNamed(const char *name) const {
 #if USE_FMT
 fmt::appender &NVRAMPartition::format_to(fmt::appender &out) const {
     fmt::format_to(out, "<NVRAMPartition @ {:p} hdr: {} vars: {}>"_cf, (void *)this, hdr,
-                   // fmt::join(vars(), ", "));
-                   "VARS");
+                   fmt::join(vars(), ", "));
     return out;
 }
 #endif
@@ -105,8 +104,8 @@ bool NVRAMProxyData::hasBootArg(const char *argName) const {
 
 #if USE_FMT
 fmt::appender &NVRAMProxyData::format_to(fmt::appender &out) const {
-    fmt::format_to(out, "<NVRAMProxyData @ {:p} nvram_hdr: {} common_part: {} system_part: >"_cf,
-                   (void *)this, nvram_hdr, common_part);
+    fmt::format_to(out, "<NVRAMProxyData @ {:p} nvram_hdr: {} common_part: {} system_part: {}>"_cf,
+                   (void *)this, nvram_hdr, common_part, system_part);
     return out;
 }
 #endif
