@@ -4,6 +4,43 @@
 
 #include <experimental/fixed_capacity_vector>
 
+#pragma mark CHRPNVRAMHeader
+
+uint16_t CHRPNVRAMHeader::size_blocks() const {
+    return len;
+}
+
+uint32_t CHRPNVRAMHeader::size_bytes() const {
+    return size_blocks() * 10;
+}
+
+const char *CHRPNVRAMHeader::name() const {
+    return name_buf;
+}
+
+const uint8_t *CHRPNVRAMHeader::data() const {
+    return (const uint8_t *)(this + 1);
+}
+
+#if USE_FMT
+fmt::appender &CHRPNVRAMHeader::format_to(fmt::appender &out) const {
+    fmt::format_to(out, "<CHRPNVRAMHeader @ {:p} name: \"{:s}\" size blocks: {:#x} size: {:#x}>"_cf,
+                   (void *)this, name(), size_blocks(), size_bytes());
+    return out;
+}
+#endif
+
+#pragma mark AppleNVRAMHeader
+
+#if USE_FMT
+fmt::appender &AppleNVRAMHeader::format_to(fmt::appender &out) const {
+    fmt::format_to(out,
+                   "<AppleNVRAMHeader @ {:p} chrp_hdr: {} adler: {:#010x} generation: {:#x}>"_cf,
+                   (void *)this, chrp_hdr, adler, generation);
+    return out;
+}
+#endif
+
 #pragma mark Environment Variable Codings
 
 namespace NVRAM {

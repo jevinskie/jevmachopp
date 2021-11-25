@@ -4,13 +4,25 @@
 
 #include <span>
 
+#pragma mark CHRPNVRAMHeader
+
 class CHRPNVRAMHeader {
+
+public:
+    uint16_t size_blocks() const;
+    uint32_t size_bytes() const;
+    const char *name() const;
+    const uint8_t *data() const;
+
+#if USE_FMT
+    fmt::appender &format_to(fmt::appender &out) const;
+#endif
 
 public:
     uint8_t sig;
     uint8_t chksum;
     uint16_t len;
-    char name[12]; // assume NUL termination because lazy
+    char name_buf[12]; // assume NUL termination because lazy
 
 public:
     CHRPNVRAMHeader(const CHRPNVRAMHeader &) = delete;
@@ -19,6 +31,23 @@ public:
 
 static_assert_size_is(CHRPNVRAMHeader, 16);
 
+#if USE_FMT
+template <> struct fmt::formatter<CHRPNVRAMHeader> {
+
+    template <typename ParseContext> constexpr auto parse(ParseContext &ctx) {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(CHRPNVRAMHeader const &chrpHdr, FormatContext &ctx) {
+        auto out = ctx.out();
+        return chrpHdr.format_to(out);
+    }
+};
+#endif
+
+#pragma mark AppleNVRAMHeader
+
 class AppleNVRAMHeader {
 public:
     CHRPNVRAMHeader chrp_hdr;
@@ -26,12 +55,31 @@ public:
     uint32_t generation;
     uint64_t padding;
 
+#if USE_FMT
+    fmt::appender &format_to(fmt::appender &out) const;
+#endif
+
 public:
     AppleNVRAMHeader(const AppleNVRAMHeader &) = delete;
     void operator=(const AppleNVRAMHeader &) = delete;
 };
 
 static_assert_size_is(AppleNVRAMHeader, 32);
+
+#if USE_FMT
+template <> struct fmt::formatter<AppleNVRAMHeader> {
+
+    template <typename ParseContext> constexpr auto parse(ParseContext &ctx) {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(AppleNVRAMHeader const &appleHdr, FormatContext &ctx) {
+        auto out = ctx.out();
+        return appleHdr.format_to(out);
+    }
+};
+#endif
 
 namespace NVRAM {
 
