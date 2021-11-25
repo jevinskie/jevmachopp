@@ -11,7 +11,7 @@ uint16_t CHRPNVRAMHeader::size_blocks() const {
 }
 
 uint32_t CHRPNVRAMHeader::size_bytes() const {
-    return size_blocks() * 10;
+    return size_blocks() * 0x10;
 }
 
 const char *CHRPNVRAMHeader::name() const {
@@ -144,8 +144,21 @@ uint32_t escapeDataToData(const std::span<const uint8_t> &decoded, std::span<uin
 void dump_nvram(const void *nvram_buf) {
     printf("nvram @ %p\n", nvram_buf);
 
+    auto apple_hdr_ptr = (const AppleNVRAMHeader *)nvram_buf;
+    auto &apple_hdr = *apple_hdr_ptr;
+    auto common_hdr_ptr = (const CHRPNVRAMHeader *)(apple_hdr_ptr + 1);
+    auto &common_hdr = *common_hdr_ptr;
+    auto system_hdr_ptr =
+        (const CHRPNVRAMHeader *)((uintptr_t)common_hdr_ptr + common_hdr.size_bytes());
+    auto &system_hdr = *system_hdr_ptr;
+
 #if USE_FMT
 
+    fmt::print("apple_hdr: {}\n", apple_hdr);
+    fmt::print("common_hdr: {}\n", common_hdr);
+    fmt::print("system_hdr: {}\n", system_hdr);
+
+#if 0
     // const auto buf_span = std::span<const uint8_t>{(const uint8_t*)nvram_buf, 32};
     const auto buf_span = std::span<const uint8_t>{(const uint8_t *)nvram_buf, 423};
     std::experimental::fixed_capacity_vector<uint8_t, 512> out_vec{};
@@ -162,7 +175,7 @@ void dump_nvram(const void *nvram_buf) {
 
     auto hexstr = buf2hexstr<512>(out_vec.data(), decoded_sz);
     fmt::print("hexstr: {:s}\n", hexstr);
-
+#endif
     fmt::print("nvram: {:p}\n", nvram_buf);
 
 #endif
