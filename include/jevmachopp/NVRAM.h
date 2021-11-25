@@ -20,4 +20,5 @@ typedef struct apple_nvram_header { // 16 + 16 bytes
     uint8_t padding[8];
 } apple_nvram_header_t;
 
-std::size_t escapeDataToData(const std::span<const uint8_t> &value, std::span<uint8_t> &decoded);
+uint32_t unescapeBytesToData(const std::span<const uint8_t> &escaped, std::span<uint8_t> &&decoded);
+uint32_t escapeDataToData(const std::span<const uint8_t> &decoded, std::span<uint8_t> &encoded);

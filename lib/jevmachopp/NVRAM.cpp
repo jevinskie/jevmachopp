@@ -4,20 +4,79 @@
 
 #pragma mark Environment Variable Codings
 
-std::size_t escapeDataToData(const std::span<const uint8_t> &value, std::span<uint8_t> &&decoded) {
+uint32_t decodedDataLen(const std::span<const uint8_t> &escaped) {
+    uint32_t totalLength = 0;
+    uint32_t offset, offset2;
+    uint8_t byte;
+    bool ok;
+
+    // Calculate the actual length of the data.
+    ok = true;
+    totalLength = 0;
+    for (offset = 0; offset < escaped.size_bytes();) {
+        byte = escaped[offset++];
+        if (byte == 0xFF) {
+            byte = escaped[offset++];
+            if (byte == 0x00) {
+                ok = false;
+                break;
+            }
+            offset2 = byte & 0x7F;
+        } else {
+            offset2 = 1;
+        }
+        totalLength += offset2;
+    }
+
+    return ok ? totalLength : 0;
+}
+
+uint32_t unescapeBytesToData(const std::span<const uint8_t> &escaped,
+                             std::span<uint8_t> &&decoded) {
+    const auto enc_buf_sz = escaped.size_bytes();
     const auto dec_buf_sz = decoded.size_bytes();
-    const auto enc_buf_sz = value.size_bytes();
     assert(dec_buf_sz >= enc_buf_sz);
+
+    uint32_t totalLength = decodedDataLen(escaped);
+    uint32_t offset, offset2;
+    uint8_t byte;
+    bool ok;
+    const auto length = decoded.size_bytes();
+    uint32_t outOff = 0;
+
+    if (totalLength) {
+        assert(totalLength <= length);
+        for (offset = 0; offset < length;) {
+            byte = escaped[offset++];
+            if (byte == 0xFF) {
+                byte = escaped[offset++];
+                offset2 = byte & 0x7F;
+                byte = (byte & 0x80) ? 0xFF : 0x00;
+            } else {
+                offset2 = 1;
+            }
+            for (auto i = 0; i < offset2; ++i) {
+                decoded[outOff++] = byte;
+            }
+        }
+    }
+
+    return totalLength;
+}
+
+uint32_t escapeDataToData(const std::span<const uint8_t> &decoded, std::span<uint8_t> &&encoded) {
+    const auto dec_buf_sz = decoded.size_bytes();
+    const auto enc_buf_sz = encoded.size_bytes();
+    assert(enc_buf_sz >= dec_buf_sz);
 
     const uint8_t *startPtr;
     const uint8_t *endPtr;
     const uint8_t *wherePtr;
-    std::size_t outOff = 0;
+    uint32_t outOff = 0;
     uint8_t byte;
-    bool ok = true;
 
-    wherePtr = (const uint8_t *)value.data();
-    endPtr = wherePtr + value.size_bytes();
+    wherePtr = (const uint8_t *)decoded.data();
+    endPtr = wherePtr + decoded.size_bytes();
 
     while (wherePtr < endPtr) {
         startPtr = wherePtr;
@@ -25,14 +84,14 @@ std::size_t escapeDataToData(const std::span<const uint8_t> &value, std::span<ui
         if ((byte == 0x00) || (byte == 0xFF)) {
             for (; ((wherePtr - startPtr) < 0x7F) && (wherePtr < endPtr) && (byte == *wherePtr);
                  wherePtr++) {}
-            decoded[outOff++] = 0xff;
+            encoded[outOff++] = 0xff;
             byte = (byte & 0x80) | ((uint8_t)(wherePtr - startPtr));
         }
-        decoded[outOff++] = byte;
+        encoded[outOff++] = byte;
     }
-    decoded[outOff++] = 0;
+    encoded[outOff++] = 0;
 
-    assert(outOff <= decoded.size_bytes());
+    assert(outOff <= encoded.size_bytes());
 
     return outOff;
 }
@@ -52,7 +111,9 @@ void dump_nvram(const void *nvram_buf) {
     fmt::print("buf_span: Extent: {:d}\n", decltype(buf_span)::extent);
     // std::span<uint8_t> out_vec_span{out_vec.begin(), out_vec.end()};
     // auto decoded_sz = escapeDataToData(buf_span, out_vec_span);
-    auto decoded_sz = escapeDataToData(
+    // auto decoded_sz = escapeDataToData(
+    //     buf_span, std::span<uint8_t>{out_vec.begin(), out_vec.begin() + out_vec.capacity()});
+    auto decoded_sz = unescapeBytesToData(
         buf_span, std::span<uint8_t>{out_vec.begin(), out_vec.begin() + out_vec.capacity()});
     fmt::print("decoded_sz: {:d} out_vec.size(): {:d}\n", decoded_sz, out_vec.size());
 
