@@ -7,12 +7,12 @@ printf:
     b debug_printf
     .size   printf, .-printf
 
-// args: new_base + bootargs_off, image_addr, new_base, image_size, entry
+// args: new_base + bootargs_off, image_addr, new_base, image_size, image_entry
 // x0: new_base + bootargs_off
 // x1: image_addr
 // x2: new_base
 // x3: image_size
-// x4: entry
+// x4: image_entry
     .global xnu_jump_stub
     .type   xnu_jump_stub, %function
 xnu_jump_stub:

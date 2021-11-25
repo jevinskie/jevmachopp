@@ -1,4 +1,4 @@
-#include "jevmachopp/Common.h"
+#include "jevmachopp/m1n1.h"
 
 #if M1N1
 
