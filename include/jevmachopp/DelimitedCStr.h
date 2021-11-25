@@ -5,6 +5,8 @@
 #include <cstring>
 #include <string_view>
 
+// FIXME: use split_view https://en.cppreference.com/w/cpp/ranges/split_view
+
 template <char Delimiter> class DelimitedCStrIterator {
 public:
     using iterator_category = std::forward_iterator_tag;
