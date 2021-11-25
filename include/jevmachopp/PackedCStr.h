@@ -8,18 +8,18 @@ template <bool EmptyStringTerminated = false> class PackedCStrIteratorBase {
 public:
     using iterator_category = std::forward_iterator_tag;
     using difference_type = std::ptrdiff_t;
-    using value_type = const char;
-    using pointer = const char *;
-    using reference = const char &;
+    using value_type = const char *;
+    using pointer = const char **;
+    using reference = const char *&;
 
     PackedCStrIteratorBase() : m_ptr(nullptr) {}
-    PackedCStrIteratorBase(pointer ptr) : m_ptr(ptr) {}
+    PackedCStrIteratorBase(const char *packedCStr) : m_ptr(packedCStr) {}
 
-    reference operator*() const {
-        return *m_ptr;
+    reference operator*() {
+        return m_ptr;
     }
     pointer operator->() {
-        return m_ptr;
+        return &m_ptr;
     }
     PackedCStrIteratorBase &operator++() {
         m_ptr = m_ptr + std::strlen(m_ptr) + 1;
@@ -44,7 +44,7 @@ public:
     };
 
 private:
-    pointer m_ptr;
+    const char *m_ptr;
 };
 
 using PackedCStrIterator = PackedCStrIteratorBase<>;

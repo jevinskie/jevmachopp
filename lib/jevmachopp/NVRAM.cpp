@@ -73,8 +73,8 @@ PackedCStrIteratorEmtpyTerm NVRAMPartition::vars_cend() const {
 }
 
 const char *NVRAMPartition::varNamed(const char *name) const {
-    return find_if_or_nullptr(vars(), [=](const char &varEqValStr) {
-        return NVRAM::varName(&varEqValStr) == name;
+    return *ranges::find_if(vars(), [=](const auto *varEqValStr) {
+        return NVRAM::varName(varEqValStr) == name;
     });
 }
 
@@ -248,15 +248,18 @@ void dump_nvram(const void *nvram_buf) {
 
 #if USE_FMT
 
+    std::array<std::string_view, 2> strs{"hello", "world"};
+    fmt::print("strs: {}\n", fmt::join(strs, ", "));
+
     fmt::print("nvramProxyData: {}\n", proxyData);
 
-    for (const char &varEqValStr : proxyData.common_part.vars()) {
-        const auto varName = NVRAM::varName(&varEqValStr);
+    for (const char *varEqValStr : proxyData.common_part.vars()) {
+        const auto varName = NVRAM::varName(varEqValStr);
         fmt::print("common varName: {:s}\n", varName);
     }
 
-    for (const char &varEqValStr : proxyData.system_part.vars()) {
-        const auto varName = NVRAM::varName(&varEqValStr);
+    for (const char *varEqValStr : proxyData.system_part.vars()) {
+        const auto varName = NVRAM::varName(varEqValStr);
         fmt::print("system varName: {:s}\n", varName);
     }
 

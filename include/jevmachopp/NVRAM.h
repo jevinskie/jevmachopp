@@ -103,12 +103,11 @@ public:
     const CHRPNVRAMHeader hdr;
 
 public:
-    // NVRAMPartition(const CHRPNVRAMHeader &hdr) : hdr(hdr) {}
     NVRAMPartition(const NVRAMPartition &) = delete;
     void operator=(const NVRAMPartition &) = delete;
 };
 
-// static_assert_size_same(NVRAMPartition, CHRPNVRAMHeader);
+static_assert_size_same(NVRAMPartition, CHRPNVRAMHeader);
 
 #if USE_FMT
 template <> struct fmt::formatter<NVRAMPartition> {

@@ -22,7 +22,7 @@ public:
         return m_view;
     }
     pointer operator->() {
-        return m_view;
+        return &m_view;
     }
     DelimitedCStrIterator &operator++() {
         const char *next_del = std::strchr(m_ptr, Delimiter);
