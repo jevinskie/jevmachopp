@@ -19,7 +19,7 @@ public:
         Iterator() : m_ptr(nullptr), m_sz(0) {}
         Iterator(pointer ptr, std::uint32_t sz) : m_ptr(ptr), m_sz(sz) {
             if (!sz) {
-                *this = std::move(Iterator{});
+                *this = Iterator{};
             }
         }
 
@@ -33,7 +33,7 @@ public:
             m_ptr = (pointer)((uintptr_t)(m_ptr + 1) + m_ptr->size_padded());
             --m_sz;
             if (!m_sz) {
-                *this = std::move(Iterator{});
+                *this = Iterator{};
             }
             return *this;
         }
@@ -117,7 +117,7 @@ class DTNode {
         Iterator() : m_ptr(nullptr), m_sz(0) {}
         Iterator(pointer ptr, std::uint32_t sz) : m_ptr(ptr), m_sz(sz) {
             if (!sz) {
-                *this = std::move(Iterator{});
+                *this = Iterator{};
             }
         }
 
@@ -131,7 +131,7 @@ class DTNode {
             m_ptr = (pointer)((uintptr_t)(m_ptr + 1) + m_ptr->properties_sizeof());
             --m_sz;
             if (!m_sz) {
-                *this = std::move(Iterator{});
+                *this = Iterator{};
             }
             return *this;
         }

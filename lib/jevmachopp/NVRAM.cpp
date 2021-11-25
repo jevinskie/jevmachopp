@@ -101,7 +101,7 @@ space_delimited_cstr_range NVRAMProxyData::common_bootArgs() const {
 }
 
 bool NVRAMProxyData::common_hasBootArg(const char *argName) const {
-    return rangeContainsStr(common_bootArgs(), "-v");
+    return rangeContainsStr(common_bootArgs(), argName);
 }
 
 const char *NVRAMProxyData::system_bootArgsValue() const {
@@ -113,7 +113,7 @@ space_delimited_cstr_range NVRAMProxyData::system_bootArgs() const {
 }
 
 bool NVRAMProxyData::system_hasBootArg(const char *argName) const {
-    return rangeContainsStr(system_bootArgs(), "-v");
+    return rangeContainsStr(system_bootArgs(), argName);
 }
 
 #pragma mark NVRAMProxyData - fmt
@@ -202,7 +202,6 @@ uint32_t unescapeBytesToData(const std::span<const uint8_t> &escaped,
     uint32_t totalLength = decodedDataLen(escaped);
     uint32_t offset, offset2;
     uint8_t byte;
-    bool ok;
     const auto length = decoded.size_bytes();
     uint32_t outOff = 0;
 
@@ -217,7 +216,7 @@ uint32_t unescapeBytesToData(const std::span<const uint8_t> &escaped,
             } else {
                 offset2 = 1;
             }
-            for (auto i = 0; i < offset2; ++i) {
+            for (uint32_t i = 0; i < offset2; ++i) {
                 decoded[outOff++] = byte;
             }
         }
