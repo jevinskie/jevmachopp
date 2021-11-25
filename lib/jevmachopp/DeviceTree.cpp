@@ -168,7 +168,8 @@ void dump_dtree(const void *dtree_buf) {
     auto &dtree_root_node = *dtree_root_node_ptr;
     // FMT_PRINT("dtree_root_node: {}\n", dtree_root_node);
 
-    printf("DT root node # props: %u # children: %u\n", dtree_root_node.properties_size(), dtree_root_node.children_size());
+    printf("DT root node # props: %u # children: %u\n", dtree_root_node.properties_size(),
+           dtree_root_node.children_size());
 
     // for (const auto &prop : dtree_root_node.properties()) {
     //     printf("DT root node prop: name: %s\n", prop.name());
@@ -215,5 +216,22 @@ void dump_dtree(const void *dtree_buf) {
         }
     } else {
         printf("chosen node not found in device tree\n");
+    }
+
+    auto cpus_node_ptr = dtree_root_node.childNamed("cpus");
+    if (cpus_node_ptr) {
+        auto &cpus_node = *cpus_node_ptr;
+        for (const auto &cpu_node : cpus_node.children()) {
+            // FMT_PRINT("cpu_node: {}", cpu_node);
+            auto cpu_impl_reg_prop_ptr = cpu_node.propertyNamed("cpu-impl-reg");
+            if (cpu_impl_reg_prop_ptr) {
+                const auto &cpu_impl_reg_prop = *cpu_impl_reg_prop_ptr;
+                FMT_PRINT("cpu_impl_reg_prop: {}\n", cpu_impl_reg_prop);
+            } else {
+                printf("chosen/cpus/cpuX/cpu-impl-reg DT prop missing\n");
+            }
+        }
+    } else {
+        printf("chosen/cpus DT node missing\n");
     }
 }
