@@ -4,8 +4,8 @@
 #include "jevmachopp/DySymtabCommand.h"
 #include "jevmachopp/FilesetEntryCommand.h"
 #include "jevmachopp/MachO.h"
+#include "jevmachopp/PackedCStr.h"
 #include "jevmachopp/SegmentCommand.h"
-#include "jevmachopp/Strtab.h"
 #include "jevmachopp/c/jevmacho.h"
 
 #pragma mark MachO header

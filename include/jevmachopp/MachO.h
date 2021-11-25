@@ -5,7 +5,7 @@
 #include "jevmachopp/DylibCommand.h"
 #include "jevmachopp/LoadCommand.h"
 #include "jevmachopp/MachOHeaderEnums.h"
-#include "jevmachopp/Strtab.h"
+#include "jevmachopp/PackedCStr.h"
 #include "jevmachopp/SymtabCommand.h"
 
 #include <array>
@@ -24,7 +24,7 @@ class DySymtabCommand;
 class SegmentCommand;
 class SymtabCommand;
 class NList;
-class StrtabIterator;
+class PackedCStrIterator;
 
 using MachOMagic = std::uint32_t;
 
@@ -66,7 +66,7 @@ public:
             return symtab();
         });
         return ranges::views::transform(symtab_ptr ? symtab_ptr->strtab_entries(*this)
-                                                   : strtab_entry_range{},
+                                                   : packed_cstr_entry_range{},
                                         [](const auto &strchr) -> const char * {
                                             return &strchr;
                                         });

@@ -2,7 +2,11 @@
 #include "jevmachopp/Hex.h"
 #include "jevmachopp/c/jevnvram.h"
 
+#include <experimental/fixed_capacity_vector>
+
 #pragma mark Environment Variable Codings
+
+namespace NVRAM {
 
 uint32_t decodedDataLen(const std::span<const uint8_t> &escaped) {
     uint32_t totalLength = 0;
@@ -96,6 +100,8 @@ uint32_t escapeDataToData(const std::span<const uint8_t> &decoded, std::span<uin
     return outOff;
 }
 
+} // namespace NVRAM
+
 #pragma mark C
 
 void dump_nvram(const void *nvram_buf) {
@@ -109,11 +115,11 @@ void dump_nvram(const void *nvram_buf) {
     fmt::print("buf_span: size: {:d} size_bytes: {:d}\n", buf_span.size(), buf_span.size_bytes());
     fmt::print("buf_span: extent: {:d}\n", buf_span.extent);
     fmt::print("buf_span: Extent: {:d}\n", decltype(buf_span)::extent);
-    // std::span<uint8_t> out_vec_span{out_vec.begin(), out_vec.end()};
-    // auto decoded_sz = escapeDataToData(buf_span, out_vec_span);
-    // auto decoded_sz = escapeDataToData(
+    // std::span<uint8_t> NVRAM::out_vec_span{out_vec.begin(), out_vec.end()};
+    // auto decoded_sz = NVRAM::escapeDataToData(buf_span, out_vec_span);
+    // auto decoded_sz = NVRAM::escapeDataToData(
     //     buf_span, std::span<uint8_t>{out_vec.begin(), out_vec.begin() + out_vec.capacity()});
-    auto decoded_sz = unescapeBytesToData(
+    auto decoded_sz = NVRAM::unescapeBytesToData(
         buf_span, std::span<uint8_t>{out_vec.begin(), out_vec.begin() + out_vec.capacity()});
     fmt::print("decoded_sz: {:d} out_vec.size(): {:d}\n", decoded_sz, out_vec.size());
 

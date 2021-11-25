@@ -32,7 +32,7 @@ set(MACHOPP_HDR_STANDALONE
     CpuSubType.h
     EncryptionInfoCommand.h
     LoadCommandType.h
-    Strtab.h
+    PackedCStr.h
     UUIDCommand.h
 )
 

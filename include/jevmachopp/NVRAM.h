@@ -2,23 +2,41 @@
 
 #include "jevmachopp/Common.h"
 
-#include <experimental/fixed_capacity_vector>
+#include <span>
 
-typedef struct chrp_nvram_header { // 16 bytes
+class CHRPNVRAMHeader {
+
+public:
     uint8_t sig;
-    uint8_t cksum; // checksum on sig, len, and name
-    uint16_t len;  // total length of the partition in 16 byte blocks starting with the signature
-    // and ending with the last byte of data area, ie len includes its own header size
-    char name[12];
-    uint8_t data[0];
-} chrp_nvram_header_t;
+    uint8_t chksum;
+    uint16_t len;
+    char name[12]; // assume NUL termination because lazy
 
-typedef struct apple_nvram_header { // 16 + 16 bytes
-    struct chrp_nvram_header chrp;
+public:
+    CHRPNVRAMHeader(const CHRPNVRAMHeader &) = delete;
+    void operator=(const CHRPNVRAMHeader &) = delete;
+};
+
+static_assert_size_is(CHRPNVRAMHeader, 16);
+
+class AppleNVRAMHeader {
+public:
+    CHRPNVRAMHeader chrp_hdr;
     uint32_t adler;
     uint32_t generation;
-    uint8_t padding[8];
-} apple_nvram_header_t;
+    uint64_t padding;
 
+public:
+    AppleNVRAMHeader(const AppleNVRAMHeader &) = delete;
+    void operator=(const AppleNVRAMHeader &) = delete;
+};
+
+static_assert_size_is(AppleNVRAMHeader, 32);
+
+namespace NVRAM {
+
+uint32_t decodedDataLen(const std::span<const uint8_t> &escaped);
 uint32_t unescapeBytesToData(const std::span<const uint8_t> &escaped, std::span<uint8_t> &&decoded);
 uint32_t escapeDataToData(const std::span<const uint8_t> &decoded, std::span<uint8_t> &encoded);
+
+} // namespace NVRAM

@@ -4,7 +4,7 @@
 
 #include <cstring>
 
-class StrtabIterator {
+class PackedCStrIterator {
 public:
     using iterator_category = std::forward_iterator_tag;
     using difference_type = std::ptrdiff_t;
@@ -12,8 +12,8 @@ public:
     using pointer = const char *;
     using reference = const char &;
 
-    StrtabIterator() : m_ptr(nullptr) {}
-    StrtabIterator(pointer ptr) : m_ptr(ptr) {}
+    PackedCStrIterator() : m_ptr(nullptr) {}
+    PackedCStrIterator(pointer ptr) : m_ptr(ptr) {}
 
     reference operator*() const {
         return *m_ptr;
@@ -21,19 +21,19 @@ public:
     pointer operator->() {
         return m_ptr;
     }
-    StrtabIterator &operator++() {
+    PackedCStrIterator &operator++() {
         m_ptr = m_ptr + std::strlen(m_ptr) + 1;
         return *this;
     }
-    StrtabIterator operator++(int) {
-        StrtabIterator tmp = *this;
+    PackedCStrIterator operator++(int) {
+        PackedCStrIterator tmp = *this;
         ++(*this);
         return tmp;
     }
-    friend bool operator==(const StrtabIterator &a, const StrtabIterator &b) {
+    friend bool operator==(const PackedCStrIterator &a, const PackedCStrIterator &b) {
         return a.m_ptr == b.m_ptr;
     };
-    friend bool operator!=(const StrtabIterator &a, const StrtabIterator &b) {
+    friend bool operator!=(const PackedCStrIterator &a, const PackedCStrIterator &b) {
         return a.m_ptr != b.m_ptr;
     };
 
@@ -41,4 +41,4 @@ private:
     pointer m_ptr;
 };
 
-using strtab_entry_range = subrange<StrtabIterator>;
+using packed_cstr_entry_range = subrange<PackedCStrIterator>;
