@@ -100,14 +100,27 @@ public:
 #endif
 
 public:
-    CHRPNVRAMHeader hdr;
+    const CHRPNVRAMHeader &hdr;
 
 public:
-    NVRAMPartition(const NVRAMPartition &) = delete;
-    void operator=(const NVRAMPartition &) = delete;
+    NVRAMPartition(const CHRPNVRAMHeader &hdr) : hdr(hdr) {}
 };
 
-static_assert_size_same(NVRAMPartition, CHRPNVRAMHeader);
+// static_assert_size_same(NVRAMPartition, CHRPNVRAMHeader);
+
+#if USE_FMT
+template <> struct fmt::formatter<NVRAMPartition> {
+
+    template <typename ParseContext> constexpr auto parse(ParseContext &ctx) {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext> auto format(NVRAMPartition const &part, FormatContext &ctx) {
+        auto out = ctx.out();
+        return part.format_to(out);
+    }
+};
+#endif
 
 class NVRAMProxyData {
 public:
@@ -120,8 +133,8 @@ public:
 
 public:
     const AppleNVRAMHeader &nvram_hdr;
-    const NVRAMPartition &common_part;
-    const NVRAMPartition &system_part;
+    const NVRAMPartition common_part;
+    const NVRAMPartition system_part;
 
 public:
     NVRAMProxyData(const AppleNVRAMHeader &nvram_hdr, const NVRAMPartition &common_part,
