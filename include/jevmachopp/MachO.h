@@ -24,7 +24,6 @@ class DySymtabCommand;
 class SegmentCommand;
 class SymtabCommand;
 class NList;
-class PackedCStrIterator;
 
 using MachOMagic = std::uint32_t;
 

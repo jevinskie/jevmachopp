@@ -1,6 +1,7 @@
 #pragma once
 
 #include "jevmachopp/Common.h"
+#include "jevmachopp/PackedCStr.h"
 
 #include <span>
 
@@ -13,6 +14,12 @@ public:
     uint32_t size_bytes() const;
     const char *name() const;
     const uint8_t *data() const;
+
+public:
+    packed_cstr_eterm_range vars() const;
+    PackedCStrIteratorEmtpyTerm vars_cbegin() const;
+    PackedCStrIteratorEmtpyTerm vars_cend() const;
+    const char *varNamed(const std::string_view &name) const;
 
 #if USE_FMT
     fmt::appender &format_to(fmt::appender &out) const;
@@ -83,6 +90,8 @@ template <> struct fmt::formatter<AppleNVRAMHeader> {
 
 namespace NVRAM {
 
+const std::string_view varName(const char *varEqValStr);
+const char *varVal(const char *varEqValStr);
 uint32_t decodedDataLen(const std::span<const uint8_t> &escaped);
 uint32_t unescapeBytesToData(const std::span<const uint8_t> &escaped, std::span<uint8_t> &&decoded);
 uint32_t escapeDataToData(const std::span<const uint8_t> &decoded, std::span<uint8_t> &encoded);

@@ -6,6 +6,8 @@
 
 #pragma mark CHRPNVRAMHeader
 
+#pragma mark CHRPNVRAMHeader - Accessors
+
 uint16_t CHRPNVRAMHeader::size_blocks() const {
     return len;
 }
@@ -21,6 +23,26 @@ const char *CHRPNVRAMHeader::name() const {
 const uint8_t *CHRPNVRAMHeader::data() const {
     return (const uint8_t *)(this + 1);
 }
+
+#pragma mark CHRPNVRAMHeader - environment variables
+
+packed_cstr_eterm_range CHRPNVRAMHeader::vars() const {
+    return {vars_cbegin(), vars_cend()};
+}
+
+PackedCStrIteratorEmtpyTerm CHRPNVRAMHeader::vars_cbegin() const {
+    return {(const char *)data()};
+}
+
+PackedCStrIteratorEmtpyTerm CHRPNVRAMHeader::vars_cend() const {
+    return {};
+}
+
+const char *CHRPNVRAMHeader::varNamed(const std::string_view &name) const {
+    return nullptr;
+}
+
+#pragma mark CHRPNVRAMHeader - fmt
 
 #if USE_FMT
 fmt::appender &CHRPNVRAMHeader::format_to(fmt::appender &out) const {
@@ -44,6 +66,23 @@ fmt::appender &AppleNVRAMHeader::format_to(fmt::appender &out) const {
 #pragma mark Environment Variable Codings
 
 namespace NVRAM {
+
+const std::string_view varName(const char *varEqValStr) {
+    const char *eq_chr_ptr = std::strchr(varEqValStr, '=');
+    if (!eq_chr_ptr) {
+        return {};
+    }
+    return {varEqValStr, (uintptr_t)eq_chr_ptr - (uintptr_t)varEqValStr};
+}
+
+const char *varVal(const char *varEqValStr) {
+    const auto len = std::strlen(varEqValStr);
+    const char *eq_chr_ptr = (const char *)std::memchr(varEqValStr, '=', len);
+    if (!eq_chr_ptr) {
+        return nullptr;
+    }
+    return eq_chr_ptr + 1;
+}
 
 uint32_t decodedDataLen(const std::span<const uint8_t> &escaped) {
     uint32_t totalLength = 0;
@@ -156,7 +195,18 @@ void dump_nvram(const void *nvram_buf) {
 
     fmt::print("apple_hdr: {}\n", apple_hdr);
     fmt::print("common_hdr: {}\n", common_hdr);
+
+    for (const char &varEqValStr : common_hdr.vars()) {
+        const auto varName = NVRAM::varName(&varEqValStr);
+        fmt::print("common varName: {:s}\n", varName);
+    }
+
     fmt::print("system_hdr: {}\n", system_hdr);
+
+    for (const char &varEqValStr : system_hdr.vars()) {
+        const auto varName = NVRAM::varName(&varEqValStr);
+        fmt::print("system varName: {:s}\n", varName);
+    }
 
 #if 0
     // const auto buf_span = std::span<const uint8_t>{(const uint8_t*)nvram_buf, 32};
