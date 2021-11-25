@@ -3,23 +3,26 @@
 #include "jevmachopp/Common.h"
 
 #include <cstring>
+#include <string_view>
 
 template <char Delimiter> class DelimitedCStrIterator {
 public:
     using iterator_category = std::forward_iterator_tag;
     using difference_type = std::ptrdiff_t;
-    using value_type = const char;
-    using pointer = const char *;
-    using reference = const char &;
+    using value_type = std::string_view;
+    using pointer = std::string_view *;
+    using reference = std::string_view &;
 
     DelimitedCStrIterator() : m_ptr(nullptr) {}
-    DelimitedCStrIterator(pointer ptr) : m_ptr(ptr) {}
+    DelimitedCStrIterator(const char *delimitedCStr) : m_ptr(delimitedCStr) {
+        set_view();
+    }
 
-    reference operator*() const {
-        return *m_ptr;
+    reference operator*() {
+        return m_view;
     }
     pointer operator->() {
-        return m_ptr;
+        return m_view;
     }
     DelimitedCStrIterator &operator++() {
         const char *next_del = std::strchr(m_ptr, Delimiter);
@@ -27,6 +30,7 @@ public:
             *this = std::move(DelimitedCStrIterator{});
         } else {
             m_ptr = next_del + 1;
+            set_view();
         }
         return *this;
     }
@@ -43,7 +47,24 @@ public:
     };
 
 private:
-    pointer m_ptr;
+    inline std::size_t size() const {
+        return std::strlen(m_ptr);
+    }
+
+    inline void set_view(const char *next_del = nullptr) {
+        if (!next_del) {
+            next_del = std::strchr(m_ptr, Delimiter);
+        }
+        if (!next_del) {
+            m_view = {m_ptr};
+        } else {
+            m_view = {m_ptr, (uintptr_t)next_del - (uintptr_t)m_ptr};
+        }
+    }
+
+private:
+    const char *m_ptr;
+    std::string_view m_view;
 };
 
 template <char Delimiter>

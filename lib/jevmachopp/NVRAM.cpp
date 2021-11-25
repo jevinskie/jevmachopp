@@ -223,8 +223,8 @@ void dump_nvram(const void *nvram_buf) {
     if (bootArgsVarEqValStr) {
         const char *bootArgs = NVRAM::varValue(bootArgsVarEqValStr);
         fmt::print("nvram boot-args: {:s}\n", bootArgs);
-        for (const char &bootArg : rangeForSpaceDelimitedCStr(bootArgs)) {
-            fmt::print("boot-arg: {:s}\n", &bootArg);
+        for (const auto &bootArg : rangeForSpaceDelimitedCStr(bootArgs)) {
+            fmt::print("boot-arg: {:s}\n", bootArg);
         }
     } else {
         fmt::print("boot-args missing\n");

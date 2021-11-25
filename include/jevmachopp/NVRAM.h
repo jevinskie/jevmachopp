@@ -4,6 +4,7 @@
 #include "jevmachopp/PackedCStr.h"
 
 #include <span>
+#include <string_view>
 
 #pragma mark CHRPNVRAMHeader
 
