@@ -18,11 +18,6 @@ xnu_jump_stub:
     sub x3, x3, #8
     cbnz x3, xnu_jump_stub
 
-    ldr x1, xnu_jump_stub_target
+    mov x1, x6
     br x1
     .size   xnu_jump_stub, .-xnu_jump_stub
-    .global xnu_jump_stub_target
-    .type   xnu_jump_stub_target, %object
-xnu_jump_stub_target:
-    .quad 0xDEADC0DEFEEDFACE
-    .size   xnu_jump_stub_target, .-xnu_jump_stub_target
