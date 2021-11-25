@@ -30,6 +30,7 @@ set(MACHOPP_HDR_STANDALONE
     CpuType.h
     CpuTypeMeta.h
     CpuSubType.h
+    DelimitedCStr.h
     EncryptionInfoCommand.h
     LoadCommandType.h
     PackedCStr.h
