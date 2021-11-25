@@ -1,5 +1,6 @@
 #include "jevmachopp/DeviceTree.h"
 #include "jevmachopp/Hex.h"
+#include "jevmachopp/NVRAM.h"
 #include "jevmachopp/c/jevdtree.h"
 
 #include <cstring>
@@ -161,28 +162,52 @@ fmt::appender &DTNode::format_to(fmt::appender &out) const {
 void dump_dtree(const void *dtree_buf) {
     printf("dtree @ %p\n", dtree_buf);
 
-#if USE_FMT
-
-    fmt::print("dtree: {:p}\n", dtree_buf);
+    FMT_PRINT("dtree: {:p}\n", dtree_buf);
 
     auto dtree_root_node_ptr = (const DTNode *)dtree_buf;
     auto &dtree_root_node = *dtree_root_node_ptr;
-    // fmt::print("dtree_root_node: {}\n", dtree_root_node);
+    // FMT_PRINT("dtree_root_node: {}\n", dtree_root_node);
 
     auto chosen_node_ptr = dtree_root_node.childNamed("chosen");
     if (chosen_node_ptr) {
         auto &chosen_node = *chosen_node_ptr;
-        fmt::print("chosen_node: {}\n", chosen_node);
+        // FMT_PRINT("chosen_node: {}\n", chosen_node);
 
         auto iuou_prop_ptr = chosen_node.propertyNamed("internal-use-only-unit");
         if (iuou_prop_ptr) {
             auto &iuou_prop = *iuou_prop_ptr;
-            fmt::print("iuou prop: {}\n", iuou_prop);
+            FMT_PRINT("iuou prop: {}\n", iuou_prop);
+            printf("iuou prop before: 0x%08x\n", iuou_prop.as_u32());
             assert(iuou_prop.size_raw() == 4);
             (uint32_t &)iuou_prop.as_u32() = 1;
-            fmt::print("iuou prop: {}\n", iuou_prop);
+            FMT_PRINT("iuou prop: {}\n", iuou_prop);
+            printf("iuou prop after: 0x%08x\n", iuou_prop.as_u32());
+        } else {
+            printf("internal-use-only-unit prop not found in device tree\n");
         }
-    }
 
-#endif
+        auto nvram_proxy_data_prop_ptr = chosen_node.propertyNamed("nvram-proxy-data");
+        if (nvram_proxy_data_prop_ptr) {
+            auto &nvram_proxy_data_prop = *nvram_proxy_data_prop_ptr;
+            // FMT_PRINT("nvram-proxy-data prop: {}\n", nvram_proxy_data_prop);
+            const auto proxyData = NVRAM::extractProxyData(nvram_proxy_data_prop.data());
+            const char *bootArgsVarEqValStr = proxyData.system_part.varNamed("boot-args");
+            if (bootArgsVarEqValStr) {
+                const char *bootArgs = NVRAM::varValue(bootArgsVarEqValStr);
+                FMT_PRINT("nvram boot-args: {:s}\n", bootArgs);
+                printf("nvram boot-args: %s\n", bootArgs);
+                for (const auto &bootArg : rangeForSpaceDelimitedCStr(bootArgs)) {
+                    FMT_PRINT("boot-arg: {:s}\n", bootArg);
+                    printf("boot-arg: %*s\n", (int)bootArg.size(), bootArg.data());
+                }
+                const auto hasVerbose = proxyData.system_hasBootArg("-v");
+                FMT_PRINT("boot-args has -v flag: {}\n", hasVerbose);
+                printf("boot-args has -v flag: %d\n", hasVerbose);
+            } else {
+                printf("boot-args missing\n");
+            }
+        }
+    } else {
+        printf("chosen node not found in device tree\n");
+    }
 }

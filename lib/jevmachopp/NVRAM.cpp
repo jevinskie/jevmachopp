@@ -290,14 +290,14 @@ void dump_nvram(const void *nvram_buf) {
     const auto c_ba = proxyData.common_bootArgs();
     fmt::print("c_ba: {}\n", fmt::join(c_ba, ", "));
     const auto c_hasv = proxyData.common_hasBootArg("-v");
-    fmt::print("c_hasv: {:b}\n", c_hasv);
+    fmt::print("c_hasv: {}\n", c_hasv);
 
     const auto s_bav = proxyData.system_bootArgsValue();
     fmt::print("s_bav: {:s}\n", s_bav);
     const auto s_ba = proxyData.system_bootArgs();
     fmt::print("s_ba: {}\n", fmt::join(s_ba, ", "));
     const auto s_hasv = proxyData.system_hasBootArg("-v");
-    fmt::print("s_hasv: {:b}\n", s_hasv);
+    fmt::print("s_hasv: {}\n", s_hasv);
 
     const char *bootArgsVarEqValStr = proxyData.system_part.varNamed("boot-args");
     if (bootArgsVarEqValStr) {
