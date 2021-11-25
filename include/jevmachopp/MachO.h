@@ -66,7 +66,7 @@ public:
             return symtab();
         });
         return ranges::views::transform(symtab_ptr ? symtab_ptr->strtab_entries(*this)
-                                                   : packed_cstr_entry_range{},
+                                                   : packed_cstr_range{},
                                         [](const auto &strchr) -> const char * {
                                             return &strchr;
                                         });

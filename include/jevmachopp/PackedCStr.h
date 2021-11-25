@@ -41,4 +41,4 @@ private:
     pointer m_ptr;
 };
 
-using packed_cstr_entry_range = subrange<PackedCStrIterator>;
+using packed_cstr_range = subrange<PackedCStrIterator>;

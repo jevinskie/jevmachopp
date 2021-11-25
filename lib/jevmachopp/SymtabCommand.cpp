@@ -38,7 +38,7 @@ const char *SymtabCommand::strtab_data(const MachO &macho) const {
     return (const char *)((uintptr_t)&macho + stroff);
 }
 
-packed_cstr_entry_range SymtabCommand::strtab_entries(const MachO &macho) const {
+packed_cstr_range SymtabCommand::strtab_entries(const MachO &macho) const {
     return {strtab_cbegin(macho), strtab_cend(macho)};
 }
 

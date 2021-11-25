@@ -22,7 +22,7 @@ public:
     PackedCStrIterator strtab_cend(const MachO &macho) const;
     std::size_t strtab_sizeof() const;
     const char *strtab_data(const MachO &macho) const;
-    packed_cstr_entry_range strtab_entries(const MachO &macho) const;
+    packed_cstr_range strtab_entries(const MachO &macho) const;
 #if USE_FMT
     fmt::appender &format_to(fmt::appender &out) const;
 #endif
