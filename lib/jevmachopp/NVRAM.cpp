@@ -97,7 +97,7 @@ NVRAMProxyData extractProxyData(const void *nvram_proxy_data_buf) {
     return {apple_hdr, common_hdr, system_hdr};
 }
 
-// dangerous
+// dangerous (bad bounds checking)
 uint32_t decodedDataLen(const std::span<const uint8_t> &escaped) {
     uint32_t totalLength = 0;
     uint32_t offset, offset2;
@@ -125,7 +125,7 @@ uint32_t decodedDataLen(const std::span<const uint8_t> &escaped) {
     return ok ? totalLength : 0;
 }
 
-// dangerous
+// dangerous (bad bounds checking), probably broken
 uint32_t unescapeBytesToData(const std::span<const uint8_t> &escaped,
                              std::span<uint8_t> &&decoded) {
     const auto enc_buf_sz = escaped.size_bytes();
@@ -159,6 +159,7 @@ uint32_t unescapeBytesToData(const std::span<const uint8_t> &escaped,
     return totalLength;
 }
 
+// dangerous (bad bounds checking), probably broken
 uint32_t escapeDataToData(const std::span<const uint8_t> &decoded, std::span<uint8_t> &&encoded) {
     const auto dec_buf_sz = decoded.size_bytes();
     const auto enc_buf_sz = encoded.size_bytes();
