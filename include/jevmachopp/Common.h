@@ -182,7 +182,7 @@ const range_value_t<Rng> *find_if_or_nullptr(Rng &&rng, F pred) {
 
 template <typename Rng, typename Str> bool rangeContainsStr(Rng &&rng, Str &&strToFind) {
     const auto strToFindView = std::string_view{strToFind};
-    return ranges::any_of(rng, [](const auto &str) {
+    return ranges::any_of(rng, [&strToFindView](const auto &str) {
         return str == strToFindView;
     });
 }

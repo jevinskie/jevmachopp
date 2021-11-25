@@ -125,8 +125,13 @@ template <> struct fmt::formatter<NVRAMPartition> {
 
 class NVRAMProxyData {
 public:
-    space_delimited_cstr_range bootArgs() const;
-    bool hasBootArg(const char *argName) const;
+    const char *common_bootArgsValue() const;
+    space_delimited_cstr_range common_bootArgs() const;
+    bool common_hasBootArg(const char *argName) const;
+
+    const char *system_bootArgsValue() const;
+    space_delimited_cstr_range system_bootArgs() const;
+    bool system_hasBootArg(const char *argName) const;
 
 #if USE_FMT
     fmt::appender &format_to(fmt::appender &out) const;

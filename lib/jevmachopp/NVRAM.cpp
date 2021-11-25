@@ -92,12 +92,28 @@ fmt::appender &NVRAMPartition::format_to(fmt::appender &out) const {
 
 #pragma mark NVRAMProxyData - Accessors
 
-space_delimited_cstr_range NVRAMProxyData::bootArgs() const {
-    return {};
+const char *NVRAMProxyData::common_bootArgsValue() const {
+    return NVRAM::varValue(common_part.varNamed("boot-args"));
 }
 
-bool NVRAMProxyData::hasBootArg(const char *argName) const {
-    return false;
+space_delimited_cstr_range NVRAMProxyData::common_bootArgs() const {
+    return rangeForSpaceDelimitedCStr(common_bootArgsValue());
+}
+
+bool NVRAMProxyData::common_hasBootArg(const char *argName) const {
+    return rangeContainsStr(common_bootArgs(), "-v");
+}
+
+const char *NVRAMProxyData::system_bootArgsValue() const {
+    return NVRAM::varValue(system_part.varNamed("boot-args"));
+}
+
+space_delimited_cstr_range NVRAMProxyData::system_bootArgs() const {
+    return rangeForSpaceDelimitedCStr(system_bootArgsValue());
+}
+
+bool NVRAMProxyData::system_hasBootArg(const char *argName) const {
+    return rangeContainsStr(system_bootArgs(), "-v");
 }
 
 #pragma mark NVRAMProxyData - fmt
@@ -115,6 +131,9 @@ fmt::appender &NVRAMProxyData::format_to(fmt::appender &out) const {
 namespace NVRAM {
 
 const std::string_view varName(const char *varEqValStr) {
+    if (!varEqValStr) {
+        return {};
+    }
     const char *eq_chr_ptr = std::strchr(varEqValStr, '=');
     if (!eq_chr_ptr) {
         return {};
@@ -123,6 +142,9 @@ const std::string_view varName(const char *varEqValStr) {
 }
 
 const char *varValue(const char *varEqValStr) {
+    if (!varEqValStr) {
+        return nullptr;
+    }
     const auto len = std::strlen(varEqValStr);
     const char *eq_chr_ptr = (const char *)std::memchr(varEqValStr, '=', len);
     if (!eq_chr_ptr) {
@@ -262,6 +284,20 @@ void dump_nvram(const void *nvram_buf) {
         const auto varName = NVRAM::varName(varEqValStr);
         fmt::print("system varName: {:s}\n", varName);
     }
+
+    const auto c_bav = proxyData.common_bootArgsValue();
+    fmt::print("c_bav: {:s}\n", c_bav);
+    const auto c_ba = proxyData.common_bootArgs();
+    fmt::print("c_ba: {}\n", fmt::join(c_ba, ", "));
+    const auto c_hasv = proxyData.common_hasBootArg("-v");
+    fmt::print("c_hasv: {:b}\n", c_hasv);
+
+    const auto s_bav = proxyData.system_bootArgsValue();
+    fmt::print("s_bav: {:s}\n", s_bav);
+    const auto s_ba = proxyData.system_bootArgs();
+    fmt::print("s_ba: {}\n", fmt::join(s_ba, ", "));
+    const auto s_hasv = proxyData.system_hasBootArg("-v");
+    fmt::print("s_hasv: {:b}\n", s_hasv);
 
     const char *bootArgsVarEqValStr = proxyData.system_part.varNamed("boot-args");
     if (bootArgsVarEqValStr) {
