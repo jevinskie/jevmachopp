@@ -7,8 +7,7 @@ __assert_func(const char *file, int line, const char *function, const char *asse
     __assert_fail(assertion, file, line, function);
 }
 
-extern "C"
-int puts(const char *s) {
+extern "C" int puts(const char *s) {
     int res = printf("%s\n", s);
     if (res < 0) {
         res = EOF;
