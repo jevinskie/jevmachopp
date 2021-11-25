@@ -168,6 +168,12 @@ void dump_dtree(const void *dtree_buf) {
     auto &dtree_root_node = *dtree_root_node_ptr;
     // FMT_PRINT("dtree_root_node: {}\n", dtree_root_node);
 
+    printf("DT root node # props: %u # children: %u\n", dtree_root_node.properties_size(), dtree_root_node.children_size());
+
+    // for (const auto &prop : dtree_root_node.properties()) {
+    //     printf("DT root node prop: name: %s\n", prop.name());
+    // }
+
     auto chosen_node_ptr = dtree_root_node.childNamed("chosen");
     if (chosen_node_ptr) {
         auto &chosen_node = *chosen_node_ptr;
