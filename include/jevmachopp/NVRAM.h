@@ -1,6 +1,7 @@
 #pragma once
 
 #include "jevmachopp/Common.h"
+#include "jevmachopp/DelimitedCStr.h"
 #include "jevmachopp/PackedCStr.h"
 
 #include <span>
@@ -15,12 +16,6 @@ public:
     uint32_t size_bytes() const;
     const char *name() const;
     const uint8_t *data() const;
-
-public:
-    packed_cstr_eterm_range vars() const;
-    PackedCStrIteratorEmtpyTerm vars_cbegin() const;
-    PackedCStrIteratorEmtpyTerm vars_cend() const;
-    const char *varNamed(const char *name) const;
 
 #if USE_FMT
     fmt::appender &format_to(fmt::appender &out) const;
@@ -89,11 +84,65 @@ template <> struct fmt::formatter<AppleNVRAMHeader> {
 };
 #endif
 
-struct NVRAMProxyData {
-    const AppleNVRAMHeader &nvram_hdr;
-    const CHRPNVRAMHeader &common_hdr;
-    const CHRPNVRAMHeader &system_hdr;
+class NVRAMPartition {
+public:
+    const char *name() const;
+    uint32_t size_bytes() const;
+
+public:
+    packed_cstr_eterm_range vars() const;
+    PackedCStrIteratorEmtpyTerm vars_cbegin() const;
+    PackedCStrIteratorEmtpyTerm vars_cend() const;
+    const char *varNamed(const char *name) const;
+
+#if USE_FMT
+    fmt::appender &format_to(fmt::appender &out) const;
+#endif
+
+public:
+    CHRPNVRAMHeader hdr;
+
+public:
+    NVRAMPartition(const NVRAMPartition &) = delete;
+    void operator=(const NVRAMPartition &) = delete;
 };
+
+static_assert_size_same(NVRAMPartition, CHRPNVRAMHeader);
+
+class NVRAMProxyData {
+public:
+    space_delimited_cstr_range bootArgs() const;
+    bool hasBootArg(const char *argName) const;
+
+#if USE_FMT
+    fmt::appender &format_to(fmt::appender &out) const;
+#endif
+
+public:
+    const AppleNVRAMHeader &nvram_hdr;
+    const NVRAMPartition &common_part;
+    const NVRAMPartition &system_part;
+
+public:
+    NVRAMProxyData(const AppleNVRAMHeader &nvram_hdr, const NVRAMPartition &common_part,
+                   const NVRAMPartition &system_part)
+        : nvram_hdr(nvram_hdr), common_part(common_part), system_part(system_part) {}
+};
+
+#if USE_FMT
+template <> struct fmt::formatter<NVRAMProxyData> {
+
+    template <typename ParseContext> constexpr auto parse(ParseContext &ctx) {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(NVRAMProxyData const &nvramProxyData, FormatContext &ctx) {
+        auto out = ctx.out();
+        return nvramProxyData.format_to(out);
+    }
+};
+#endif
 
 namespace NVRAM {
 

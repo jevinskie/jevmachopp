@@ -28,6 +28,7 @@ extern "C" __attribute__((noreturn)) void __assert_fail(const char *assertion, c
 
 #include <boost/static_string/static_string.hpp>
 
+#include <nanorange/algorithm/any_of.hpp>
 #include <nanorange/algorithm/copy.hpp>
 #include <nanorange/concepts.hpp>
 #include <nanorange/views/empty.hpp>
@@ -177,6 +178,13 @@ const range_value_t<Rng> *find_if_or_nullptr(Rng &&rng, F pred) {
         return &*res;
     }
     return nullptr;
+}
+
+template <typename Rng, typename Str> bool rangeContainsStr(Rng &&rng, Str &&strToFind) {
+    const auto strToFindView = std::string_view{strToFind};
+    return ranges::any_of(rng, [](const auto &str) {
+        return str == strToFindView;
+    });
 }
 
 #pragma mark fmt
