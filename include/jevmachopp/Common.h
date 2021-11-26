@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstring>
+#include <limits>
 #include <span>
 #include <string_view>
 #include <type_traits>
@@ -56,12 +57,29 @@ using indirect_syms_idxes_t = std::span<const uint32_t>;
 
 class AddrRange {
 public:
-    AddrRange() : min(0), max(0){};
+    AddrRange()
+        : min(std::numeric_limits<decltype(min)>::max()),
+          max(std::numeric_limits<decltype(max)>::min()){};
     AddrRange(uint64_t min, uint64_t max) : min(min), max(max) {
         assert(min <= max);
     }
 
+    bool isNull() const {
+        return min == std::numeric_limits<decltype(min)>::max() &&
+               max == std::numeric_limits<decltype(max)>::min();
+    }
+
+    AddrRange &operator|=(const AddrRange &rhs) {
+        (void)rhs;
+        return *this;
+    }
     friend AddrRange operator|(AddrRange lhs, const AddrRange &rhs) {
+        if (rhs.isNull()) {
+            return lhs;
+        }
+        if (lhs.isNull()) {
+            return rhs;
+        }
         lhs.min = std::min(lhs.min, rhs.min);
         lhs.max = std::max(lhs.max, rhs.max);
         return lhs;
