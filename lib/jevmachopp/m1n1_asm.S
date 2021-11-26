@@ -16,12 +16,12 @@ printf:
     .global xnu_jump_stub
     .type   xnu_jump_stub, %function
 xnu_jump_stub:
-    ldp x5, x6, [x1], #8
+    ldp x5, x6, [x1], #16
     stp x5, x6, [x2]
     dc cvau, x2
     ic ivau, x2
-    add x2, x2, #8
-    sub x3, x3, #8
+    add x2, x2, #16
+    sub x3, x3, #16
     cbnz x3, xnu_jump_stub
 
     mov x1, x4
