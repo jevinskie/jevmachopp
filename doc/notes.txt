@@ -1,0 +1,34 @@
+
+regular mac boot:
+    | |   {
+    | |     "DeviceTree" = <>
+    | |     "Kernel-__DATA_CONST" = <>
+    | |     "Kernel-__PRELINK_INFO" = <>
+    | |     "Kernel-__LINKEDIT" = <>
+    | |     "AAPL,phandle" = <>
+    | |     "kernel-only" = <>
+    | |     "MemoryMapReserved-1" = <>
+    | |     "Kernel-__DATA" = <>
+    | |     "MemoryMapReserved-3" = <>
+    | |     "MemoryMapReserved-5" = <>
+    | |     "Kernel-mach_header" = <>
+    | |     "MemoryMapReserved-7" = <>
+    | |     "name" = <>
+    | |     "Kernel-__PRELINK_TEXT" = <>
+    | |     "MemoryMapReserved-9" = <>
+    | |     "Kernel-__TEXT_EXEC" = <>
+    | |     "MemoryMapReserved-0" = <>
+    | |     "TrustCache" = <>
+    | |     "MemoryMapReserved-10" = <>
+    | |     "MemoryMapReserved-2" = <>
+    | |     "MemoryMapReserved-11" = <>
+    | |     "BootArgs" = <>
+    | |     "MemoryMapReserved-12" = <>
+    | |     "MemoryMapReserved-4" = <>
+    | |     "MemoryMapReserved-13" = <>
+    | |     "MemoryMapReserved-6" = <>
+    | |     "MemoryMapReserved-14" = <>
+    | |     "Kernel-__TEXT" = <>
+    | |     "MemoryMapReserved-15" = <>
+    | |     "MemoryMapReserved-8" = <>
+    | |   }

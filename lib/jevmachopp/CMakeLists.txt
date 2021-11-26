@@ -20,12 +20,14 @@ set(MACHOPP_SRC
     SymtabCommand.cpp
     Version.cpp
     UnknownCommand.cpp
+    XNUBoot.cpp
 )
 
 set(MACHOPP_HDR_STANDALONE
     c/jevdtree.h
     c/jevmacho.h
     c/jevnvram.h
+    c/jevxnuboot.h
     Common.h
     CpuType.h
     CpuTypeMeta.h
