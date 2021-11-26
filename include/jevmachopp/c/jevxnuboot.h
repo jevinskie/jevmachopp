@@ -8,7 +8,7 @@ extern "C" {
 namespace XNUBoot {
 #endif
 
-const void *load_and_prep_xnu_kernelcache();
+const void *load_and_prep_xnu_kernelcache(const void *boot_args_base, const void *kernelcache_base);
 
 #ifdef __cplusplus
 } // namespace XNUBoot

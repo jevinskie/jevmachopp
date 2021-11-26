@@ -22,3 +22,11 @@ std::size_t SegmentCommand::sect_sizeof() const {
 std::span<const Section> SegmentCommand::sections() const {
     return {sect_cbegin(), sect_cend()};
 }
+
+AddrRange SegmentCommand::vmaddr_range() const {
+    return {vmaddr, vmaddr + vmsize};
+}
+
+AddrRange SegmentCommand::file_range() const {
+    return {fileoff, fileoff + filesize};
+}

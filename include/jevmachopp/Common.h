@@ -54,6 +54,24 @@ using namespace std::literals::string_view_literals;
 using dylib_names_map_t = std::array<const char *, 0xFF>;
 using indirect_syms_idxes_t = std::span<const uint32_t>;
 
+class AddrRange {
+public:
+    AddrRange() : min(0), max(0){};
+    AddrRange(uint64_t min, uint64_t max) : min(min), max(max) {
+        assert(min <= max);
+    }
+
+    friend AddrRange operator|(AddrRange lhs, const AddrRange &rhs) {
+        lhs.min = std::min(lhs.min, rhs.min);
+        lhs.max = std::max(lhs.max, rhs.max);
+        return lhs;
+    };
+
+public:
+    uint64_t min;
+    uint64_t max;
+};
+
 #pragma mark Type Utilities
 
 template <typename T> constexpr auto type_name() {

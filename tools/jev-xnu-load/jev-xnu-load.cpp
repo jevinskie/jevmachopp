@@ -32,7 +32,9 @@ constexpr uintptr_t ba_base       = 0x0000'0008'088d'c000;
 constexpr uintptr_t ba_end        = 0x0000'0008'088e'0000;
 
 constexpr uintptr_t mmap_base     = 0x0000'0008'0000'0000;
-constexpr uintptr_t mmap_size     = 256 * 1024 * 1024;
+constexpr uintptr_t mmap_size     = 512 * 1024 * 1024;
+
+constexpr uintptr_t kc_copy_base  = mmap_base + mmap_size / 2;
 // clang-format on
 
 int main(int argc, const char *argv[]) {
@@ -64,7 +66,7 @@ int main(int argc, const char *argv[]) {
     size_t kc_bin_sz = 0;
     const auto *kc_bin =
         Slurp::readfile(args["kernelcache"].as<std::string>().data(), &kc_bin_sz, false, nullptr);
-    // memcpy((char *)kc_base, )
+    memcpy((char *)kc_copy_base, kc_bin, kc_bin_sz);
 
     size_t sepfw_bin_sz = 0;
     const auto *sepfw_bin =
@@ -86,7 +88,8 @@ int main(int argc, const char *argv[]) {
                                                  &trustcache_bin_sz, false, nullptr);
     memcpy((char *)tc_base, trustcache_bin, trustcache_bin_sz);
 
-    const void *calculated_entry_point = XNUBoot::load_and_prep_xnu_kernelcache();
+    const void *calculated_entry_point =
+        XNUBoot::load_and_prep_xnu_kernelcache((const void *)ba_base, (const void *)kc_copy_base);
     printf("calculated_entry_point: %p\n", calculated_entry_point);
 
     return 0;

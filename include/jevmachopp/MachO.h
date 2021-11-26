@@ -27,7 +27,7 @@ class NList;
 
 using MachOMagic = std::uint32_t;
 
-constexpr MachOMagic JEV_MH_MAGIC_64 = 0xfeedfacfu;
+constexpr MachOMagic JEV_MH_MAGIC_64 = 0xfeedfacf;
 
 class MachO {
 public:
@@ -58,6 +58,10 @@ public:
     const SegmentCommand *dataSeg() const;
     const SegmentCommand *linkeditSeg() const;
 
+    AddrRange vmaddr_range() const;
+    AddrRange file_range() const;
+
+#pragma mark symtab
     const SymtabCommand *symtab() const;
     std::span<const NList> symtab_nlists() const;
     auto symtab_strtab_entries(const SymtabCommand *symtab_ptr = nullptr) const {
@@ -72,6 +76,7 @@ public:
     }
     const char *strtab_data() const;
 
+#pragma mark dysymtab
     const DySymtabCommand *dysymtab() const;
     std::span<const NList> local_syms() const;
     std::size_t local_syms_size() const;

@@ -60,6 +60,14 @@ const SegmentCommand *MachO::linkeditSeg() const {
     return segmentWithName("__LINKEDIT");
 }
 
+AddrRange MachO::vmaddr_range() const {
+    return {};
+}
+
+AddrRange MachO::file_range() const {
+    return {};
+}
+
 #pragma mark symtab
 
 const SymtabCommand *MachO::symtab() const {
