@@ -30,6 +30,9 @@ constexpr uintptr_t sepfw_end     = 0x0000'0008'088d'c000;
 
 constexpr uintptr_t ba_base       = 0x0000'0008'088d'c000;
 constexpr uintptr_t ba_end        = 0x0000'0008'088e'0000;
+
+constexpr uintptr_t mmap_base     = 0x0000'0008'0000'0000;
+constexpr uintptr_t mmap_size     = 256 * 1024 * 1024;
 // clang-format on
 
 int main(int argc, const char *argv[]) {
@@ -53,6 +56,14 @@ int main(int argc, const char *argv[]) {
         printf("%s\n", options.help().data());
         return 1;
     }
+
+    auto *mem = Slurp::mapMemory(mmap_size, (const void *)mmap_base);
+    printf("mem: %p\n", mem);
+    assert(mem && (uintptr_t)mem == mmap_base);
+
+    size_t kc_bin_sz = 0;
+    const auto *kc_bin =
+        Slurp::readfile(args["kernelcache"].as<std::string>().data(), &kc_bin_sz, false, nullptr);
 
     const void *calculated_entry_point = XNUBoot::load_and_prep_xnu_kernelcache();
     printf("calculated_entry_point: %p\n", calculated_entry_point);
