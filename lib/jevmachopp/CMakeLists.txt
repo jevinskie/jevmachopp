@@ -59,6 +59,8 @@ add_library(jevmachopp ${MACHOPP_SRC} ${MACHOPP_HDR})
 target_link_libraries(jevmachopp PUBLIC Boost::callable_traits enum.hpp fmt nanorange visit)
 target_compile_definitions(jevmachopp PRIVATE USE_FMT=1)
 target_compile_options(jevmachopp PRIVATE -Wall -Wextra -Wpedantic)
+target_compile_options(jevmachopp PRIVATE -fno-rtti -fno-exceptions -fno-unwind-tables -fno-asynchronous-unwind-tables)
+
 
 target_include_directories(jevmachopp PUBLIC ../../include ../../3rdparty/static_string/include ../../3rdparty/static_vector/include ../../3rdparty/hedley)
 

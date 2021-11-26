@@ -22,8 +22,6 @@ add_link_options(-Oz -flto=full -Wl,-dead_strip)
 # add_compile_options(-fno-inline)
 # add_link_options(-fno-inline)
 
-add_compile_options(-fno-rtti -fno-exceptions -fno-unwind-tables -fno-asynchronous-unwind-tables)
-
 add_compile_options(-ferror-limit=100)
 
 set(CMAKE_CXX_STANDARD 23)
