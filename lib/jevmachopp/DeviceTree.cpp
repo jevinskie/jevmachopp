@@ -157,6 +157,30 @@ fmt::appender &DTNode::format_to(fmt::appender &out) const {
 }
 #endif
 
+#pragma mark namaespace DT
+
+#pragma mark namaespace DT - Utilities
+
+std::experimental::fixed_capacity_vector<const uint64_t *, DT::MAX_CPUS>
+getCPUImplRegAddrs(const DTNode &rootNode) {
+    std::experimental::fixed_capacity_vector<const uint64_t *, DT::MAX_CPUS> regs{};
+    if (auto cpus_node_ptr = rootNode.childNamed("cpus")) {
+        auto &cpus_node = *cpus_node_ptr;
+        for (const auto &cpu_node : cpus_node.children()) {
+            if (auto cpu_impl_reg_prop_ptr = cpu_node.propertyNamed("cpu-impl-reg")) {
+                const auto &cpu_impl_reg_prop = *cpu_impl_reg_prop_ptr;
+                FMT_PRINT("cpu_impl_reg_prop: {}\n", cpu_impl_reg_prop);
+                regs.emplace_back(*(const uint64_t **)cpu_impl_reg_prop.data());
+            } else {
+                printf("chosen/cpus/cpuX/cpu-impl-reg DT prop missing\n");
+            }
+        }
+    } else {
+        printf("chosen/cpus DT node missing\n");
+    }
+    return regs;
+}
+
 #pragma mark C
 
 void dump_dtree(const void *dtree_buf) {
@@ -233,5 +257,10 @@ void dump_dtree(const void *dtree_buf) {
         }
     } else {
         printf("chosen/cpus DT node missing\n");
+    }
+
+    const auto cpuImplRegAddrs = getCPUImplRegAddrs(dtree_root_node);
+    for (const auto &cpuImplRegAddr : cpuImplRegAddrs) {
+        printf("cpuImplRegAddr: %p\n", (const void *)cpuImplRegAddr);
     }
 }

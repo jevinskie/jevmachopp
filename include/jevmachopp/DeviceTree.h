@@ -2,6 +2,7 @@
 
 #include "jevmachopp/Common.h"
 
+#include <experimental/fixed_capacity_vector>
 #include <string_view>
 
 #pragma mark DTProp
@@ -206,3 +207,11 @@ template <> struct fmt::formatter<DTNode> {
     }
 };
 #endif
+
+namespace DT {
+
+constexpr std::size_t MAX_CPUS = 16;
+std::experimental::fixed_capacity_vector<const uint64_t *, MAX_CPUS>
+getCPUImplRegAddrs(const DTNode &rootNode);
+
+} // namespace DT
