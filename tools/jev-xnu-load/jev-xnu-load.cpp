@@ -7,6 +7,10 @@
 #include <jevmachopp/Slurp.h>
 #include <jevmachopp/c/jevxnuboot.h>
 
+#if __has_include(<ptrauth.h>)
+#include <ptrauth.h>
+#endif
+
 // clang-format off
 constexpr uintptr_t virt_base       = 0xffff'fe00'0dcb'c000;
 constexpr uintptr_t phys_base       = 0x0000'0008'01cb'c000;
@@ -78,9 +82,8 @@ int main(int argc, const char *argv[]) {
                                                  &trustcache_bin_sz, false, nullptr);
     memcpy((char *)tc_base, trustcache_bin, trustcache_bin_sz);
 
-    const void *calculated_entry_point =
-        XNUBoot::load_and_prep_xnu_kernelcache((const void *)ba_base);
-    printf("calculated_entry_point: %p\n", calculated_entry_point);
+    XNUBoot::load_and_prep_xnu_kernelcache((const void *)ba_base, nullptr, 256);
+    printf("XNUBoot::load_and_prep_xnu_kernelcache completed\n");
 
     return 0;
 }

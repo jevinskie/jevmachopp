@@ -24,7 +24,7 @@ constexpr auto MMU_CLINE = 6;                 // D-cache line size as 1<<MMU_CLI
 static_assert_cond(MMU_CLINE == MMU_I_CLINE); // lazy, won't handle other cases
 
 void flush_i_and_d_cache(const void *addr, ssize_t size) {
-    auto aligned_addr = (uintptr_t)addr & ((1 << MMU_CLINE) - 1);
+    auto aligned_addr = (uintptr_t)addr & ~((1 << MMU_CLINE) - 1);
     size += (uintptr_t)addr - aligned_addr;
     for (; size > 0; size -= (1 << MMU_CLINE), aligned_addr += (1 << MMU_CLINE)) {
         // clang-format off

@@ -23,6 +23,13 @@ public:
         return (std::size_t)(max - min);
     }
 
+    friend bool operator==(const AddrRange &lhs, const AddrRange &rhs) {
+        return lhs.min == rhs.min && lhs.max == rhs.max;
+    }
+    friend bool operator!=(const AddrRange &lhs, const AddrRange &rhs) {
+        return !(lhs == rhs);
+    }
+
     AddrRange &operator|=(const AddrRange &rhs) {
         if (rhs.isNull()) {
             return *this;

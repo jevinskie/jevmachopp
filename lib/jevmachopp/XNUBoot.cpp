@@ -4,19 +4,29 @@
 #include "jevmachopp/NVRAM.h"
 #include "jevmachopp/SegmentCommand.h"
 #include "jevmachopp/UnixThreadCommand.h"
+#include "jevmachopp/m1n1.h"
 
 namespace XNUBoot {
 
-const void *load_and_prep_xnu_kernelcache(const void *boot_args_base) {
+void load_and_prep_xnu_kernelcache(const void *boot_args_base, const void *xnu_jump_stub_ptr,
+                                   size_t stub_size) {
     if (!boot_args_base) {
-        return nullptr;
+        printf("boot_args_base is NULL\n");
+        return;
     }
+#ifdef M1N1
+    if (!xnu_jump_stub_ptr) {
+        printf("xnu_jump_stub_ptr is NULL\n");
+        return;
+    }
+#endif
     const auto &bootArgs = *(const XNUBootArgs *)boot_args_base;
     const auto virtBase = bootArgs.virtBase;
     const auto physBase = bootArgs.physBase;
     const auto virtOff = virtBase - physBase;
     FMT_PRINT("bootArgs.commandLine: {:s} virtBase: {:p} physBase: {:p} virtOff: {:p}\n",
               bootArgs.commandLine, (void *)virtBase, (void *)physBase, (void *)virtOff);
+    printf("xnu_jump_stub_ptr: %p\n", xnu_jump_stub_ptr);
 
     const auto *dt_phys_ptr = (const DTNode *)((uintptr_t)bootArgs.deviceTree - virtOff);
     const auto &dt = *dt_phys_ptr;
@@ -24,7 +34,7 @@ const void *load_and_prep_xnu_kernelcache(const void *boot_args_base) {
     auto chosen_node_ptr = dt.childNamed("chosen");
     if (!chosen_node_ptr) {
         printf("chosen node not found in device tree\n");
-        return nullptr;
+        return;
     }
     auto &chosen_node = *chosen_node_ptr;
 
@@ -32,7 +42,7 @@ const void *load_and_prep_xnu_kernelcache(const void *boot_args_base) {
     if (!nvram_proxy_data_prop_ptr) {
         printf("couldn't find chosen/nvram-proxy-data to check for verbose boot flag, bailing out "
                "of xnu load\n");
-        return nullptr;
+        return;
     }
     auto &nvram_proxy_data_prop = *nvram_proxy_data_prop_ptr;
     const auto proxyData = NVRAM::extractProxyData(nvram_proxy_data_prop.data());
@@ -40,13 +50,13 @@ const void *load_and_prep_xnu_kernelcache(const void *boot_args_base) {
     printf("boot-args has -v flag: %d\n", hasVerbose);
     if (!hasVerbose) {
         printf("didn't detect verbose boot flag, bailing out of xnu load\n");
-        return nullptr;
+        return;
     }
 
     auto memory_map_node_ptr = chosen_node.childNamed("memory-map");
     if (!memory_map_node_ptr) {
         printf("couldn't find chosen/memory-map, bailint out of xnu load\n");
-        return nullptr;
+        return;
     }
     auto &memory_map_node = *memory_map_node_ptr;
     for (const auto &map_region : memory_map_node.properties_sized(sizeof(DTRegister))) {
@@ -56,7 +66,7 @@ const void *load_and_prep_xnu_kernelcache(const void *boot_args_base) {
     auto mach_header_prop_ptr = memory_map_node.propertyNamed("Kernel-mach_header");
     if (!mach_header_prop_ptr) {
         printf("couldn't find chosen/memory-map/Kernel-mach_header, bailing out of xnu load\n");
-        return nullptr;
+        return;
     }
     auto &mach_header_prop = *mach_header_prop_ptr;
     auto &mach_header_reg = mach_header_prop.as_reg();
@@ -69,18 +79,16 @@ const void *load_and_prep_xnu_kernelcache(const void *boot_args_base) {
     auto payload_prop_ptr = memory_map_node.propertyNamed("Kernel-PYLD");
     if (!payload_prop_ptr) {
         printf("couldn't find chosen/memory-map/Kernel-PYLD, bailing out of xnu load\n");
-        return nullptr;
+        return;
     }
     auto &payload_prop = *payload_prop_ptr;
     auto &payload_reg = payload_prop.as_reg();
     printf("payload_reg: addr: %p size: 0x%zx\n", payload_reg.base, payload_reg.size);
-    const auto stubSlide = (uintptr_t)payload_reg.base - physBase;
-    printf("stubSlide: %p\n", (const void *)stubSlide);
 
     const auto &kc = *(const MachO *)payload_reg.base;
     if (!kc.isMagicGood()) {
         printf("bad macho magic: 0x%08x, bailing out of xnu load\n", kc.magic);
-        return nullptr;
+        return;
     }
     const auto kc_vmaddr_range = kc.vmaddr_range();
     printf("kcm_vmaddr_range: min: %p max: %p\n", (void *)kc_vmaddr_range.min,
@@ -92,14 +100,18 @@ const void *load_and_prep_xnu_kernelcache(const void *boot_args_base) {
     printf("kc_file_range: min: %p max: %p\n", (void *)kc_file_range.min,
            (void *)kc_file_range.max);
     if (kc_file_range.min != 0) {
-        printf("kc_fileoff_range.min != 0 not handled, , bailing out of xnu load\n");
-        return nullptr;
+        printf("kc_fileoff_range.min != 0 not handled, bailing out of xnu load\n");
+        return;
+    }
+    if (kc_file_range.size() != kc_vmaddr_range.size()) {
+        printf("kc vm range != file range not handled, bailing out of xnu load\n");
+        return;
     }
 
     const auto unix_thread_ptr = kc.unixThread();
     if (!unix_thread_ptr) {
         printf("missing unix thread LC, bailing out of xnu load\n");
-        return nullptr;
+        return;
     }
     const auto &unix_thread = *unix_thread_ptr;
     const auto entry_pc_vmaddr = unix_thread.pc;
@@ -110,13 +122,13 @@ const void *load_and_prep_xnu_kernelcache(const void *boot_args_base) {
     auto sepfw_prop_ptr = memory_map_node.propertyNamed("SEPFW");
     if (!sepfw_prop_ptr) {
         printf("couldn't find chosen/memory-map/SEPFW, bailing out of xnu load\n");
-        return nullptr;
+        return;
     }
     auto &sepfw_prop = *sepfw_prop_ptr;
     auto &sepfw_reg = sepfw_prop.as_reg();
     printf("sepfw_reg: addr: %p size: 0x%zx\n", sepfw_reg.base, sepfw_reg.size);
 
-    const auto kc_end = physBase + kc_vmaddr_range.size();
+    const auto kc_end = machoBase + kc_vmaddr_range.size();
     const auto sepfw_copy_base = kc_end;
     const auto sepfw_copy_end = sepfw_copy_base + sepfw_reg.size;
     printf("sepfw_copy_base: %p\n", (void *)sepfw_copy_base);
@@ -125,15 +137,22 @@ const void *load_and_prep_xnu_kernelcache(const void *boot_args_base) {
     auto ba_prop_ptr = memory_map_node.propertyNamed("BootArgs");
     if (!ba_prop_ptr) {
         printf("couldn't find chosen/memory-map/BootArgs, bailing out of xnu load\n");
-        return nullptr;
+        return;
     }
     auto &ba_prop = *ba_prop_ptr;
     auto &ba_reg = ba_prop.as_reg();
     printf("ba_reg: addr: %p size: 0x%zx\n", ba_reg.base, ba_reg.size);
 
     const auto ba_copy_base = sepfw_copy_end;
+    const auto ba_copy_end = ba_copy_base + ba_reg.size;
     printf("ba_copy_base: %p\n", (void *)ba_copy_base);
     memcpy((char *)ba_copy_base, ba_reg.base, ba_reg.size);
+
+    const auto stub_copy_base = ba_copy_end;
+#if M1N1
+    memcpy((char *)stub_copy_base, xnu_jump_stub_ptr, stub_size);
+#endif
+    m1n1::flush_i_and_d_cache((void *)stub_copy_base, stub_size);
 
     for (const auto &map_region : memory_map_node.properties_sized(sizeof(DTRegister))) {
         FMT_PRINT("map_region[\"{:s}\"]: {}\n", map_region.name(), map_region.as_reg());
@@ -190,7 +209,7 @@ const void *load_and_prep_xnu_kernelcache(const void *boot_args_base) {
     } else {
         printf("internal-use-only-unit prop not found in device tree\n");
         // sad but not fatal
-        // return nullptr;
+        // return;
     }
 
     const auto cpuImplRegAddrs = DT::getCPUImplRegAddrs(dt);
@@ -202,7 +221,9 @@ const void *load_and_prep_xnu_kernelcache(const void *boot_args_base) {
 #endif
     }
 
-    return (const void *)entry_pc;
+#if M1N1
+
+#endif
 }
 
 } // namespace XNUBoot
