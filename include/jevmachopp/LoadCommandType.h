@@ -68,6 +68,7 @@ ENUM_HPP_CLASS_DECL(LoadCommandType, load_command_type_t,
 )
 // clang-format on
 
+#if USE_FMT
 template <> struct fmt::formatter<LoadCommandType> {
 
     template <typename ParseContext> constexpr auto parse(ParseContext &ctx) {
@@ -80,3 +81,4 @@ template <> struct fmt::formatter<LoadCommandType> {
                               to_underlying_int(lct));
     }
 };
+#endif
