@@ -7,7 +7,6 @@
 namespace XNUBoot {
 
 const void *load_and_prep_xnu_kernelcache(const void *boot_args_base) {
-    const void *entry_addr = nullptr;
     if (!boot_args_base) {
         return nullptr;
     }
@@ -27,18 +26,6 @@ const void *load_and_prep_xnu_kernelcache(const void *boot_args_base) {
         return nullptr;
     }
     auto &chosen_node = *chosen_node_ptr;
-
-    if (auto iuou_prop_ptr = chosen_node.propertyNamed("internal-use-only-unit")) {
-        auto &iuou_prop = *iuou_prop_ptr;
-        printf("iuou prop before: 0x%08x\n", iuou_prop.as_u32());
-        assert(iuou_prop.size_raw() == 4);
-        (uint32_t &)iuou_prop.as_u32() = 1;
-        printf("iuou prop after: 0x%08x\n", iuou_prop.as_u32());
-    } else {
-        printf("internal-use-only-unit prop not found in device tree\n");
-        // sad but not fatal
-        // return nullptr;
-    }
 
     auto nvram_proxy_data_prop_ptr = chosen_node.propertyNamed("nvram-proxy-data");
     if (!nvram_proxy_data_prop_ptr) {
@@ -61,10 +48,8 @@ const void *load_and_prep_xnu_kernelcache(const void *boot_args_base) {
         return nullptr;
     }
     auto &memory_map_node = *memory_map_node_ptr;
-    // FMT_PRINT("memory_map_node: {}\n", memory_map_node);
     for (const auto &map_region : memory_map_node.properties_sized(sizeof(DTRegister))) {
-        // FMT_PRINT("map_region: {}\n", map_region);
-        FMT_PRINT("map_region.as_reg(): {}\n", map_region.as_reg());
+        FMT_PRINT("map_region[\"{:s}\"]: {}\n", map_region.name(), map_region.as_reg());
     }
     auto payload_prop_ptr = memory_map_node.propertyNamed("Kernel-PYLD");
     if (!payload_prop_ptr) {
@@ -73,8 +58,7 @@ const void *load_and_prep_xnu_kernelcache(const void *boot_args_base) {
     }
     auto &payload_prop = *payload_prop_ptr;
     auto &payload_reg = payload_prop.as_reg();
-    FMT_PRINT("payload_prop: {}\n", payload_reg);
-    printf("payload_prop: addr: %p size: %zx\n", payload_reg.base, payload_reg.size);
+    printf("payload_prop: addr: %p size: 0x%zx\n", payload_reg.base, payload_reg.size);
 
     const auto &kc = *(const MachO *)payload_reg.base;
     if (!kc.isMagicGood()) {
@@ -96,6 +80,43 @@ const void *load_and_prep_xnu_kernelcache(const void *boot_args_base) {
     const auto entry_pc = physBase + entry_off;
     printf("entry_pc: %p\n", (void *)entry_pc);
 
+    auto sepfw_prop_ptr = memory_map_node.propertyNamed("SEPFW");
+    if (!sepfw_prop_ptr) {
+        printf("couldn't find chosen/memory-map/SEPFW, bailing out of xnu load\n");
+        return nullptr;
+    }
+    auto &sepfw_prop = *sepfw_prop_ptr;
+    auto &sepfw_reg = sepfw_prop.as_reg();
+    printf("sepfw_reg: addr: %p size: 0x%zx\n", sepfw_reg.base, sepfw_reg.size);
+
+    auto ba_prop_ptr = memory_map_node.propertyNamed("BootArgs");
+    if (!ba_prop_ptr) {
+        printf("couldn't find chosen/memory-map/BootArgs, bailing out of xnu load\n");
+        return nullptr;
+    }
+    auto &ba_prop = *ba_prop_ptr;
+    auto &ba_reg = ba_prop.as_reg();
+    printf("ba_reg: addr: %p size: 0x%zx\n", ba_reg.base, ba_reg.size);
+
+    const auto kc_end = physBase + kc_vmaddr_range.size();
+    const auto sepfw_copy_base = kc_end;
+
+    for (const auto &map_region : memory_map_node.properties_sized(sizeof(DTRegister))) {
+        FMT_PRINT("map_region[\"{:s}\"]: {}\n", map_region.name(), map_region.as_reg());
+    }
+
+    if (auto iuou_prop_ptr = chosen_node.propertyNamed("internal-use-only-unit")) {
+        auto &iuou_prop = *iuou_prop_ptr;
+        printf("iuou prop before: 0x%08x\n", iuou_prop.as_u32());
+        assert(iuou_prop.size_raw() == 4);
+        (uint32_t &)iuou_prop.as_u32() = 1;
+        printf("iuou prop after: 0x%08x\n", iuou_prop.as_u32());
+    } else {
+        printf("internal-use-only-unit prop not found in device tree\n");
+        // sad but not fatal
+        // return nullptr;
+    }
+
     const auto cpuImplRegAddrs = DT::getCPUImplRegAddrs(dt);
     const auto rvbar = entry_pc & ~0xfff;
     for (std::size_t i = 1, e = cpuImplRegAddrs.size(); i < e; ++i) {
@@ -105,7 +126,7 @@ const void *load_and_prep_xnu_kernelcache(const void *boot_args_base) {
 #endif
     }
 
-    return entry_addr;
+    return (const void *)entry_pc;
 }
 
 } // namespace XNUBoot
