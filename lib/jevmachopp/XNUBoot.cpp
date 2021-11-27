@@ -52,6 +52,20 @@ const void *load_and_prep_xnu_kernelcache(const void *boot_args_base) {
     for (const auto &map_region : memory_map_node.properties_sized(sizeof(DTRegister))) {
         FMT_PRINT("map_region[\"{:s}\"]: {}\n", map_region.name(), map_region.as_reg());
     }
+
+    auto mach_header_prop_ptr = memory_map_node.propertyNamed("Kernel-mach_header");
+    if (!mach_header_prop_ptr) {
+        printf("couldn't find chosen/memory-map/Kernel-mach_header, bailing out of xnu load\n");
+        return nullptr;
+    }
+    auto &mach_header_prop = *mach_header_prop_ptr;
+    auto &mach_header_reg = mach_header_prop.as_reg();
+    printf("mach_header_reg: addr: %p size: 0x%zx\n", mach_header_reg.base, mach_header_reg.size);
+    const auto machoBase = (uintptr_t)mach_header_reg.base;
+    printf("machoBase: %p\n", (const void *)machoBase);
+    const auto machoBaseOff = machoBase - physBase;
+    printf("machoBaseOff: %p\n", (const void *)machoBaseOff);
+
     auto payload_prop_ptr = memory_map_node.propertyNamed("Kernel-PYLD");
     if (!payload_prop_ptr) {
         printf("couldn't find chosen/memory-map/Kernel-PYLD, bailing out of xnu load\n");
@@ -59,7 +73,7 @@ const void *load_and_prep_xnu_kernelcache(const void *boot_args_base) {
     }
     auto &payload_prop = *payload_prop_ptr;
     auto &payload_reg = payload_prop.as_reg();
-    printf("payload_prop: addr: %p size: 0x%zx\n", payload_reg.base, payload_reg.size);
+    printf("payload_reg: addr: %p size: 0x%zx\n", payload_reg.base, payload_reg.size);
     const auto stubSlide = (uintptr_t)payload_reg.base - physBase;
     printf("stubSlide: %p\n", (const void *)stubSlide);
 
@@ -149,9 +163,12 @@ const void *load_and_prep_xnu_kernelcache(const void *boot_args_base) {
         mod_kern_region.setName(new_name_buf);
         const auto seg_vm_range = seg.vmaddr_range();
         const auto seg_phys_range = seg_vm_range - virtOff;
+        const auto seg_file_range = seg.file_range();
+        assert(seg_vm_range.size() == seg_file_range.size());
         FMT_PRINT("seg_vm_range: {}\nseg_phys_range: {}\n", seg_vm_range, seg_phys_range);
-        (DTRegister &)mod_kern_region.as_reg() = {(const void *)seg_phys_range.min,
-                                                  seg_phys_range.size()};
+        FMT_PRINT("seg_file_range: {}\n", seg_file_range);
+        (DTRegister &)mod_kern_region.as_reg() = {(const void *)(machoBase + seg_file_range.min),
+                                                  seg_file_range.size()};
         ++orig_kern_region;
     }
 
