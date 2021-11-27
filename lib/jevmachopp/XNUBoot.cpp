@@ -112,22 +112,22 @@ const void *load_and_prep_xnu_kernelcache(const void *boot_args_base) {
         FMT_PRINT("map_region[\"{:s}\"]: {}\n", map_region.name(), map_region.as_reg());
     }
 
-    for (const auto &orig_kern_region : memory_map_node.propertiesNamedWithPrefix("Kernel-")) {
+    for (auto i = 99;
+         const auto &orig_kern_region : memory_map_node.propertiesNamedWithPrefix("Kernel-")) {
         if (orig_kern_region.name() == "Kernel-mach_header"sv) {
             continue;
         }
         FMT_PRINT("orig_kern_region[\"{:s}\"]: {}\n", orig_kern_region.name(),
                   orig_kern_region.as_reg());
         auto &mod_kern_region = (DTProp &)orig_kern_region;
-        mod_kern_region.setName("Kernel-fart");
+        char new_name_buf[sizeof(mod_kern_region.name_buf)] = {};
+        snprintf(new_name_buf, sizeof(new_name_buf), "MemoryMapReserved-%d", i);
+        mod_kern_region.setName(new_name_buf);
+        --i;
     }
 
-    for (const auto &mod_kern_region : memory_map_node.propertiesNamedWithPrefix("Kernel-")) {
-        if (mod_kern_region.name() == "Kernel-mach_header"sv) {
-            continue;
-        }
-        FMT_PRINT("mod_kern_region[\"{:s}\"]: {}\n", mod_kern_region.name(),
-                  mod_kern_region.as_reg());
+    for (const auto &mod_map_region : memory_map_node.properties_sized(sizeof(DTRegister))) {
+        FMT_PRINT("mod_map_region[\"{:s}\"]: {}\n", mod_map_region.name(), mod_map_region.as_reg());
     }
 
     if (auto iuou_prop_ptr = chosen_node.propertyNamed("internal-use-only-unit")) {
