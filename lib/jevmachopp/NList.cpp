@@ -2,8 +2,6 @@
 #include "jevmachopp/MachO.h"
 #include "jevmachopp/SymtabCommand.h"
 
-using namespace fmt::literals;
-
 const char *NList::name(const char *strtab_data) const {
     return strtab_data + strx;
 }
