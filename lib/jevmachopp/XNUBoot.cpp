@@ -69,6 +69,16 @@ const void *load_and_prep_xnu_kernelcache(const void *boot_args_base) {
     const auto kc_vmaddr_range = kc.vmaddr_range();
     printf("kcm_vmaddr_range: min: %p max: %p\n", (void *)kc_vmaddr_range.min,
            (void *)kc_vmaddr_range.max);
+    const auto kc_physaddr_range = kc_vmaddr_range - virtOff;
+    printf("kc_physaddr_range: min: %p max: %p\n", (void *)kc_physaddr_range.min,
+           (void *)kc_physaddr_range.max);
+    const auto kc_file_range = kc.file_range();
+    printf("kc_file_range: min: %p max: %p\n", (void *)kc_file_range.min,
+           (void *)kc_file_range.max);
+    if (kc_file_range.min != 0) {
+        printf("kc_fileoff_range.min != 0 not handled, , bailing out of xnu load\n");
+        return nullptr;
+    }
 
     const auto unix_thread_ptr = kc.unixThread();
     if (!unix_thread_ptr) {
