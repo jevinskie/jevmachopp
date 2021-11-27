@@ -6,6 +6,15 @@
 #include <cstring>
 #include <numeric>
 
+#pragma mark DTRegister
+
+#if USE_FMT
+fmt::appender &DTRegister::format_to(fmt::appender &out) const {
+    fmt::format_to(out, "<DTRegister @ base: {:p} size: {:#x}"_cf, base, size);
+    return out;
+}
+#endif
+
 #pragma mark DTProp
 
 #pragma mark DTProp - Accessors
@@ -39,6 +48,11 @@ const uint32_t &DTProp::as_u32() const {
 const uint64_t &DTProp::as_u64() const {
     assert(size_raw() == sizeof(uint64_t));
     return *(const uint64_t *)data();
+}
+
+const DTRegister &DTProp::as_reg() const {
+    assert(size_raw() == sizeof(DTRegister));
+    return *(const DTRegister *)data();
 }
 
 bool DTProp::isReplacement() const {
@@ -162,7 +176,7 @@ fmt::appender &DTNode::format_to(fmt::appender &out) const {
 #pragma mark namaespace DT - Utilities
 
 std::experimental::fixed_capacity_vector<const uint64_t *, DT::MAX_CPUS>
-getCPUImplRegAddrs(const DTNode &rootNode) {
+DT::getCPUImplRegAddrs(const DTNode &rootNode) {
     std::experimental::fixed_capacity_vector<const uint64_t *, DT::MAX_CPUS> regs{};
     if (auto cpus_node_ptr = rootNode.childNamed("cpus")) {
         auto &cpus_node = *cpus_node_ptr;
@@ -259,7 +273,7 @@ void dump_dtree(const void *dtree_buf) {
         printf("chosen/cpus DT node missing\n");
     }
 
-    const auto cpuImplRegAddrs = getCPUImplRegAddrs(dtree_root_node);
+    const auto cpuImplRegAddrs = DT::getCPUImplRegAddrs(dtree_root_node);
     for (const auto &cpuImplRegAddr : cpuImplRegAddrs) {
         printf("cpuImplRegAddr: %p\n", (const void *)cpuImplRegAddr);
     }

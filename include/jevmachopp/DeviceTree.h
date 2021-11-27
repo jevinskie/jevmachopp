@@ -5,6 +5,39 @@
 #include <experimental/fixed_capacity_vector>
 #include <string_view>
 
+#pragma mark DTRegister
+
+class DTRegister {
+public:
+#if USE_FMT
+    fmt::appender &format_to(fmt::appender &out) const;
+#endif
+
+public:
+    const void *base;
+    const std::size_t size;
+
+public:
+    DTRegister(const DTRegister &) = delete;
+    void operator=(const DTRegister &) = delete;
+};
+
+static_assert_size_is(DTRegister, 16);
+
+#if USE_FMT
+template <> struct fmt::formatter<DTRegister> {
+
+    template <typename ParseContext> constexpr auto parse(ParseContext &ctx) {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext> auto format(DTRegister const &reg, FormatContext &ctx) {
+        auto out = ctx.out();
+        return reg.format_to(out);
+    }
+};
+#endif
+
 #pragma mark DTProp
 
 class DTProp {
@@ -45,7 +78,7 @@ public:
         }
         friend bool operator==(const Iterator &a, const Iterator &b) {
             bool same_ptr = a.m_ptr == b.m_ptr;
-            assert(same_ptr && a.m_sz == b.m_sz);
+            assert(!same_ptr || a.m_sz == b.m_sz);
             return same_ptr;
         };
         friend bool operator!=(const Iterator &a, const Iterator &b) {
@@ -73,6 +106,7 @@ public:
     const char *as_cstr() const;
     const uint32_t &as_u32() const;
     const uint64_t &as_u64() const;
+    const DTRegister &as_reg() const;
 
 #if USE_FMT
     fmt::appender &format_to(fmt::appender &out) const;
@@ -167,6 +201,11 @@ public:
     std::uint32_t properties_size() const;
     std::uint32_t properties_sizeof() const;
     const DTProp *propertyNamed(const std::string_view &name) const;
+    auto properties_sized(std::uint32_t size) const {
+        return ranges::views::filter(properties(), [=](const DTProp &prop) {
+            return prop.size_raw() == size;
+        });
+    }
 
     DTNode::child_range children() const;
     DTNode::Iterator children_cbegin() const;
