@@ -27,3 +27,6 @@ xnu_jump_stub:
     mov x1, x4
     br x1
     .size   xnu_jump_stub, .-xnu_jump_stub
+    .global _xnu_jump_stub_end
+_xnu_jump_stub_end:
+    .word 0
