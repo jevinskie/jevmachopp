@@ -97,8 +97,12 @@ const void *load_and_prep_xnu_kernelcache(const void *boot_args_base) {
     printf("entry_pc: %p\n", (void *)entry_pc);
 
     const auto cpuImplRegAddrs = DT::getCPUImplRegAddrs(dt);
-    for (const auto &cpuImplRegAddr : cpuImplRegAddrs) {
-        printf("cpuImplRegAddr: %p\n", (const void *)cpuImplRegAddr);
+    const auto rvbar = entry_pc & ~0xfff;
+    for (std::size_t i = 1, e = cpuImplRegAddrs.size(); i < e; ++i) {
+        printf("cpuImplRegAddr[%zu]: *%p = %p\n", i, (void *)cpuImplRegAddrs[i], (void *)rvbar);
+#if M1N1
+        *(uint64_t *)cpuImplRegAddrs[i] = rvbar;
+#endif
     }
 
     return entry_addr;
