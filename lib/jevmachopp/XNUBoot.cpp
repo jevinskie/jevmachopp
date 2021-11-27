@@ -145,6 +145,8 @@ void load_and_prep_xnu_kernelcache(const void *boot_args_base) {
     const auto stub_size = (uintptr_t)&_xnu_jump_stub_end - (uintptr_t)xnu_jump_stub;
     memcpy((char *)stub_copy_base, (char *)xnu_jump_stub, stub_size);
     m1n1::flush_i_and_d_cache((void *)stub_copy_base, stub_size);
+    printf("stub_copy_base: %p xnu_jump_stub: %p stub_size: %x\n", (void *)stub_copy_base,
+           (void *)xnu_jump_stub, (uint32_t)stub_size);
 
     for (const auto &map_region : memory_map_node.properties_sized(sizeof(DTRegister))) {
         FMT_PRINT("map_region[\"{:s}\"]: {}\n", map_region.name(), map_region.as_reg());
