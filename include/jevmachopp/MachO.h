@@ -149,6 +149,9 @@ public:
                                 });
     }
 
+#pragma mark unix thread
+    const UnixThreadCommand *unixThread() const;
+
 #if USE_FMT
     fmt::appender &format_to(fmt::appender &out) const;
 #endif

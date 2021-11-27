@@ -2,6 +2,7 @@
 #include "jevmachopp/DeviceTree.h"
 #include "jevmachopp/MachO.h"
 #include "jevmachopp/NVRAM.h"
+#include "jevmachopp/UnixThreadCommand.h"
 
 namespace XNUBoot {
 
@@ -14,7 +15,8 @@ const void *load_and_prep_xnu_kernelcache(const void *boot_args_base) {
     const auto virtBase = bootArgs.virtBase;
     const auto physBase = bootArgs.physBase;
     const auto virtOff = virtBase - physBase;
-    FMT_PRINT("bootArgs.commandLine: {:s}\n", bootArgs.commandLine);
+    FMT_PRINT("bootArgs.commandLine: {:s} virtBase: {:p} physBase: {:p} virtOff: {:p}\n",
+              bootArgs.commandLine, (void *)virtBase, (void *)physBase, (void *)virtOff);
 
     const auto *dt_phys_ptr = (const DTNode *)((uintptr_t)bootArgs.deviceTree - virtOff);
     const auto &dt = *dt_phys_ptr;
@@ -82,6 +84,17 @@ const void *load_and_prep_xnu_kernelcache(const void *boot_args_base) {
     const auto kc_vmaddr_range = kc.vmaddr_range();
     printf("kcm_vmaddr_range: min: %p max: %p\n", (void *)kc_vmaddr_range.min,
            (void *)kc_vmaddr_range.max);
+
+    const auto unix_thread_ptr = kc.unixThread();
+    if (!unix_thread_ptr) {
+        printf("missing unix thread LC, bailing out of xnu load\n");
+        return nullptr;
+    }
+    const auto &unix_thread = *unix_thread_ptr;
+    const auto entry_pc_vmaddr = unix_thread.pc;
+    const auto entry_off = entry_pc_vmaddr - kc_vmaddr_range.min;
+    const auto entry_pc = physBase + entry_off;
+    printf("entry_pc: %p\n", (void *)entry_pc);
 
     const auto cpuImplRegAddrs = DT::getCPUImplRegAddrs(dt);
     for (const auto &cpuImplRegAddr : cpuImplRegAddrs) {

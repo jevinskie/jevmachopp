@@ -16,13 +16,15 @@ class SegmentCommand;
 class SourceVersionCommand;
 class SymtabCommand;
 class UUIDCommand;
+class UnixThreadCommand;
 class UnknownCommand;
 
 using SubCommandVariant =
     std::variant<const BuildVersionCommand *, const DylibCommand *, const DySymtabCommand *,
                  const EncryptionInfoCommand *, const FilesetEntryCommand *,
                  const LinkeditDataCommand *, const SegmentCommand *, const SourceVersionCommand *,
-                 const SymtabCommand *, const UUIDCommand *, const UnknownCommand *>;
+                 const SymtabCommand *, const UUIDCommand *, const UnixThreadCommand *,
+                 const UnknownCommand *>;
 
 class LoadSubCommand {
 public:

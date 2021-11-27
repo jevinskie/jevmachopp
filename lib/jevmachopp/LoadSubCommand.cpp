@@ -12,6 +12,7 @@
 #include "jevmachopp/SourceVersionCommand.h"
 #include "jevmachopp/SymtabCommand.h"
 #include "jevmachopp/UUIDCommand.h"
+#include "jevmachopp/UnixThreadCommand.h"
 #include "jevmachopp/UnknownCommand.h"
 
 #include <visit.hpp>
@@ -22,6 +23,8 @@ const LoadCommand *LoadSubCommand::loadCommand() const {
 
 const SubCommandVariant LoadSubCommand::get() const {
     switch (loadCommand()->cmd) {
+    case LoadCommandType::UNIXTHREAD:
+        return SubCommandVariant{(const UnixThreadCommand *)this};
     case LoadCommandType::SOURCE_VERSION:
         return SubCommandVariant{(const SourceVersionCommand *)this};
     case LoadCommandType::BUILD_VERSION:

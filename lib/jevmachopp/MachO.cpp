@@ -192,6 +192,17 @@ std::size_t MachO::indirect_syms_size() const {
     return dysymtab_ptr->nindirectsyms;
 }
 
+#pragma mark unix thread
+const UnixThreadCommand *MachO::unixThread() const {
+    const auto *lc = find_if_or_nullptr(loadCommands(), [](const LoadCommand &lc) {
+        return lc.cmd == LoadCommandType::UNIXTHREAD;
+    });
+    if (!lc) {
+        return nullptr;
+    }
+    return (const UnixThreadCommand *)lc->subcmd();
+}
+
 #pragma mark dylibs
 
 auto MachO::dylibNamesMap() const -> decltype(dylibNamesMap()) {

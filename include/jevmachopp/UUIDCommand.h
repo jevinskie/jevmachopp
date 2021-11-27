@@ -22,6 +22,7 @@ static_assert_size_same_minus_header(UUIDCommand, struct uuid_command, struct lo
 #endif
 static_assert_size_is(UUIDCommand, 16);
 
+#if USE_FMT
 template <> struct fmt::formatter<UUIDCommand> {
 
     template <typename ParseContext> constexpr auto parse(ParseContext &ctx) {
@@ -59,3 +60,4 @@ template <> struct fmt::formatter<UUIDCommand> {
         return out;
     }
 };
+#endif
