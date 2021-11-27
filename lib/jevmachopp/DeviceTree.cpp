@@ -183,7 +183,6 @@ DT::getCPUImplRegAddrs(const DTNode &rootNode) {
         for (const auto &cpu_node : cpus_node.children()) {
             if (auto cpu_impl_reg_prop_ptr = cpu_node.propertyNamed("cpu-impl-reg")) {
                 const auto &cpu_impl_reg_prop = *cpu_impl_reg_prop_ptr;
-                FMT_PRINT("cpu_impl_reg_prop: {}\n", cpu_impl_reg_prop);
                 regs.emplace_back(*(const uint64_t **)cpu_impl_reg_prop.data());
             } else {
                 printf("chosen/cpus/cpuX/cpu-impl-reg DT prop missing\n");
