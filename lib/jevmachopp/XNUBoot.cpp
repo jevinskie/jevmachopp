@@ -89,6 +89,12 @@ const void *load_and_prep_xnu_kernelcache(const void *boot_args_base) {
     auto &sepfw_reg = sepfw_prop.as_reg();
     printf("sepfw_reg: addr: %p size: 0x%zx\n", sepfw_reg.base, sepfw_reg.size);
 
+    const auto kc_end = physBase + kc_vmaddr_range.size();
+    const auto sepfw_copy_base = kc_end;
+    const auto sepfw_copy_end = sepfw_copy_base + sepfw_reg.size;
+    printf("sepfw_copy_base: %p\n", (void *)sepfw_copy_base);
+    memcpy((char *)sepfw_copy_base, sepfw_reg.base, sepfw_reg.size);
+
     auto ba_prop_ptr = memory_map_node.propertyNamed("BootArgs");
     if (!ba_prop_ptr) {
         printf("couldn't find chosen/memory-map/BootArgs, bailing out of xnu load\n");
@@ -98,8 +104,9 @@ const void *load_and_prep_xnu_kernelcache(const void *boot_args_base) {
     auto &ba_reg = ba_prop.as_reg();
     printf("ba_reg: addr: %p size: 0x%zx\n", ba_reg.base, ba_reg.size);
 
-    const auto kc_end = physBase + kc_vmaddr_range.size();
-    const auto sepfw_copy_base = kc_end;
+    const auto ba_copy_base = sepfw_copy_end;
+    printf("ba_copy_base: %p\n", (void *)ba_copy_base);
+    memcpy((char *)ba_copy_base, ba_reg.base, ba_reg.size);
 
     for (const auto &map_region : memory_map_node.properties_sized(sizeof(DTRegister))) {
         FMT_PRINT("map_region[\"{:s}\"]: {}\n", map_region.name(), map_region.as_reg());
