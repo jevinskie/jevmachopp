@@ -10,6 +10,7 @@ set(MACHOPP_SRC
     LoadCommand.cpp
     LoadSubCommand.cpp
     LinkeditDataCommand.cpp
+    m1n1.cpp
     MachO.cpp
     MachOHeaderEnums.cpp
     NList.cpp
