@@ -25,6 +25,7 @@ static_assert_size_same_minus_header(EncryptionInfoCommand, struct encryption_in
 #endif
 static_assert_size_is(EncryptionInfoCommand, 16);
 
+#if USE_FMT
 template <> struct fmt::formatter<EncryptionInfoCommand> {
 
     template <typename ParseContext> constexpr auto parse(ParseContext &ctx) {
@@ -38,3 +39,4 @@ template <> struct fmt::formatter<EncryptionInfoCommand> {
         return out;
     }
 };
+#endif

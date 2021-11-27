@@ -50,6 +50,7 @@ static_assert_size_same_minus_header(SegmentCommand, struct segment_command_64,
 #endif
 static_assert_size_is(SegmentCommand, 64);
 
+#if USE_FMT
 template <> struct fmt::formatter<SegmentCommand> {
 
     template <typename ParseContext> constexpr auto parse(ParseContext &ctx) {
@@ -64,3 +65,4 @@ template <> struct fmt::formatter<SegmentCommand> {
         return out;
     }
 };
+#endif

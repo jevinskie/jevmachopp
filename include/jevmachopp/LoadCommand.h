@@ -66,6 +66,7 @@ static_assert_size_same(LoadCommand, struct load_command);
 #endif
 static_assert_size_is(LoadCommand, 8);
 
+#if USE_FMT
 template <> struct fmt::formatter<LoadCommand> {
 
     template <typename ParseContext> constexpr auto parse(ParseContext &ctx) {
@@ -77,3 +78,4 @@ template <> struct fmt::formatter<LoadCommand> {
                               *lc.subcmd());
     }
 };
+#endif
