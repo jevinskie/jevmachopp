@@ -24,33 +24,32 @@ public:
     }
 
     AddrRange &operator|=(const AddrRange &rhs) {
-        (void)rhs;
+        if (rhs.isNull()) {
+            return *this;
+        }
+        if (isNull()) {
+            *this = rhs;
+        } else {
+            min = std::min(min, rhs.min);
+            max = std::max(max, rhs.max);
+        }
         return *this;
     }
     friend AddrRange operator|(AddrRange lhs, const AddrRange &rhs) {
-        if (rhs.isNull()) {
-            return lhs;
-        }
-        if (lhs.isNull()) {
-            return rhs;
-        }
-        lhs.min = std::min(lhs.min, rhs.min);
-        lhs.max = std::max(lhs.max, rhs.max);
-        return lhs;
-    };
+        return lhs |= rhs;
+    }
 
     AddrRange &operator-=(const uint64_t rhs) {
-        (void)rhs;
+        if (isNull()) {
+            return *this;
+        }
+        min -= rhs;
+        max -= rhs;
         return *this;
     }
     friend AddrRange operator-(AddrRange lhs, const uint64_t rhs) {
-        if (lhs.isNull()) {
-            return lhs;
-        }
-        lhs.min -= rhs;
-        lhs.max -= rhs;
-        return lhs;
-    };
+        return lhs -= rhs;
+    }
 
 #if USE_FMT
     fmt::appender &format_to(fmt::appender &out) const;
