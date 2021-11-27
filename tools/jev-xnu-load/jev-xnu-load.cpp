@@ -34,7 +34,7 @@ constexpr uintptr_t ba_end        = 0x0000'0008'0963'0000;
 constexpr uintptr_t mmap_base     = 0x0000'0008'0000'0000;
 constexpr uintptr_t mmap_size     = 512 * 1024 * 1024;
 
-constexpr uintptr_t kc_copy_base  = mmap_base + mmap_size / 2;
+constexpr uintptr_t kc_copy_base  = 0x0000'0008'04eb'8000;
 // clang-format on
 
 int main(int argc, const char *argv[]) {

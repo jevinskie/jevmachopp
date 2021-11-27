@@ -15,10 +15,6 @@ const void *load_and_prep_xnu_kernelcache(const void *boot_args_base) {
     const auto physBase = bootArgs.physBase;
     const auto virtOff = virtBase - physBase;
     FMT_PRINT("bootArgs.commandLine: {:s}\n", bootArgs.commandLine);
-    // const auto &kcm = *(const MachO *)kernelcache_base;
-    // FMT_PRINT("kcm: {}\n", kcm);
-    // const auto kcm_vmaddr_range = kcm.vmaddr_range();
-    // FMT_PRINT("kcm_vmaddr_range: {}\n", kcm_vmaddr_range);
 
     const auto *dt_phys_ptr = (const DTNode *)((uintptr_t)bootArgs.deviceTree - virtOff);
     const auto &dt = *dt_phys_ptr;
@@ -74,7 +70,18 @@ const void *load_and_prep_xnu_kernelcache(const void *boot_args_base) {
         return nullptr;
     }
     auto &payload_prop = *payload_prop_ptr;
-    FMT_PRINT("payload_prop: {}\n", payload_prop.as_reg());
+    auto &payload_reg = payload_prop.as_reg();
+    FMT_PRINT("payload_prop: {}\n", payload_reg);
+    printf("payload_prop: addr: %p size: %zx\n", payload_reg.base, payload_reg.size);
+
+    const auto &kc = *(const MachO *)payload_reg.base;
+    if (!kc.isMagicGood()) {
+        printf("bad macho magic: 0x%08x, bailing out of xnu load\n", kc.magic);
+        return nullptr;
+    }
+    const auto kc_vmaddr_range = kc.vmaddr_range();
+    printf("kcm_vmaddr_range: min: %p max: %p\n", (void *)kc_vmaddr_range.min,
+           (void *)kc_vmaddr_range.max);
 
     const auto cpuImplRegAddrs = DT::getCPUImplRegAddrs(dt);
     for (const auto &cpuImplRegAddr : cpuImplRegAddrs) {
