@@ -135,7 +135,7 @@ const void *load_and_prep_xnu_kernelcache(const void *boot_args_base) {
         char new_name_buf[sizeof(mod_kern_region.name_buf)] = {};
         snprintf(new_name_buf, sizeof(new_name_buf), "Kernel-%s", seg.name().data());
         mod_kern_region.setName(new_name_buf);
-        // (DTRegister &)mod_kern_region.as_reg() = {243, nullptr};
+        (DTRegister &)mod_kern_region.as_reg() = {nullptr, 243};
         ++orig_kern_region;
     }
 
