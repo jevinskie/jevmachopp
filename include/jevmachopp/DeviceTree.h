@@ -15,11 +15,11 @@ public:
 
 public:
     const void *base;
-    const std::size_t size;
+    std::size_t size;
 
 public:
+    DTRegister() : base(nullptr), size(0) {}
     DTRegister(const DTRegister &) = delete;
-    void operator=(const DTRegister &) = delete;
 };
 
 static_assert_size_is(DTRegister, 16);

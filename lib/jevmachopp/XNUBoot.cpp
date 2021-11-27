@@ -123,6 +123,7 @@ const void *load_and_prep_xnu_kernelcache(const void *boot_args_base) {
         char new_name_buf[sizeof(mod_kern_region.name_buf)] = {};
         snprintf(new_name_buf, sizeof(new_name_buf), "MemoryMapReserved-%d", i);
         mod_kern_region.setName(new_name_buf);
+        (DTRegister &)mod_kern_region.as_reg() = {};
         --i;
     }
 
