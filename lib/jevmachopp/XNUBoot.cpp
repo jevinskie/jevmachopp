@@ -8,25 +8,18 @@
 
 namespace XNUBoot {
 
-void load_and_prep_xnu_kernelcache(const void *boot_args_base, const void *xnu_jump_stub_ptr,
-                                   size_t stub_size) {
+void load_and_prep_xnu_kernelcache(const void *boot_args_base) {
     if (!boot_args_base) {
         printf("boot_args_base is NULL\n");
         return;
     }
-#ifdef M1N1
-    if (!xnu_jump_stub_ptr) {
-        printf("xnu_jump_stub_ptr is NULL\n");
-        return;
-    }
-#endif
+
     const auto &bootArgs = *(const XNUBootArgs *)boot_args_base;
     const auto virtBase = bootArgs.virtBase;
     const auto physBase = bootArgs.physBase;
     const auto virtOff = virtBase - physBase;
     FMT_PRINT("bootArgs.commandLine: {:s} virtBase: {:p} physBase: {:p} virtOff: {:p}\n",
               bootArgs.commandLine, (void *)virtBase, (void *)physBase, (void *)virtOff);
-    printf("xnu_jump_stub_ptr: %p\n", xnu_jump_stub_ptr);
 
     const auto *dt_phys_ptr = (const DTNode *)((uintptr_t)bootArgs.deviceTree - virtOff);
     const auto &dt = *dt_phys_ptr;
@@ -149,9 +142,8 @@ void load_and_prep_xnu_kernelcache(const void *boot_args_base, const void *xnu_j
     memcpy((char *)ba_copy_base, ba_reg.base, ba_reg.size);
 
     const auto stub_copy_base = ba_copy_end;
-#if M1N1
-    memcpy((char *)stub_copy_base, xnu_jump_stub_ptr, stub_size);
-#endif
+    const auto stub_size = (uintptr_t)&_xnu_jump_stub_end - (uintptr_t)xnu_jump_stub;
+    memcpy((char *)stub_copy_base, (char *)xnu_jump_stub, stub_size);
     m1n1::flush_i_and_d_cache((void *)stub_copy_base, stub_size);
 
     for (const auto &map_region : memory_map_node.properties_sized(sizeof(DTRegister))) {

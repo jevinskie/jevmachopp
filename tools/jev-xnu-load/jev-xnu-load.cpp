@@ -82,7 +82,7 @@ int main(int argc, const char *argv[]) {
                                                  &trustcache_bin_sz, false, nullptr);
     memcpy((char *)tc_base, trustcache_bin, trustcache_bin_sz);
 
-    XNUBoot::load_and_prep_xnu_kernelcache((const void *)ba_base, nullptr, 256);
+    XNUBoot::load_and_prep_xnu_kernelcache((const void *)ba_base);
     printf("XNUBoot::load_and_prep_xnu_kernelcache completed\n");
 
     return 0;
