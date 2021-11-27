@@ -1,6 +1,7 @@
 #pragma once
 
 #include "jevmachopp/Common.h"
+#include "jevmachopp/CommonTypes.h"
 #include "jevmachopp/CpuTypeMeta.h"
 #include "jevmachopp/DylibCommand.h"
 #include "jevmachopp/LoadCommand.h"

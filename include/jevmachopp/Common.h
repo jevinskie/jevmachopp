@@ -50,46 +50,6 @@ using namespace std::literals::string_view_literals;
 #define FMT_PRINT(...) fmt::print(__VA_ARGS__)
 #endif
 
-#pragma mark Common Types
-
-using dylib_names_map_t = std::array<const char *, 0xFF>;
-using indirect_syms_idxes_t = std::span<const uint32_t>;
-
-class AddrRange {
-public:
-    AddrRange()
-        : min(std::numeric_limits<decltype(min)>::max()),
-          max(std::numeric_limits<decltype(max)>::min()){};
-    AddrRange(uint64_t min, uint64_t max) : min(min), max(max) {
-        assert(min <= max);
-    }
-
-    bool isNull() const {
-        return min == std::numeric_limits<decltype(min)>::max() &&
-               max == std::numeric_limits<decltype(max)>::min();
-    }
-
-    AddrRange &operator|=(const AddrRange &rhs) {
-        (void)rhs;
-        return *this;
-    }
-    friend AddrRange operator|(AddrRange lhs, const AddrRange &rhs) {
-        if (rhs.isNull()) {
-            return lhs;
-        }
-        if (lhs.isNull()) {
-            return rhs;
-        }
-        lhs.min = std::min(lhs.min, rhs.min);
-        lhs.max = std::max(lhs.max, rhs.max);
-        return lhs;
-    };
-
-public:
-    uint64_t min;
-    uint64_t max;
-};
-
 #pragma mark Type Utilities
 
 template <typename T> constexpr auto type_name() {

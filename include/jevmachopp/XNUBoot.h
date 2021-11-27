@@ -3,6 +3,8 @@
 #include "jevmachopp/Common.h"
 #include "jevmachopp/c/jevxnuboot.h"
 
+class DTNode;
+
 namespace XNUBoot {
 
 constexpr auto BOOT_LINE_LENGTH = 608;
@@ -31,7 +33,7 @@ public:
     uint64_t topOfKernelData;  // Highest physical address used in kernel data area
     XNUBootArgsVideo video;    // Video Information
     uint32_t machineType;      // Machine Type
-    void *deviceTree;          // Base of flattened device tree
+    DTNode *deviceTree;        // Base of flattened device tree
     uint32_t deviceTreeLength; // Length of flattened tree
     char commandLine[XNUBoot::BOOT_LINE_LENGTH]; // Passed in command line
     uint64_t bootFlags;                          // Additional flags specified by the bootloader

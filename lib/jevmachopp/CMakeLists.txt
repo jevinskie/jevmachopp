@@ -1,6 +1,7 @@
 
 set(MACHOPP_SRC
     BuildVersionCommand.cpp
+    CommonTypes.cpp
     DeviceTree.cpp
     DylibCommand.cpp
     DySymtabCommand.cpp

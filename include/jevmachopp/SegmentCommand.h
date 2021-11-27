@@ -8,6 +8,7 @@
 #include <string>
 
 #include "jevmachopp/Common.h"
+#include "jevmachopp/CommonTypes.h"
 #include "jevmachopp/LoadSubCommand.h"
 #include "jevmachopp/Section.h"
 

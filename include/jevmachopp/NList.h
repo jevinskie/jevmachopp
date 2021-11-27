@@ -1,6 +1,7 @@
 #pragma once
 
 #include "jevmachopp/Common.h"
+#include "jevmachopp/CommonTypes.h"
 
 #include <cassert>
 #include <string>
