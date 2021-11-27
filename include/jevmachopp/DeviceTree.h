@@ -98,6 +98,7 @@ public:
 
 public:
     const char *name() const;
+    void setName(const char *newName);
     std::uint32_t size_raw() const;
     std::uint32_t size_padded() const;
     const uint8_t *data() const;
@@ -204,6 +205,11 @@ public:
     auto properties_sized(std::uint32_t size) const {
         return ranges::views::filter(properties(), [=](const DTProp &prop) {
             return prop.size_raw() == size;
+        });
+    }
+    auto propertiesNamedWithPrefix(const char *prefix) const {
+        return ranges::views::filter(properties(), [=](const DTProp &prop) {
+            return std::string_view{prop.name()}.starts_with(prefix);
         });
     }
 

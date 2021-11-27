@@ -24,6 +24,12 @@ const char *DTProp::name() const {
     return name_buf;
 }
 
+void DTProp::setName(const char *newName) {
+    assert(strlen(newName) < sizeof(name_buf));
+    memset(name_buf, '\0', sizeof(name_buf));
+    strcpy(name_buf, newName);
+}
+
 std::uint32_t DTProp::size_raw() const {
     return sz & ~(PROP_SIZE_REPLACEMENT_TAG);
 }
