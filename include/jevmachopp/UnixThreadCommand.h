@@ -2,8 +2,6 @@
 
 #include <stdint.h>
 
-#include <fmt/core.h>
-
 #include "jevmachopp/Common.h"
 #include "jevmachopp/LoadSubCommand.h"
 

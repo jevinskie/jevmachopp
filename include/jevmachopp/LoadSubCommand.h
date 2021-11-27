@@ -2,7 +2,6 @@
 
 #include "jevmachopp/Common.h"
 
-#include "fmt/core.h"
 #include <variant>
 
 class LoadCommand;

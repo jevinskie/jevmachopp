@@ -3,8 +3,6 @@
 #include <cstdint>
 #include <vector>
 
-#include "fmt/core.h"
-
 #include "jevmachopp/Common.h"
 #include "jevmachopp/LoadSubCommand.h"
 

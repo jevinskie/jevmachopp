@@ -4,8 +4,6 @@
 
 #include <cstdint>
 
-#include <fmt/format.h>
-
 using jev_cpu_subtype_t = std::int32_t;
 
 enum class CpuSubType : jev_cpu_subtype_t

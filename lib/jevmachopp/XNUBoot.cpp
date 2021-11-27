@@ -145,6 +145,9 @@ const void *load_and_prep_xnu_kernelcache(const void *boot_args_base) {
         char new_name_buf[sizeof(mod_kern_region.name_buf)] = {};
         snprintf(new_name_buf, sizeof(new_name_buf), "Kernel-%s", seg.name().data());
         mod_kern_region.setName(new_name_buf);
+        const auto seg_vm_range = seg.vmaddr_range();
+        const auto seg_phys_range = seg_vm_range - virtOff;
+        FMT_PRINT("seg_vm_range: {}\nseg_phys_range: {}\n", seg_vm_range, seg_phys_range);
         (DTRegister &)mod_kern_region.as_reg() = {nullptr, 243};
         ++orig_kern_region;
     }

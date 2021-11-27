@@ -2,7 +2,6 @@
 
 #include "jevmachopp/Common.h"
 
-#include "fmt/core.h"
 #include <cstdint>
 #include <enum.hpp/enum.hpp>
 #include <experimental/fixed_capacity_vector>

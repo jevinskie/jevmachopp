@@ -7,8 +7,10 @@
 #include <type_traits>
 #include <utility>
 
+#if USE_FMT
 #include <fmt/compile.h>
 #include <fmt/core.h>
+#endif
 #include <hedley.h>
 
 #include <boost/callable_traits/function_type.hpp>
@@ -38,7 +40,9 @@ extern "C" __attribute__((noreturn)) void __assert_fail(const char *assertion, c
 #include <nanorange/views/transform.hpp>
 using namespace nano;
 
+#if USE_FMT
 using namespace fmt::literals;
+#endif
 using namespace std::string_literals;
 using namespace std::literals::string_view_literals;
 
@@ -185,6 +189,8 @@ template <typename Rng, typename Str> bool rangeContainsStr(Rng &&rng, Str &&str
 
 #pragma mark fmt
 
+#if USE_FMT
+
 template <std::size_t N>
 struct fmt::formatter<boost::static_string<N>> : fmt::formatter<fmt::string_view> {
     auto format(const boost::static_string<N> &str, format_context &ctx) const
@@ -192,6 +198,8 @@ struct fmt::formatter<boost::static_string<N>> : fmt::formatter<fmt::string_view
         return formatter<string_view>::format(str.data(), ctx);
     }
 };
+
+#endif
 
 #pragma mark Utilities
 

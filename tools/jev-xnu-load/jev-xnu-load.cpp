@@ -11,6 +11,7 @@
 constexpr uintptr_t virt_base     = 0xffff'fe00'15cb'c000;
 constexpr uintptr_t phys_base     = 0x0000'0008'01cb'c000;
 constexpr uintptr_t virt_phys_off = 0xffff'fdf8'1400'0000;
+static_assert_cond(virt_base - phys_base == virt_phys_off);
 
 constexpr uintptr_t dt_virt_base  = 0xffff'fe00'1896'8000;
 constexpr uintptr_t dt_base       = 0x0000'0008'0496'8000;
