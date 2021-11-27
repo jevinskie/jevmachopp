@@ -16,6 +16,7 @@ public:
 
 static_assert_cond(sizeof(CpuTypeMeta) == sizeof(CpuType) + sizeof(CpuSubType));
 
+#if USE_FMT
 template <> struct fmt::formatter<CpuTypeMeta> {
 
     template <typename ParseContext> constexpr auto parse(ParseContext &ctx) {
@@ -29,3 +30,4 @@ template <> struct fmt::formatter<CpuTypeMeta> {
                               as_unsigned(metatype.type), as_unsigned(metatype.subtype));
     }
 };
+#endif

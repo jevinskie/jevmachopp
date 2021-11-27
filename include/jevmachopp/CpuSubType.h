@@ -104,6 +104,7 @@ enum class CpuSubType : jev_cpu_subtype_t
     ARM64_32_V8 = 1,
 };
 
+#if USE_FMT
 template <> struct fmt::formatter<CpuSubType> {
 
     template <typename ParseContext> constexpr auto parse(ParseContext &ctx) {
@@ -114,3 +115,4 @@ template <> struct fmt::formatter<CpuSubType> {
         return fmt::format_to(ctx.out(), "<CpuSubType ({:#010x})>"_cf, as_unsigned(subtype));
     }
 };
+#endif

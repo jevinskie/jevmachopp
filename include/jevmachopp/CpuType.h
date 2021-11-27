@@ -29,6 +29,7 @@ ENUM_HPP_CLASS_DECL(CpuType, jev_cpu_type_t,
 )
 // clang-format on
 
+#if USE_FMT
 template <> struct fmt::formatter<CpuType> {
 
     template <typename ParseContext> constexpr auto parse(ParseContext &ctx) {
@@ -40,3 +41,4 @@ template <> struct fmt::formatter<CpuType> {
                               CpuType_traits::to_string_or_empty(type), as_unsigned(type));
     }
 };
+#endif

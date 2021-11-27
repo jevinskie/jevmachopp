@@ -24,6 +24,7 @@ ENUM_HPP_CLASS_DECL(MachOFileType, std::uint32_t,
 )
 // clang-format on
 
+#if USE_FMT
 template <> struct fmt::formatter<MachOFileType> {
 
     template <typename ParseContext> constexpr auto parse(ParseContext &ctx) {
@@ -37,6 +38,7 @@ template <> struct fmt::formatter<MachOFileType> {
                               as_unsigned(fileType));
     }
 };
+#endif
 
 // clang-format off
 ENUM_HPP_CLASS_DECL(MachOFlags, std::uint32_t,
@@ -74,6 +76,7 @@ ENUM_HPP_CLASS_DECL(MachOFlags, std::uint32_t,
 
 std::experimental::fixed_capacity_vector<std::string_view, 32> to_strings(MachOFlags const &flags);
 
+#if USE_FMT
 template <> struct fmt::formatter<MachOFlags> {
 
     template <typename ParseContext> constexpr auto parse(ParseContext &ctx) {
@@ -85,3 +88,4 @@ template <> struct fmt::formatter<MachOFlags> {
                               fmt::join(to_strings(flags), ", "), as_unsigned(flags));
     }
 };
+#endif

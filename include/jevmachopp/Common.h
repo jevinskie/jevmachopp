@@ -190,7 +190,6 @@ template <typename Rng, typename Str> bool rangeContainsStr(Rng &&rng, Str &&str
 #pragma mark fmt
 
 #if USE_FMT
-
 template <std::size_t N>
 struct fmt::formatter<boost::static_string<N>> : fmt::formatter<fmt::string_view> {
     auto format(const boost::static_string<N> &str, format_context &ctx) const
@@ -198,7 +197,6 @@ struct fmt::formatter<boost::static_string<N>> : fmt::formatter<fmt::string_view
         return formatter<string_view>::format(str.data(), ctx);
     }
 };
-
 #endif
 
 #pragma mark Utilities
