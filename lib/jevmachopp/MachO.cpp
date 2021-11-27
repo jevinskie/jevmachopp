@@ -40,7 +40,7 @@ MachO::lc_range MachO::loadCommands() const {
 
 const SegmentCommand *MachO::segmentWithName(const std::string_view &name) const {
     return find_if_or_nullptr(segments(), [=](const SegmentCommand &segCmd) {
-        return segCmd.segName().data() == name;
+        return segCmd.name() == name;
     });
 }
 

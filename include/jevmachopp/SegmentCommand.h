@@ -20,7 +20,7 @@ public:
     void operator=(const SegmentCommand &) = delete;
 
 public:
-    auto segName() const {
+    auto name() const {
         return readMaybeNullTermCString<decltype(segname)>(segname);
     }
     const Section *sect_cbegin() const;
@@ -60,7 +60,7 @@ template <> struct fmt::formatter<SegmentCommand> {
     auto format(SegmentCommand const &segCmd, FormatContext &ctx) {
         auto out = ctx.out();
         fmt::format_to(out, "<SegmentCommand @ {:p} \"{:s}\">"_cf, (void *)segCmd.loadCommand(),
-                       segCmd.segName());
+                       segCmd.name());
         return out;
     }
 };

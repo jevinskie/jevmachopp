@@ -19,6 +19,7 @@ public:
 
 public:
     DTRegister() : base(nullptr), size(0) {}
+    DTRegister(const void *base, std::size_t size) : base(base), size(size) {}
     DTRegister(const DTRegister &) = delete;
 };
 

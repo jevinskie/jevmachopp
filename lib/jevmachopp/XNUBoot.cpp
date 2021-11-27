@@ -2,6 +2,7 @@
 #include "jevmachopp/DeviceTree.h"
 #include "jevmachopp/MachO.h"
 #include "jevmachopp/NVRAM.h"
+#include "jevmachopp/SegmentCommand.h"
 #include "jevmachopp/UnixThreadCommand.h"
 
 namespace XNUBoot {
@@ -125,6 +126,19 @@ const void *load_and_prep_xnu_kernelcache(const void *boot_args_base) {
         mod_kern_region.setName(new_name_buf);
         (DTRegister &)mod_kern_region.as_reg() = {};
         --i;
+    }
+
+    for (auto orig_kern_region =
+             memory_map_node.propertiesNamedWithPrefix("MemoryMapReserved-").begin();
+         const auto &seg : kc.segments()) {
+        FMT_PRINT("segfill orig_kern_region: {}\n", *orig_kern_region);
+        auto &mod_kern_region = (DTProp &)orig_kern_region;
+        char new_name_buf[sizeof(mod_kern_region.name_buf)] = {};
+        //        snprintf(new_name_buf, sizeof(new_name_buf), "MemoryMapReserved-%s",
+        //        seg.name().data());
+        mod_kern_region.setName("Kernel-fart");
+        // (DTRegister &)mod_kern_region.as_reg() = {243, nullptr};
+        ++orig_kern_region;
     }
 
     for (const auto &mod_map_region : memory_map_node.properties_sized(sizeof(DTRegister))) {
