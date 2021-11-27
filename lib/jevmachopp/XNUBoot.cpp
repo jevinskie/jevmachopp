@@ -60,6 +60,8 @@ const void *load_and_prep_xnu_kernelcache(const void *boot_args_base) {
     auto &payload_prop = *payload_prop_ptr;
     auto &payload_reg = payload_prop.as_reg();
     printf("payload_prop: addr: %p size: 0x%zx\n", payload_reg.base, payload_reg.size);
+    const auto stubSlide = (uintptr_t)payload_reg.base - physBase;
+    printf("stubSlide: %p\n", (const void *)stubSlide);
 
     const auto &kc = *(const MachO *)payload_reg.base;
     if (!kc.isMagicGood()) {
@@ -148,9 +150,15 @@ const void *load_and_prep_xnu_kernelcache(const void *boot_args_base) {
         const auto seg_vm_range = seg.vmaddr_range();
         const auto seg_phys_range = seg_vm_range - virtOff;
         FMT_PRINT("seg_vm_range: {}\nseg_phys_range: {}\n", seg_vm_range, seg_phys_range);
-        (DTRegister &)mod_kern_region.as_reg() = {nullptr, 243};
+        (DTRegister &)mod_kern_region.as_reg() = {(const void *)seg_phys_range.min,
+                                                  seg_phys_range.size()};
         ++orig_kern_region;
     }
+
+    // FIXME: wrong, points to original copy location, not the location it will be copied to further
+    // by the stub
+    (DTRegister &)sepfw_reg = {(const void *)sepfw_copy_base, sepfw_reg.size};
+    (DTRegister &)ba_reg = {(const void *)ba_copy_base, ba_reg.size};
 
     for (const auto &mod_map_region : memory_map_node.properties_sized(sizeof(DTRegister))) {
         FMT_PRINT("mod_map_region[\"{:s}\"]: {}\n", mod_map_region.name(), mod_map_region.as_reg());
