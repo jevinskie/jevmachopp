@@ -67,6 +67,8 @@ target_link_libraries(jevmachopp PUBLIC Boost::callable_traits enum.hpp fmt nano
 target_compile_definitions(jevmachopp PRIVATE USE_FMT=1)
 target_compile_options(jevmachopp PRIVATE -Wall -Wextra -Wpedantic)
 target_compile_options(jevmachopp PRIVATE -fno-rtti -fno-exceptions -fno-unwind-tables -fno-asynchronous-unwind-tables)
+
+# FIXME: needed? better target-specific option?
 add_compile_options($<$<COMPILE_LANGUAGE:ASM>:-x$<SEMICOLON>assembler-with-cpp>)
 
 

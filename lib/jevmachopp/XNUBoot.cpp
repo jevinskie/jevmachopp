@@ -76,9 +76,10 @@ void load_and_prep_xnu_kernelcache(const void *boot_args_base) {
     }
     auto &payload_prop = *payload_prop_ptr;
     auto &payload_reg = payload_prop.as_reg();
+    const auto payload_base = (uintptr_t)payload_reg.base;
     printf("payload_reg: addr: %p size: 0x%zx\n", payload_reg.base, payload_reg.size);
 
-    const auto &kc = *(const MachO *)payload_reg.base;
+    const auto &kc = *(const MachO *)payload_base;
     if (!kc.isMagicGood()) {
         printf("bad macho magic: 0x%08x, bailing out of xnu load\n", kc.magic);
         return;
@@ -121,7 +122,7 @@ void load_and_prep_xnu_kernelcache(const void *boot_args_base) {
     auto &sepfw_reg = sepfw_prop.as_reg();
     printf("sepfw_reg: addr: %p size: 0x%zx\n", sepfw_reg.base, sepfw_reg.size);
 
-    const auto kc_end = machoBase + kc_vmaddr_range.size();
+    const auto kc_end = payload_base + kc_vmaddr_range.size();
     const auto sepfw_copy_base = kc_end;
     const auto sepfw_copy_end = sepfw_copy_base + sepfw_reg.size;
     printf("sepfw_copy_base: %p\n", (void *)sepfw_copy_base);
@@ -187,8 +188,10 @@ void load_and_prep_xnu_kernelcache(const void *boot_args_base) {
 
     // FIXME: wrong, points to original copy location, not the location it will be copied to further
     // by the stub
-    (DTRegister &)sepfw_reg = {(const void *)sepfw_copy_base, sepfw_reg.size};
-    (DTRegister &)ba_reg = {(const void *)ba_copy_base, ba_reg.size};
+    (DTRegister &)sepfw_reg = {(const void *)(sepfw_copy_base - payload_base + machoBase),
+                               sepfw_reg.size};
+    const auto ba_base_after_stub_copy = ba_copy_base - payload_base + machoBase;
+    (DTRegister &)ba_reg = {(const void *)ba_base_after_stub_copy, ba_reg.size};
 
     for (const auto &mod_map_region : memory_map_node.properties_sized(sizeof(DTRegister))) {
         FMT_PRINT("mod_map_region[\"{:s}\"]: {}\n", mod_map_region.name(), mod_map_region.as_reg());
@@ -215,8 +218,10 @@ void load_and_prep_xnu_kernelcache(const void *boot_args_base) {
 #endif
     }
 
+    const auto stub_copy_fptr = (decltype(&xnu_jump_stub))stub_copy_base;
 #if M1N1
-
+    stub_copy_fptr(ba_base_after_stub_copy, payload_base, machoBase, stub_copy_base - payload_base,
+                   entry_pc);
 #endif
 }
 

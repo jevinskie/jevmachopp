@@ -43,7 +43,6 @@ using namespace nano;
 #if USE_FMT
 using namespace fmt::literals;
 #endif
-using namespace std::string_literals;
 using namespace std::literals::string_view_literals;
 
 #pragma mark Printing
