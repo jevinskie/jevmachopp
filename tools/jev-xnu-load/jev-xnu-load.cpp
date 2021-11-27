@@ -8,34 +8,23 @@
 #include <jevmachopp/c/jevxnuboot.h>
 
 // clang-format off
-constexpr uintptr_t virt_base     = 0xffff'fe00'15cb'c000;
-constexpr uintptr_t phys_base     = 0x0000'0008'01cb'c000;
-constexpr uintptr_t virt_phys_off = 0xffff'fdf8'1400'0000;
+constexpr uintptr_t virt_base       = 0xffff'fe00'0dcb'c000;
+constexpr uintptr_t phys_base       = 0x0000'0008'01cb'c000;
+constexpr uintptr_t virt_phys_off   = 0xffff'fdf8'0c00'0000;
 static_assert_cond(virt_base - phys_base == virt_phys_off);
 
-constexpr uintptr_t dt_virt_base  = 0xffff'fe00'1896'8000;
-constexpr uintptr_t dt_base       = 0x0000'0008'0496'8000;
-constexpr uintptr_t dt_end        = 0x0000'0008'049c'0000;
+constexpr uintptr_t dt_base         = 0x0000'0008'040c'c000;
 
-constexpr uintptr_t tc_base       = 0x0000'0008'03cb'c000;
-constexpr uintptr_t tc_end        = 0x0000'0008'03d1'c000;
+constexpr uintptr_t tc_base         = 0x0000'0008'0412'4000;
 
-constexpr uintptr_t m1n1_base     = 0x0000'0008'03d1'c000;
+constexpr uintptr_t sepfw_base      = 0x0000'0008'0c61'c000;
 
-constexpr uintptr_t kc_base       = 0x0000'0008'03d1'c000;
-constexpr uintptr_t entry_point   = 0x0000'0008'0463'8530;
-constexpr uintptr_t kc_end        = 0x0000'0008'092c'c000;
+constexpr uintptr_t ba_base         = 0x0000'0008'0cd4'4000;
 
-constexpr uintptr_t sepfw_base    = 0x0000'0008'081b'4000;
-constexpr uintptr_t sepfw_end     = 0x0000'0008'088d'c000;
+constexpr uintptr_t mmap_base       = 0x0000'0008'0000'0000;
+constexpr uintptr_t mmap_size       = 512 * 1024 * 1024;
 
-constexpr uintptr_t ba_base       = 0x0000'0008'095e'0000;
-constexpr uintptr_t ba_end        = 0x0000'0008'0963'0000;
-
-constexpr uintptr_t mmap_base     = 0x0000'0008'0000'0000;
-constexpr uintptr_t mmap_size     = 512 * 1024 * 1024;
-
-constexpr uintptr_t kc_copy_base  = 0x0000'0008'04eb'8000;
+constexpr uintptr_t kc_payload_base = 0x0000'0008'0461'c000;
 // clang-format on
 
 int main(int argc, const char *argv[]) {
@@ -67,7 +56,7 @@ int main(int argc, const char *argv[]) {
     size_t kc_bin_sz = 0;
     const auto *kc_bin =
         Slurp::readfile(args["kernelcache"].as<std::string>().data(), &kc_bin_sz, false, nullptr);
-    memcpy((char *)kc_copy_base, kc_bin, kc_bin_sz);
+    memcpy((char *)kc_payload_base, kc_bin, kc_bin_sz);
 
     size_t sepfw_bin_sz = 0;
     const auto *sepfw_bin =
