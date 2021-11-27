@@ -104,7 +104,7 @@ const void *load_and_prep_xnu_kernelcache(const void *boot_args_base) {
     const auto &unix_thread = *unix_thread_ptr;
     const auto entry_pc_vmaddr = unix_thread.pc;
     const auto entry_off = entry_pc_vmaddr - kc_vmaddr_range.min;
-    const auto entry_pc = physBase + entry_off;
+    const auto entry_pc = machoBase + entry_off;
     printf("entry_pc: %p\n", (void *)entry_pc);
 
     auto sepfw_prop_ptr = memory_map_node.propertyNamed("SEPFW");
