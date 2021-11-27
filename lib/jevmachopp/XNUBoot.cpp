@@ -5,10 +5,9 @@
 
 namespace XNUBoot {
 
-const void *load_and_prep_xnu_kernelcache(const void *boot_args_base,
-                                          const void *kernelcache_base) {
+const void *load_and_prep_xnu_kernelcache(const void *boot_args_base) {
     const void *entry_addr = nullptr;
-    if (!boot_args_base || !kernelcache_base) {
+    if (!boot_args_base) {
         return nullptr;
     }
     const auto &bootArgs = *(const XNUBootArgs *)boot_args_base;
@@ -16,10 +15,10 @@ const void *load_and_prep_xnu_kernelcache(const void *boot_args_base,
     const auto physBase = bootArgs.physBase;
     const auto virtOff = virtBase - physBase;
     FMT_PRINT("bootArgs.commandLine: {:s}\n", bootArgs.commandLine);
-    const auto &kcm = *(const MachO *)kernelcache_base;
+    // const auto &kcm = *(const MachO *)kernelcache_base;
     // FMT_PRINT("kcm: {}\n", kcm);
-    const auto kcm_vmaddr_range = kcm.vmaddr_range();
-    FMT_PRINT("kcm_vmaddr_range: {}\n", kcm_vmaddr_range);
+    // const auto kcm_vmaddr_range = kcm.vmaddr_range();
+    // FMT_PRINT("kcm_vmaddr_range: {}\n", kcm_vmaddr_range);
 
     const auto *dt_phys_ptr = (const DTNode *)((uintptr_t)bootArgs.deviceTree - virtOff);
     const auto &dt = *dt_phys_ptr;

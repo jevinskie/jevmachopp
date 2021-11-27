@@ -8,13 +8,13 @@
 #include <jevmachopp/c/jevxnuboot.h>
 
 // clang-format off
-constexpr uintptr_t virt_base     = 0xffff'fe00'19cb'c000;
+constexpr uintptr_t virt_base     = 0xffff'fe00'15cb'c000;
 constexpr uintptr_t phys_base     = 0x0000'0008'01cb'c000;
-constexpr uintptr_t virt_phys_off = 0xffff'fdf8'1800'0000;
+constexpr uintptr_t virt_phys_off = 0xffff'fdf8'1400'0000;
 
-constexpr uintptr_t dt_arg_base   = 0xffff'fe00'1bc6'4000;
-constexpr uintptr_t dt_base       = 0x0000'0008'03c6'4000;
-constexpr uintptr_t dt_end        = 0x0000'0008'03cb'c000;
+constexpr uintptr_t dt_virt_base  = 0xffff'fe00'1896'8000;
+constexpr uintptr_t dt_base       = 0x0000'0008'0496'8000;
+constexpr uintptr_t dt_end        = 0x0000'0008'049c'0000;
 
 constexpr uintptr_t tc_base       = 0x0000'0008'03cb'c000;
 constexpr uintptr_t tc_end        = 0x0000'0008'03d1'c000;
@@ -28,8 +28,8 @@ constexpr uintptr_t kc_end        = 0x0000'0008'092c'c000;
 constexpr uintptr_t sepfw_base    = 0x0000'0008'081b'4000;
 constexpr uintptr_t sepfw_end     = 0x0000'0008'088d'c000;
 
-constexpr uintptr_t ba_base       = 0x0000'0008'088d'c000;
-constexpr uintptr_t ba_end        = 0x0000'0008'088e'0000;
+constexpr uintptr_t ba_base       = 0x0000'0008'095e'0000;
+constexpr uintptr_t ba_end        = 0x0000'0008'0963'0000;
 
 constexpr uintptr_t mmap_base     = 0x0000'0008'0000'0000;
 constexpr uintptr_t mmap_size     = 512 * 1024 * 1024;
@@ -89,7 +89,7 @@ int main(int argc, const char *argv[]) {
     memcpy((char *)tc_base, trustcache_bin, trustcache_bin_sz);
 
     const void *calculated_entry_point =
-        XNUBoot::load_and_prep_xnu_kernelcache((const void *)ba_base, (const void *)kc_copy_base);
+        XNUBoot::load_and_prep_xnu_kernelcache((const void *)ba_base);
     printf("calculated_entry_point: %p\n", calculated_entry_point);
 
     return 0;
