@@ -6,6 +6,10 @@
 #include "jevmachopp/UnixThreadCommand.h"
 #include "jevmachopp/m1n1.h"
 
+#if !M1N1
+#include <sys/mman.h>
+#endif
+
 namespace XNUBoot {
 
 void load_and_prep_xnu_kernelcache(const void *boot_args_base) {
@@ -219,10 +223,14 @@ void load_and_prep_xnu_kernelcache(const void *boot_args_base) {
     }
 
     const auto stub_copy_fptr = (decltype(&xnu_jump_stub))stub_copy_base;
-#if M1N1
+#if !M1N1
+    const auto mprot_res = mprotect((void *)stub_copy_fptr, stub_size, PROT_READ | PROT_EXEC);
+    printf("mprot_res: %d of %p\n", mprot_res, (void *)stub_copy_fptr);
+#endif
+    printf("jumping to stub\n");
     stub_copy_fptr(ba_base_after_stub_copy, payload_base, machoBase, stub_copy_base - payload_base,
                    entry_pc);
-#endif
+    printf("returned from stub wtf\n");
 }
 
 } // namespace XNUBoot

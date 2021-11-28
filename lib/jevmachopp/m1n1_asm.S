@@ -39,7 +39,11 @@ JMP_STUB_NAME :
     cbnz x3, JMP_STUB_NAME
 
     mov x1, x4
+#if defined(__ELF__) && __ELF__
     br x1
+#else
+    ret
+#endif
 #if defined(__ELF__) && __ELF__
     .size   JMP_STUB_NAME, .-JMP_STUB_NAME
 #endif
