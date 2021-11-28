@@ -18,11 +18,7 @@ printf:
 #define JMP_STUB_END_NAME __xnu_jump_stub_end
 #endif
 
-#define UTRSTAT 0x010
-#define UTXH 0x020
-
-// args: new_base + bootargs_off, image_addr, new_base, image_size, image_entry
-// x0: new_base + bootargs_off
+// x0: new_bootargs_addr
 // x1: image_addr
 // x2: new_base
 // x3: image_size
@@ -47,7 +43,6 @@ JMP_STUB_NAME:
 #else
     ret
 #endif
-    .pool
 #if defined(__ELF__) && __ELF__
     .size   JMP_STUB_NAME, .-JMP_STUB_NAME
 #endif

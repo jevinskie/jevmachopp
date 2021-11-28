@@ -9,8 +9,8 @@ namespace XNUBoot {
 
 constexpr auto BOOT_LINE_LENGTH = 608;
 
-extern "C" void xnu_jump_stub(uint64_t new_base_plus_bootargs_off, uint64_t image_addr,
-                              uint64_t new_base, uint64_t image_size, uint64_t image_entry);
+extern "C" void xnu_jump_stub(uint64_t new_bootargs_addr, uint64_t image_addr, uint64_t new_base,
+                              uint64_t image_size, uint64_t image_entry);
 extern "C" char _xnu_jump_stub_end;
 
 using generic_func = uint64_t (*)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
