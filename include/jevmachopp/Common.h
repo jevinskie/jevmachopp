@@ -32,10 +32,8 @@ extern "C" __attribute__((noreturn)) void __assert_fail(const char *assertion, c
 #include <boost/static_string/static_string.hpp>
 
 #include <nanorange/algorithm/any_of.hpp>
-#include <nanorange/algorithm/copy.hpp>
-#include <nanorange/concepts.hpp>
-#include <nanorange/views/empty.hpp>
 #include <nanorange/views/filter.hpp>
+#include <nanorange/views/split.hpp>
 #include <nanorange/views/subrange.hpp>
 #include <nanorange/views/transform.hpp>
 using namespace nano;
@@ -52,6 +50,12 @@ using namespace std::literals::string_view_literals;
 #else
 #define FMT_PRINT(...) fmt::print(__VA_ARGS__)
 #endif
+
+struct sv2pf {
+    const char *str;
+    int sz;
+    sv2pf(const std::string_view &sv) : str(sv.data()), sz((int)sv.size()) {}
+};
 
 #pragma mark Type Utilities
 
@@ -184,6 +188,12 @@ template <typename Rng, typename Str> bool rangeContainsStr(Rng &&rng, Str &&str
     return ranges::any_of(rng, [&strToFindView](const auto &str) {
         return str == strToFindView;
     });
+}
+
+inline auto stringSplitViewDelimitedBy(std::string_view to_split, char delim) {
+    return to_split | views::split(delim) | views::transform([](const auto &nsv) {
+               return std::string_view{&*nsv.begin(), (size_t)ranges::distance(nsv)};
+           });
 }
 
 #pragma mark fmt

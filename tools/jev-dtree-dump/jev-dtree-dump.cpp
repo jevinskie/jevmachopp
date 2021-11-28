@@ -10,7 +10,8 @@ int main(int argc, const char *argv[]) {
     // clang-format off
     options.add_options()
         ("d,devicetree", "devicetree file", cxxopts::value<std::string>())
-        ("l,lookup", "lookup path in the device tree", cxxopts::value<std::vector<std::string>>())
+        ("p,property", "lookup property in the device tree", cxxopts::value<std::vector<std::string>>())
+        ("n,node", "lookup node in the device tree", cxxopts::value<std::vector<std::string>>())
         ("h,help", "Print usage")
     ;
     // clang-format on
@@ -25,12 +26,13 @@ int main(int argc, const char *argv[]) {
     const auto &dt = *(const DTNode *)dtbuf;
     dump_dtree(dtbuf);
 
-    printf("args.count(\"lookup\"): %zu\n", args.count("lookup"));
-    if (args.count("lookup")) {
-        const auto &lookups = args["lookup"].as<std::vector<std::string>>();
-        for (const auto &lookup : lookups) {
-            printf("lookup arg: %s\n", lookup.data());
-            dt.lookup(lookup.data());
+    printf("args.count(\"property\"): %zu\n", args.count("property"));
+    if (args.count("property")) {
+        const auto &props = args["property"].as<std::vector<std::string>>();
+        for (const auto &prop_path : props) {
+            printf("lookupProperty arg: %s\n", prop_path.data());
+            const DTProp *prop_ptr = dt.lookupProperty(prop_path.data());
+            printf("prop_ptr: %p\n", prop_ptr);
         }
     }
 

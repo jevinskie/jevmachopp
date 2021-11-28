@@ -219,9 +219,10 @@ public:
     DTNode::Iterator children_cend() const;
     std::uint32_t children_size() const;
     std::uint32_t children_sizeof() const;
-    const DTNode *childNamed(const std::string_view &name) const;
+    const DTNode *childNamed(const std::string_view name) const;
 
-    void lookup(const char *path) const;
+    const DTNode *lookupNode(std::string_view nodePath) const;
+    const DTProp *lookupProperty(std::string_view propertyPath) const;
 
     const char *name() const;
     const char *name_or_nullptr() const;

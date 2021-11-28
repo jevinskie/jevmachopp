@@ -4,4 +4,4 @@ set(RANGES_TEST_SRC
 
 add_executable(split-test ${RANGES_TEST_SRC})
 
-target_link_libraries(split-test nanorange fmt)
+target_link_libraries(split-test jevmachopp nanorange fmt)

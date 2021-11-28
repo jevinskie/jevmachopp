@@ -1,6 +1,8 @@
 #include <algorithm>
 #include <cstddef>
 
+#include <nanorange/algorithm/copy.hpp>
+
 #include "jevmachopp/DySymtabCommand.h"
 #include "jevmachopp/FilesetEntryCommand.h"
 #include "jevmachopp/MachO.h"

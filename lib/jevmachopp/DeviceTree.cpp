@@ -6,6 +6,8 @@
 #include <cstring>
 #include <numeric>
 
+#include <nanorange/views/drop.hpp>
+
 #pragma mark DTRegister
 
 #if USE_FMT
@@ -136,7 +138,7 @@ std::uint32_t DTNode::children_sizeof() const {
                            });
 }
 
-const DTNode *DTNode::childNamed(const std::string_view &name) const {
+const DTNode *DTNode::childNamed(const std::string_view name) const {
     return find_if_or_nullptr(children(), [=](const DTNode &child) {
         const auto *name_ptr = child.name_or_nullptr();
         if (!name_ptr) {
@@ -148,8 +150,25 @@ const DTNode *DTNode::childNamed(const std::string_view &name) const {
 
 #pragma mark DTNode - Traversal
 
-void DTNode::lookup(const char *path) const {
-    printf("DTNode::lookup(\"%s\")\n", path);
+const DTNode *DTNode::lookupNode(std::string_view nodePath) const {
+    printf("DTNode::lookupNode(\"%.*s\")\n", sv2pf(nodePath).sz, sv2pf(nodePath).str);
+    if (!nodePath.size() || nodePath[0] != '/') {
+        return nullptr;
+    }
+    auto *res = this;
+    auto childrenNamesRng = stringSplitViewDelimitedBy(nodePath, '/') | views::drop(1);
+    for (auto i = childrenNamesRng.begin(), e = childrenNamesRng.end(); i != e; ++i) {
+        res = childNamed(*i);
+        if (!res) {
+            return nullptr;
+        }
+    }
+    return res;
+}
+
+const DTProp *DTNode::lookupProperty(std::string_view propertyPath) const {
+    printf("DTNode::lookupProperty(\"%.*s\")\n", sv2pf(propertyPath).sz, sv2pf(propertyPath).str);
+    return nullptr;
 }
 
 #pragma mark DTNode - Accessors

@@ -1,3 +1,5 @@
+#include <jevmachopp/Common.h>
+
 #include <cstdio>
 #include <iomanip>
 #include <iostream>
@@ -11,24 +13,10 @@
 using namespace std::literals::string_view_literals;
 
 int main(void) {
-    const auto path = "/chosen/internal-use-only-unit"sv;
-    const auto delim = "/"sv;
-    std::cout << path << std::endl;
-    auto sv = path | nano::views::split('/') | nano::views::common;
-    auto svb = sv.begin();
-    auto svbd = *svb;
-    auto sve = sv.end();
-    auto sved = *sve;
-    for (const auto &foo : sv) {
-        auto b = foo.begin();
-        auto bd = *b;
-        auto bdp = &bd;
-        auto e = foo.end();
-        const auto *foo_chrp = &*foo.begin();
-        const auto foo_sz = static_cast<int>(nano::ranges::distance(foo));
-        auto fsv = std::string_view{&*foo_chrp, (size_t)foo_sz};
-        // std::cout << std::string_view{foo.begin(), foo.end()} << std::endl;
-        printf("foo: %.*s\n", foo_sz, foo_chrp);
+    const auto path = "/chosen/internal-use-only-unit";
+    for (const auto &foo : stringSplitViewDelimitedBy(path, '/')) {
+        std::cout << foo << std::endl;
+        printf("foo: %.*s\n", (int)foo.size(), foo.data());
     }
     // for (const auto word : nano::views::split(path, delim)) {
     //     std::cout << std::string_view{word.begin(), word.end()} << ' ';
