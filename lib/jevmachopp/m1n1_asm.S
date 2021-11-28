@@ -33,25 +33,6 @@ printf:
     .type   JMP_STUB_NAME, %function
 #endif
 JMP_STUB_NAME:
-#if defined(__ELF__) && __ELF__
-    stp   x0, lr, [sp, #-16]!
-    stp   x1, x2, [sp, #-16]!
-    mov w0, '@'
-    // bl debug_putc
-#if 0
-    ldr x1, =EARLY_UART_BASE
-
-1:
-    ldr w2, [x1, UTRSTAT]
-    tst w2, #2
-    beq 1b
-    str w0, [x1, UTXH]
-#endif
-
-    ldp   x1, x2, [sp], #16
-    ldp   x0, lr, [sp], #16
-#endif
-
     ldp x5, x6, [x1], #16
     stp x5, x6, [x2]
     dc cvau, x2
@@ -63,7 +44,6 @@ JMP_STUB_NAME:
     mov x1, x4
 #if defined(__ELF__) && __ELF__
     br x1
-    // ret
 #else
     ret
 #endif
