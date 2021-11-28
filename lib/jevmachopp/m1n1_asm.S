@@ -38,6 +38,7 @@ JMP_STUB_NAME:
     stp   x1, x2, [sp, #-16]!
     mov w0, '@'
     // bl debug_putc
+#if 0
     ldr x1, =EARLY_UART_BASE
 
 1:
@@ -45,23 +46,24 @@ JMP_STUB_NAME:
     tst w2, #2
     beq 1b
     str w0, [x1, UTXH]
+#endif
 
     ldp   x1, x2, [sp], #16
     ldp   x0, lr, [sp], #16
 #endif
 
     ldp x5, x6, [x1], #16
-    // stp x5, x6, [x2]
-    //dc cvau, x2
-    //ic ivau, x2
+    stp x5, x6, [x2]
+    dc cvau, x2
+    ic ivau, x2
     add x2, x2, #16
     sub x3, x3, #16
     cbnz x3, JMP_STUB_NAME
 
-    // mov x1, x4
+    mov x1, x4
 #if defined(__ELF__) && __ELF__
-    // br x1
-    ret
+    br x1
+    // ret
 #else
     ret
 #endif

@@ -12,6 +12,10 @@
 
 namespace XNUBoot {
 
+#if !M1N1
+struct vector_args next_stage;
+#endif
+
 void load_and_prep_xnu_kernelcache(const void *boot_args_base) {
     if (!boot_args_base) {
         printf("boot_args_base is NULL\n");
@@ -154,7 +158,9 @@ void load_and_prep_xnu_kernelcache(const void *boot_args_base) {
            (void *)xnu_jump_stub, (uint32_t)stub_size);
 
     for (const auto &map_region : memory_map_node.properties_sized(sizeof(DTRegister))) {
-        FMT_PRINT("map_region[\"{:s}\"]: {}\n", map_region.name(), map_region.as_reg());
+        auto &r = map_region.as_reg();
+        printf("map_region[\"%s\"]: base: %p size: %p\n", map_region.name(), r.base,
+               (void *)r.size);
     }
 
     for (auto i = 99;
@@ -198,7 +204,9 @@ void load_and_prep_xnu_kernelcache(const void *boot_args_base) {
     (DTRegister &)ba_reg = {(const void *)ba_base_after_stub_copy, ba_reg.size};
 
     for (const auto &mod_map_region : memory_map_node.properties_sized(sizeof(DTRegister))) {
-        FMT_PRINT("mod_map_region[\"{:s}\"]: {}\n", mod_map_region.name(), mod_map_region.as_reg());
+        auto &r = mod_map_region.as_reg();
+        printf("mod_map_region[\"%s\"]: base: %p size: %p\n", mod_map_region.name(), r.base,
+               (void *)r.size);
     }
 
     if (auto iuou_prop_ptr = chosen_node.propertyNamed("internal-use-only-unit")) {
@@ -228,11 +236,19 @@ void load_and_prep_xnu_kernelcache(const void *boot_args_base) {
     printf("mprot_res: %d of %p\n", mprot_res, (void *)stub_copy_fptr);
 #endif
     const auto stub_size_to_copy = stub_copy_base - payload_base;
-    printf("jumping to stub @ %p entry_pc: %p stub_size_to_copy: %p\n", (void *)xnu_jump_stub,
+    printf("jumping to stub @ %p entry_pc: %p stub_size_to_copy: %p\n", (void *)stub_copy_fptr,
            (void *)entry_pc, (void *)stub_size_to_copy);
     printf("xnu_jump_stub(%p, %p, %p, %p, %p)\n", (void *)ba_base_after_stub_copy,
-           (void *)machoBase, (void *)machoBase, (void *)stub_size_to_copy, (void *)entry_pc);
-    xnu_jump_stub(ba_base_after_stub_copy, machoBase, machoBase, stub_size_to_copy, entry_pc);
+           (void *)payload_base, (void *)machoBase, (void *)stub_size_to_copy, (void *)entry_pc);
+    // stub_copy_fptr(ba_base_after_stub_copy, payload_base, machoBase, stub_size_to_copy,
+    // entry_pc);
+    next_stage.entry = (decltype(next_stage.entry))stub_copy_fptr;
+    next_stage.args[0] = ba_base_after_stub_copy;
+    next_stage.args[1] = payload_base;
+    next_stage.args[2] = machoBase;
+    next_stage.args[3] = stub_size_to_copy;
+    next_stage.args[4] = entry_pc;
+    next_stage.restore_logo = true;
     printf("returned from stub wtf\n");
 }
 

@@ -13,6 +13,16 @@ extern "C" void xnu_jump_stub(uint64_t new_base_plus_bootargs_off, uint64_t imag
                               uint64_t new_base, uint64_t image_size, uint64_t image_entry);
 extern "C" char _xnu_jump_stub_end;
 
+using generic_func = uint64_t (*)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
+
+struct vector_args {
+    generic_func *entry;
+    uint64_t args[5];
+    bool restore_logo;
+};
+
+extern "C" struct vector_args next_stage;
+
 } // namespace XNUBoot
 
 class XNUBootArgsVideo {
