@@ -221,6 +221,8 @@ public:
     std::uint32_t children_sizeof() const;
     const DTNode *childNamed(const std::string_view &name) const;
 
+    void lookup(const char *path) const;
+
     const char *name() const;
     const char *name_or_nullptr() const;
     std::uint32_t node_sizeof() const;

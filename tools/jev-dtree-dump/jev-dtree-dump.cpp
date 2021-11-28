@@ -1,3 +1,4 @@
+#include <jevmachopp/DeviceTree.h>
 #include <jevmachopp/Slurp.h>
 #include <jevmachopp/c/jevdtree.h>
 
@@ -21,7 +22,7 @@ int main(int argc, const char *argv[]) {
     }
 
     uint8_t *dtbuf = Slurp::readfile(args["devicetree"].as<std::string>().data());
-
+    const auto &dt = *(const DTNode *)dtbuf;
     dump_dtree(dtbuf);
 
     printf("args.count(\"lookup\"): %zu\n", args.count("lookup"));
@@ -29,6 +30,7 @@ int main(int argc, const char *argv[]) {
         const auto &lookups = args["lookup"].as<std::vector<std::string>>();
         for (const auto &lookup : lookups) {
             printf("lookup arg: %s\n", lookup.data());
+            dt.lookup(lookup.data());
         }
     }
 

@@ -146,6 +146,12 @@ const DTNode *DTNode::childNamed(const std::string_view &name) const {
     });
 }
 
+#pragma mark DTNode - Traversal
+
+void DTNode::lookup(const char *path) const {
+    printf("DTNode::lookup(\"%s\")\n", path);
+}
+
 #pragma mark DTNode - Accessors
 
 const char *DTNode::name_or_nullptr() const {
@@ -248,7 +254,7 @@ void dump_dtree(const void *dtree_buf) {
                 printf("nvram boot-args: %s\n", bootArgs);
                 for (const auto &bootArg : rangeForSpaceDelimitedCStr(bootArgs)) {
                     FMT_PRINT("boot-arg: {:s}\n", bootArg);
-                    printf("boot-arg: %*s\n", (int)bootArg.size(), bootArg.data());
+                    printf("boot-arg: %.*s\n", (int)bootArg.size(), bootArg.data());
                 }
                 const auto hasVerbose = proxyData.system_hasBootArg("-v");
                 FMT_PRINT("boot-args has -v flag: {}\n", hasVerbose);
