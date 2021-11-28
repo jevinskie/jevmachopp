@@ -227,9 +227,12 @@ void load_and_prep_xnu_kernelcache(const void *boot_args_base) {
     const auto mprot_res = mprotect((void *)stub_copy_fptr, stub_size, PROT_READ | PROT_EXEC);
     printf("mprot_res: %d of %p\n", mprot_res, (void *)stub_copy_fptr);
 #endif
-    printf("jumping to stub\n");
-    stub_copy_fptr(ba_base_after_stub_copy, payload_base, machoBase, stub_copy_base - payload_base,
-                   entry_pc);
+    const auto stub_size_to_copy = stub_copy_base - payload_base;
+    printf("jumping to stub @ %p entry_pc: %p stub_size_to_copy: %p\n", (void *)xnu_jump_stub,
+           (void *)entry_pc, (void *)stub_size_to_copy);
+    printf("xnu_jump_stub(%p, %p, %p, %p, %p)\n", (void *)ba_base_after_stub_copy,
+           (void *)machoBase, (void *)machoBase, (void *)stub_size_to_copy, (void *)entry_pc);
+    xnu_jump_stub(ba_base_after_stub_copy, machoBase, machoBase, stub_size_to_copy, entry_pc);
     printf("returned from stub wtf\n");
 }
 
