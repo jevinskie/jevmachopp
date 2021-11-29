@@ -1,8 +1,24 @@
-#include <fmt/core.h>
 #include <catch2/catch_test_macros.hpp>
+#include <fmt/core.h>
 
 #include <jevmachopp/Hex.h>
 
-TEST_CASE( "Integers are parsed from string_views", "[sv2int]" ) {
-    REQUIRE( !sv2int<uint32_t>("lol"sv) );
+TEST_CASE("not integer strings", "[sv2int]") {
+    REQUIRE_FALSE(sv2int<uint32_t>("lol"sv));
+    REQUIRE_FALSE(sv2int<uint32_t>("0x"sv));
+}
+
+TEST_CASE("zero", "[sv2int]") {
+    REQUIRE(sv2int<uint32_t>("0"sv) == 0);
+    REQUIRE(sv2int<uint32_t>("000"sv) == 0);
+    REQUIRE(sv2int<uint32_t>("0x0"sv) == 0);
+    REQUIRE(sv2int<uint32_t>("0x000"sv) == 0);
+}
+
+TEST_CASE("full width hex", "[sv2int]") {
+    REQUIRE(sv2int<uint32_t>("0xdeadbeef"sv) == 0xdeadbeef);
+    REQUIRE(sv2int<uint32_t>("0x12345678"sv) == 0x12345678);
+    REQUIRE(sv2int<uint32_t>("0x21436587"sv) == 0x21436587);
+    REQUIRE(sv2int<uint32_t>("0x87654321"sv) == 0x87654321);
+    REQUIRE(sv2int<uint32_t>("0x78563412"sv) == 0x78563412);
 }
