@@ -1,5 +1,7 @@
 #include "jevmachopp/Hex.h"
 
+#include <nanorange/views/reverse.hpp>
+
 uint8_t ascii_hex_to_nibble(const uint8_t chr) {
     if (chr >= '0' && chr <= '9') {
         return chr - '0';
@@ -43,7 +45,7 @@ bool is_hex_digit(const uint8_t chr) {
 
 bool sv2int_hex_helper(const std::string_view hexdigits, uint8_t *int_buf, std::size_t int_buf_sz) {
     if (hexdigits.size() > int_buf_sz * 2) {
-        // (potential) overflow
+        // (potential [zero prefix would be OK]) overflow
         return false;
     }
     if (!ranges::all_of(hexdigits, is_hex_digit)) {
@@ -52,16 +54,11 @@ bool sv2int_hex_helper(const std::string_view hexdigits, uint8_t *int_buf, std::
     // assume zeroed by caller
     // memset(int_buf, 0, int_buf_sz);
     static_assert_cond(__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__);
-    const auto num_nib = hexdigits.size();
-    const auto num_bytes = num_nib + 1 / 2;
-    const auto num_pad_nib = int_buf_sz * 2 - num_nib;
-    auto p = int_buf + int_buf_sz - 1 + (int_buf_sz);
-    for (int i = num_nib & 1; const char hd : hexdigits) {
+    auto p = int_buf;
+    for (int i = 0; const char hd : hexdigits | ranges::views::reverse) {
         *p <<= 4;
         *p |= ascii_hex_to_nibble(hd);
-        if (i & 1) {
-            --p;
-        }
+        p += (i & 1);
         ++i;
     }
     return true;

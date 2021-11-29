@@ -4,7 +4,6 @@
 
 #include <boost/static_string/static_string.hpp>
 #include <nanorange/algorithm/all_of.hpp>
-#include <nanorange/views/reverse.hpp>
 #include <string_view>
 
 uint8_t ascii_hex_to_nibble(const uint8_t chr);

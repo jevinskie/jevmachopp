@@ -22,3 +22,14 @@ TEST_CASE("full width hex", "[sv2int]") {
     REQUIRE(sv2int<uint32_t>("0x87654321"sv) == 0x87654321);
     REQUIRE(sv2int<uint32_t>("0x78563412"sv) == 0x78563412);
 }
+
+TEST_CASE("ascending hex", "[sv2int]") {
+    REQUIRE(sv2int<uint32_t>("0x0"sv) == 0x0);
+    REQUIRE(sv2int<uint32_t>("0x10"sv) == 0x10);
+    REQUIRE(sv2int<uint32_t>("0x210"sv) == 0x210);
+    REQUIRE(sv2int<uint32_t>("0x3210"sv) == 0x3210);
+    REQUIRE(sv2int<uint32_t>("0x1"sv) == 0x1);
+    REQUIRE(sv2int<uint32_t>("0x21"sv) == 0x21);
+    REQUIRE(sv2int<uint32_t>("0x321"sv) == 0x321);
+    REQUIRE(sv2int<uint32_t>("0x4321"sv) == 0x4321);
+}
