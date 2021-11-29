@@ -241,3 +241,13 @@ T setIfNull(T &ptr, G getter) {
         }                                                                                          \
         (ptr);                                                                                     \
     })
+
+template <typename Int>
+requires requires(Int res) {
+    std::is_same_v<Int, bool>;
+    std::is_integral_v<Int>;
+}
+Int sv2int(std::string_view sv) {
+    (void)sv;
+    return 0;
+};

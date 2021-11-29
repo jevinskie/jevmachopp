@@ -151,14 +151,12 @@ const DTNode *DTNode::childNamed(const std::string_view name) const {
 #pragma mark DTNode - Traversal
 
 const DTNode *DTNode::lookupNode(std::string_view nodePath) const {
-    printf("DTNode::lookupNode(\"%.*s\")\n", sv2pf(nodePath).sz, sv2pf(nodePath).str);
     if (!nodePath.size() || nodePath[0] != '/') {
         return nullptr;
     }
     auto *res = this;
-    auto childrenNamesRng = stringSplitViewDelimitedBy(nodePath, '/') | views::drop(1);
-    for (auto i = childrenNamesRng.begin(), e = childrenNamesRng.end(); i != e; ++i) {
-        res = childNamed(*i);
+    for (const auto childName : stringSplitViewDelimitedBy(nodePath, '/') | views::drop(1)) {
+        res = childNamed(childName);
         if (!res) {
             return nullptr;
         }
@@ -167,8 +165,36 @@ const DTNode *DTNode::lookupNode(std::string_view nodePath) const {
 }
 
 const DTProp *DTNode::lookupProperty(std::string_view propertyPath) const {
-    printf("DTNode::lookupProperty(\"%.*s\")\n", sv2pf(propertyPath).sz, sv2pf(propertyPath).str);
-    return nullptr;
+    const auto propPathHashSV = stringSplitViewDelimitedBy(propertyPath, '#');
+    if (ranges::distance(propPathHashSV) != 2) {
+        return nullptr;
+    }
+    auto hash_iter = propPathHashSV.begin();
+    const auto nodePath = *hash_iter++;
+    const auto propName = *hash_iter;
+    const auto *node_ptr = DTNode::lookupNode(nodePath);
+    if (!node_ptr) {
+        return nullptr;
+    }
+    return node_ptr->propertyNamed(propName);
+}
+
+bool DTNode::processPatch(std::string_view patchSpec) {
+    const auto patchSpecSV = stringSplitViewDelimitedBy(patchSpec, '=');
+    if (ranges::distance(patchSpecSV) != 2) {
+        return false;
+    }
+    auto equals_iter = patchSpecSV.begin();
+    const auto propPath = *equals_iter++;
+    const auto propValStr = *equals_iter;
+    // TODO: more than u32 support?
+    const auto propVal = sv2int<uint32_t>(propValStr);
+    printf("propVal: 0x%x\n", propVal);
+    const auto *prop_ptr = lookupProperty(propPath);
+    if (!prop_ptr) {
+        return false;
+    }
+    return false;
 }
 
 #pragma mark DTNode - Accessors

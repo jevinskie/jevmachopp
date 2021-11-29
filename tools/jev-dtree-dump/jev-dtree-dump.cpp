@@ -11,6 +11,7 @@ int main(int argc, const char *argv[]) {
     options.add_options()
         ("d,devicetree", "devicetree file", cxxopts::value<std::string>())
         ("p,property", "lookup property in the device tree", cxxopts::value<std::vector<std::string>>())
+        ("P,patch", "patch property in the device tree", cxxopts::value<std::vector<std::string>>())
         ("n,node", "lookup node in the device tree", cxxopts::value<std::vector<std::string>>())
         ("h,help", "Print usage")
     ;
@@ -33,6 +34,25 @@ int main(int argc, const char *argv[]) {
             printf("lookupProperty arg: %s\n", prop_path.data());
             const DTProp *prop_ptr = dt.lookupProperty(prop_path.data());
             printf("prop_ptr: %p\n", prop_ptr);
+        }
+    }
+
+    if (args.count("node")) {
+        const auto &nodes = args["node"].as<std::vector<std::string>>();
+        for (const auto &node_path : nodes) {
+            printf("lookupNode arg: %s\n", node_path.data());
+            const DTNode *node_ptr = dt.lookupNode(node_path);
+            printf("node_ptr: %p\n", node_ptr);
+        }
+    }
+
+    if (args.count("patch")) {
+        const auto &patches = args["patch"].as<std::vector<std::string>>();
+        auto &dt_nc = (DTNode &)dt;
+        for (const auto &patch_spec : patches) {
+            printf("patch_spec: %s\n", patch_spec.data());
+            const auto patch_res = dt_nc.processPatch(patch_spec);
+            printf("patch_res: %s\n", patch_res ? "GOOD" : "BAD");
         }
     }
 
