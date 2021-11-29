@@ -39,8 +39,9 @@ void load_and_prep_xnu_kernelcache(const void *boot_args_base) {
     }
     auto &chosen_node = *chosen_node_ptr;
 
-    const auto hasVerbose = rangeContainsStr(
-        stringSplitViewDelimitedBy(std::string_view{bootArgs.commandLine}, ' '), "-v");
+    const auto split_boot_args =
+        stringSplitViewDelimitedBy(std::string_view{bootArgs.commandLine}, ' ');
+    const auto hasVerbose = rangeContainsStr(split_boot_args, "-v");
     printf("boot-args has -v flag: %d\n", hasVerbose);
     if (!hasVerbose) {
         printf("didn't detect verbose boot flag, bailing out of xnu load\n");
@@ -49,7 +50,7 @@ void load_and_prep_xnu_kernelcache(const void *boot_args_base) {
 
     auto memory_map_node_ptr = chosen_node.childNamed("memory-map");
     if (!memory_map_node_ptr) {
-        printf("couldn't find chosen/memory-map, bailint out of xnu load\n");
+        printf("couldn't find chosen/memory-map, bailing out of xnu load\n");
         return;
     }
     auto &memory_map_node = *memory_map_node_ptr;
@@ -202,6 +203,13 @@ void load_and_prep_xnu_kernelcache(const void *boot_args_base) {
                (void *)r.size);
     }
 
+    const auto hasNoDTPatches = rangeContainsStr(split_boot_args, "-no-dt-patches");
+    printf("boot-args has -no-dt-patches flag: %d\n", hasNoDTPatches);
+    if (!hasNoDTPatches) {
+        printf("applying patches from nvram\n");
+        const auto nvram_dt_patches_res = DT::processPatches((DTNode &)dt);
+        printf("nvram_dt_patches_res: %s\n", nvram_dt_patches_res ? "GOOD" : "BAD");
+    }
     printf("applying patches from nvram\n");
     const auto nvram_dt_patches_res = DT::processPatches((DTNode &)dt);
     printf("nvram_dt_patches_res: %s\n", nvram_dt_patches_res ? "GOOD" : "BAD");
