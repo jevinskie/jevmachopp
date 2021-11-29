@@ -29,11 +29,8 @@ boost::static_string<BufSz * 2> buf2hexstr(const void *buf, const std::size_t bu
 bool sv2int_hex_helper(const std::string_view hexdigits, uint8_t *int_buf, std::size_t int_buf_sz);
 
 template <typename Int>
-requires requires(Int res) {
-    !std::is_same_v<Int, bool>;
-    std::is_integral_v<Int>;
-}
-std::optional<Int> sv2int(std::string_view sv) {
+requires unsigned_integral<Int> &&
+    (!same_as<Int, bool>)std::optional<Int> sv2int(std::string_view sv) {
     Int res = 0;
     if (sv.size() > 2 && sv.starts_with("0x"sv)) {
         if (sv2int_hex_helper(sv.substr(2), (uint8_t *)&res, sizeof(res))) {

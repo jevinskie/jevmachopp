@@ -56,8 +56,8 @@ bool sv2int_hex_helper(const std::string_view hexdigits, uint8_t *int_buf, std::
     static_assert_cond(__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__);
     auto p = int_buf;
     for (int i = 0; const char hd : hexdigits | ranges::views::reverse) {
-        *p <<= 4;
-        *p |= ascii_hex_to_nibble(hd);
+        *p |= ascii_hex_to_nibble(hd) << 4;
+        *p >>= !(i & 1) << 2;
         p += (i & 1);
         ++i;
     }
