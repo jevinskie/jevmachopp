@@ -28,3 +28,15 @@ void byte_to_ascii_hex(uint8_t n, char *hex) {
     hex[0] = nibble_to_ascii_hex(n >> 4);
     hex[1] = nibble_to_ascii_hex(n & 0xF);
 }
+
+uint8_t ascii_digit_to_int(const uint8_t chr) {
+    return chr - '0';
+}
+
+bool is_decimal_digit(const uint8_t chr) {
+    return (chr >= '0' && chr <= '9') || (chr >= 'a' && chr <= 'f');
+}
+
+bool is_hex_digit(const uint8_t chr) {
+    return is_decimal_digit(chr) || (chr >= 'a' && chr <= 'f');
+}

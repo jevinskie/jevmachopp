@@ -224,6 +224,7 @@ public:
     const DTNode *lookupNode(std::string_view nodePath) const;
     const DTProp *lookupProperty(std::string_view propertyPath) const;
     bool processPatch(std::string_view patchSpec);
+    bool processPatches(std::string_view patchesSpec);
 
     const char *name() const;
     const char *name_or_nullptr() const;

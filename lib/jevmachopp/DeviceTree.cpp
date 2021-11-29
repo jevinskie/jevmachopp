@@ -188,13 +188,43 @@ bool DTNode::processPatch(std::string_view patchSpec) {
     const auto propPath = *equals_iter++;
     const auto propValStr = *equals_iter;
     // TODO: more than u32 support?
-    const auto propVal = sv2int<uint32_t>(propValStr);
-    printf("propVal: 0x%x\n", propVal);
-    const auto *prop_ptr = lookupProperty(propPath);
-    if (!prop_ptr) {
+
+    const auto *prop = lookupProperty(propPath);
+    if (!prop) {
+        return false;
+    }
+    if (prop->size_raw() == 4) {
+        const auto propVal = sv2int<uint32_t>(propValStr);
+        if (!propVal) {
+            printf("Patcher couldn't parse \"%.*s\" as uint32_t\n", sv2pf(propValStr).sz,
+                   sv2pf(propValStr).str);
+            return false;
+        }
+        (uint64_t &)prop->as_u32() = *propVal;
+        return true;
+    } else if (prop->size_raw() == 8) {
+        const auto propVal = sv2int<uint64_t>(propValStr);
+        if (!propVal) {
+            printf("Patcher couldn't parse \"%.*s\" as uint64_t\n", sv2pf(propValStr).sz,
+                   sv2pf(propValStr).str);
+            return false;
+        }
+        (uint64_t &)prop->as_u64() = *propVal;
+        return true;
+    } else {
+        printf("processPatch: unhandled property size: %u\n", prop->size_raw());
         return false;
     }
     return false;
+}
+
+bool DTNode::processPatches(std::string_view patchesSpec) {
+    const auto patchesSpecSV = stringSplitViewDelimitedBy(patchesSpec, ' ');
+    bool good = true;
+    for (const auto &patchspec : patchesSpecSV) {
+        good &= processPatch(patchspec);
+    }
+    return good;
 }
 
 #pragma mark DTNode - Accessors

@@ -12,6 +12,7 @@ int main(int argc, const char *argv[]) {
         ("d,devicetree", "devicetree file", cxxopts::value<std::string>())
         ("p,property", "lookup property in the device tree", cxxopts::value<std::vector<std::string>>())
         ("P,patch", "patch property in the device tree", cxxopts::value<std::vector<std::string>>())
+        ("m,multipatch", "patch multiple properties in the device tree", cxxopts::value<std::string>())
         ("n,node", "lookup node in the device tree", cxxopts::value<std::vector<std::string>>())
         ("h,help", "Print usage")
     ;
@@ -54,6 +55,14 @@ int main(int argc, const char *argv[]) {
             const auto patch_res = dt_nc.processPatch(patch_spec);
             printf("patch_res: %s\n", patch_res ? "GOOD" : "BAD");
         }
+    }
+
+    if (args.count("multipatch")) {
+        const auto &multipatch = args["multipatch"].as<std::string>();
+        printf("multipatch: \"%s\"\n", multipatch.data());
+        auto &dt_nc = (DTNode &)dt;
+        const auto patches_res = dt_nc.processPatches(multipatch);
+        printf("patches_res: %s\n", patches_res ? "GOOD" : "BAD");
     }
 
     return 0;
