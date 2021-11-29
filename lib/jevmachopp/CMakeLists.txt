@@ -1,6 +1,7 @@
 
 set(MACHOPP_SRC
     BuildVersionCommand.cpp
+    Common.cpp
     CommonTypes.cpp
     DeviceTree.cpp
     DylibCommand.cpp
@@ -30,7 +31,6 @@ set(MACHOPP_HDR_STANDALONE
     c/jevmacho.h
     c/jevnvram.h
     c/jevxnuboot.h
-    Common.h
     CpuType.h
     CpuTypeMeta.h
     CpuSubType.h

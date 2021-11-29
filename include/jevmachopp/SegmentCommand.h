@@ -20,9 +20,7 @@ public:
     void operator=(const SegmentCommand &) = delete;
 
 public:
-    auto name() const {
-        return readMaybeNullTermCString<decltype(segname)>(segname);
-    }
+    std::string_view name() const;
     const Section *sect_cbegin() const;
     const Section *sect_cend() const;
     std::size_t sect_size() const;

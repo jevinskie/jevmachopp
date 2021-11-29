@@ -37,7 +37,6 @@ requires requires(Int res) {
 std::optional<Int> sv2int(std::string_view sv) {
     Int res = 0;
     if (sv.size() > 2 && sv.starts_with("0x"sv)) {
-        const auto hexdigits = sv.substr(2);
         if (sv2int_hex_helper(sv.substr(2), (uint8_t *)&res, sizeof(res))) {
             return res;
         } else {

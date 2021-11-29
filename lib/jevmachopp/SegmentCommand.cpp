@@ -3,6 +3,10 @@
 
 #include <cstring>
 
+std::string_view SegmentCommand::name() const {
+    return readMaybeNullTermCString(segname, sizeof(segname));
+}
+
 const Section *SegmentCommand::sect_cbegin() const {
     return (const Section *)(this + 1);
 }

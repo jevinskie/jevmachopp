@@ -10,12 +10,8 @@ public:
     void operator=(const Section &) = delete;
 
 public:
-    auto sectName() const {
-        return readMaybeNullTermCString<decltype(sectname)>(sectname);
-    }
-    auto segName() const {
-        return readMaybeNullTermCString<decltype(segname)>(segname);
-    }
+    std::string_view sectName() const;
+    std::string_view segName() const;
 #if USE_FMT
     fmt::appender &format_to(fmt::appender &out) const;
 #endif

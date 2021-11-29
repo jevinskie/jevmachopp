@@ -208,17 +208,7 @@ struct fmt::formatter<boost::static_string<N>> : fmt::formatter<fmt::string_view
 
 #pragma mark Utilities
 
-template <typename Buf, std::size_t BufSz = sizeof(Buf)>
-std::string_view readMaybeNullTermCString(const char *cstr) {
-    if (!cstr) {
-        return {};
-    }
-    if (std::memchr(cstr, '\0', BufSz)) {
-        return {cstr};
-    } else {
-        return {cstr, BufSz};
-    }
-}
+std::string_view readMaybeNullTermCString(const char *cstr, std::size_t buf_sz);
 
 template <typename T, typename G>
 requires requires(T &ptr, G getter) {
