@@ -52,7 +52,7 @@ int main(int argc, const char *argv[]) {
         auto &dt_nc = (DTNode &)dt;
         for (const auto &patch_spec : patches) {
             printf("patch_spec: %s\n", patch_spec.data());
-            const auto patch_res = dt_nc.processPatch(patch_spec);
+            const auto patch_res = DT::processPatch(dt_nc, patch_spec);
             printf("patch_res: %s\n", patch_res ? "GOOD" : "BAD");
         }
     }
@@ -61,7 +61,7 @@ int main(int argc, const char *argv[]) {
         const auto &multipatch = args["multipatch"].as<std::string>();
         printf("multipatch: \"%s\"\n", multipatch.data());
         auto &dt_nc = (DTNode &)dt;
-        const auto patches_res = dt_nc.processPatches(multipatch);
+        const auto patches_res = DT::processPatches(dt_nc, multipatch);
         printf("patches_res: %s\n", patches_res ? "GOOD" : "BAD");
     }
 

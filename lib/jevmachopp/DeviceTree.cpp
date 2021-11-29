@@ -179,54 +179,6 @@ const DTProp *DTNode::lookupProperty(std::string_view propertyPath) const {
     return node_ptr->propertyNamed(propName);
 }
 
-bool DTNode::processPatch(std::string_view patchSpec) {
-    const auto patchSpecSV = stringSplitViewDelimitedBy(patchSpec, '=');
-    if (ranges::distance(patchSpecSV) != 2) {
-        return false;
-    }
-    auto equals_iter = patchSpecSV.begin();
-    const auto propPath = *equals_iter++;
-    const auto propValStr = *equals_iter;
-    // TODO: more than u32 support?
-
-    const auto *prop = lookupProperty(propPath);
-    if (!prop) {
-        return false;
-    }
-    if (prop->size_raw() == 4) {
-        const auto propVal = sv2int<uint32_t>(propValStr);
-        if (!propVal) {
-            printf("Patcher couldn't parse \"%.*s\" as uint32_t\n", sv2pf(propValStr).sz,
-                   sv2pf(propValStr).str);
-            return false;
-        }
-        (uint64_t &)prop->as_u32() = *propVal;
-        return true;
-    } else if (prop->size_raw() == 8) {
-        const auto propVal = sv2int<uint64_t>(propValStr);
-        if (!propVal) {
-            printf("Patcher couldn't parse \"%.*s\" as uint64_t\n", sv2pf(propValStr).sz,
-                   sv2pf(propValStr).str);
-            return false;
-        }
-        (uint64_t &)prop->as_u64() = *propVal;
-        return true;
-    } else {
-        printf("processPatch: unhandled property size: %u\n", prop->size_raw());
-        return false;
-    }
-    return false;
-}
-
-bool DTNode::processPatches(std::string_view patchesSpec) {
-    const auto patchesSpecSV = stringSplitViewDelimitedBy(patchesSpec, ' ');
-    bool good = true;
-    for (const auto &patchspec : patchesSpecSV) {
-        good &= processPatch(patchspec);
-    }
-    return good;
-}
-
 #pragma mark DTNode - Accessors
 
 const char *DTNode::name_or_nullptr() const {
@@ -279,6 +231,66 @@ DT::getCPUImplRegAddrs(const DTNode &rootNode) {
         printf("chosen/cpus DT node missing\n");
     }
     return regs;
+}
+
+#pragma mark DT - Patching
+
+bool DT::processPatch(DTNode &rootNode, std::string_view patchSpec) {
+    const auto patchSpecSV = stringSplitViewDelimitedBy(patchSpec, '=');
+    if (ranges::distance(patchSpecSV) != 2) {
+        return false;
+    }
+    auto equals_iter = patchSpecSV.begin();
+    const auto propPath = *equals_iter++;
+    const auto propValStr = *equals_iter;
+    const auto *prop = rootNode.lookupProperty(propPath);
+    if (!prop) {
+        return false;
+    }
+    if (prop->size_raw() == 4) {
+        const auto propVal = sv2int<uint32_t>(propValStr);
+        if (!propVal) {
+            printf("Patcher couldn't parse \"%.*s\" as uint32_t\n", sv2pf(propValStr).sz,
+                   sv2pf(propValStr).str);
+            return false;
+        }
+        const auto before = prop->as_u32();
+        (uint64_t &)prop->as_u32() = *propVal;
+        printf("Patched %.*s from 0x%x to 0x%x\n", sv2pf(propPath).sz, sv2pf(propPath).str, before,
+               *propVal);
+        return true;
+    } else if (prop->size_raw() == 8) {
+        const auto propVal = sv2int<uint64_t>(propValStr);
+        if (!propVal) {
+            printf("Patcher couldn't parse \"%.*s\" as uint64_t\n", sv2pf(propValStr).sz,
+                   sv2pf(propValStr).str);
+            return false;
+        }
+        const auto before = prop->as_u64();
+        (uint64_t &)prop->as_u64() = *propVal;
+        printf("Patched %.*s from %p to %p\n", sv2pf(propPath).sz, sv2pf(propPath).str,
+               (void *)before, (void *)*propVal);
+        return true;
+    } else {
+        printf("processPatch: unhandled property size: %u\n", prop->size_raw());
+        return false;
+    }
+    return false;
+}
+
+bool DT::processPatches(DTNode &rootNode, std::string_view patchesSpec) {
+    const auto patchesSpecSV = stringSplitViewDelimitedBy(patchesSpec, ' ');
+    bool good = true;
+    for (const auto &patchspec : patchesSpecSV) {
+        good &= DT::processPatch(rootNode, patchspec);
+    }
+    return good;
+}
+
+bool DT::processPatches(DTNode &rootNode) {
+    const auto patchesSpec =
+        "/chosen#internal-use-only-unit=0xdeadbeef /chosen#debug-enabled=243"sv;
+    return DT::processPatches(rootNode, patchesSpec);
 }
 
 #pragma mark C

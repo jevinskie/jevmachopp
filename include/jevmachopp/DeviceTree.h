@@ -223,8 +223,6 @@ public:
 
     const DTNode *lookupNode(std::string_view nodePath) const;
     const DTProp *lookupProperty(std::string_view propertyPath) const;
-    bool processPatch(std::string_view patchSpec);
-    bool processPatches(std::string_view patchesSpec);
 
     const char *name() const;
     const char *name_or_nullptr() const;
@@ -262,7 +260,12 @@ template <> struct fmt::formatter<DTNode> {
 namespace DT {
 
 constexpr std::size_t MAX_CPUS = 16;
+
 std::experimental::fixed_capacity_vector<const uint64_t *, MAX_CPUS>
 getCPUImplRegAddrs(const DTNode &rootNode);
+
+bool processPatch(DTNode &rootNode, std::string_view patchSpec);
+bool processPatches(DTNode &rootNode, std::string_view patchesSpec);
+bool processPatches(DTNode &rootNode);
 
 } // namespace DT
