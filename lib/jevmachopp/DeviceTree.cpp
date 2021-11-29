@@ -84,6 +84,9 @@ fmt::appender &DTProp::format_to(fmt::appender &out) const {
 #pragma mark DTNode - properties
 
 DTProp::prop_range DTNode::properties() const {
+    if (!properties_size()) {
+        return {};
+    }
     return {properties_cbegin(), properties_cend()};
 }
 
@@ -115,16 +118,23 @@ const DTProp *DTNode::propertyNamed(const std::string_view &name) const {
 #pragma mark DTNode - children
 
 DTNode::child_range DTNode::children() const {
+    if (!children_size()) {
+        return {};
+    }
     return {children_cbegin(), children_cend()};
 }
 
 DTNode::Iterator DTNode::children_cbegin() const {
-    return DTNode::Iterator{(const DTNode *)((uintptr_t)(this + 1) + properties_sizeof()),
-                            children_size()};
+    if (auto childSz = children_size()) {
+        return DTNode::Iterator{(const DTNode *)((uintptr_t)(this + 1) + properties_sizeof()),
+                                childSz};
+    } else {
+        return children_cend();
+    }
 }
 
 DTNode::Iterator DTNode::children_cend() const {
-    return DTNode::Iterator{};
+    return {};
 }
 
 std::uint32_t DTNode::children_size() const {

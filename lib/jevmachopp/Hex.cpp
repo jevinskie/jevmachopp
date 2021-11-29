@@ -34,7 +34,7 @@ uint8_t ascii_digit_to_int(const uint8_t chr) {
 }
 
 bool is_decimal_digit(const uint8_t chr) {
-    return (chr >= '0' && chr <= '9') || (chr >= 'a' && chr <= 'f');
+    return (chr >= '0' && chr <= '9');
 }
 
 bool is_hex_digit(const uint8_t chr) {
