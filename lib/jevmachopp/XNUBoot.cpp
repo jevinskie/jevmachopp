@@ -39,15 +39,8 @@ void load_and_prep_xnu_kernelcache(const void *boot_args_base) {
     }
     auto &chosen_node = *chosen_node_ptr;
 
-    auto nvram_proxy_data_prop_ptr = chosen_node.propertyNamed("nvram-proxy-data");
-    if (!nvram_proxy_data_prop_ptr) {
-        printf("couldn't find chosen/nvram-proxy-data to check for verbose boot flag, bailing out "
-               "of xnu load\n");
-        return;
-    }
-    auto &nvram_proxy_data_prop = *nvram_proxy_data_prop_ptr;
-    const auto proxyData = NVRAM::extractProxyData(nvram_proxy_data_prop.data());
-    const auto hasVerbose = proxyData.system_hasBootArg("-v");
+    const auto hasVerbose = rangeContainsStr(
+        stringSplitViewDelimitedBy(std::string_view{bootArgs.commandLine}, ' '), "-v");
     printf("boot-args has -v flag: %d\n", hasVerbose);
     if (!hasVerbose) {
         printf("didn't detect verbose boot flag, bailing out of xnu load\n");
