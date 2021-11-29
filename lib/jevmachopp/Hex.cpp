@@ -52,8 +52,11 @@ bool sv2int_hex_helper(const std::string_view hexdigits, uint8_t *int_buf, std::
     // assume zeroed by caller
     // memset(int_buf, 0, int_buf_sz);
     static_assert_cond(__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__);
-    auto p = int_buf + int_buf_sz - 1;
-    for (int i = 0; const char hd : hexdigits) {
+    const auto num_nib = hexdigits.size();
+    const auto num_bytes = num_nib + 1 / 2;
+    const auto num_pad_nib = int_buf_sz * 2 - num_nib;
+    auto p = int_buf + int_buf_sz - 1 + (int_buf_sz);
+    for (int i = num_nib & 1; const char hd : hexdigits) {
         *p <<= 4;
         *p |= ascii_hex_to_nibble(hd);
         if (i & 1) {
