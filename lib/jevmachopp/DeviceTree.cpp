@@ -288,8 +288,21 @@ bool DT::processPatches(DTNode &rootNode, std::string_view patchesSpec) {
 }
 
 bool DT::processPatches(DTNode &rootNode) {
-    const auto patchesSpec =
-        "/chosen#internal-use-only-unit=0xdeadbeef /chosen#debug-enabled=243"sv;
+    const auto *chosen_node = rootNode.childNamed("chosen");
+    if (!chosen_node) {
+        return false;
+    }
+    const auto *nvram_proxy_data_prop = chosen_node->propertyNamed("nvram-proxy-data");
+    if (!nvram_proxy_data_prop) {
+        return false;
+    }
+    const auto proxyData = NVRAM::extractProxyData(nvram_proxy_data_prop->data());
+    const auto *patchesVarEqValStr = proxyData.common_part.varNamed("dt-patches");
+    if (!patchesVarEqValStr) {
+        printf("dt-patches nvram var not found, bailing out of patching DT\n");
+        return true;
+    }
+    const auto *patchesSpec = NVRAM::varValue(patchesVarEqValStr);
     return DT::processPatches(rootNode, patchesSpec);
 }
 

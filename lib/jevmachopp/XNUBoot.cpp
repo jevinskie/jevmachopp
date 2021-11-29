@@ -209,17 +209,9 @@ void load_and_prep_xnu_kernelcache(const void *boot_args_base) {
                (void *)r.size);
     }
 
-    if (auto iuou_prop_ptr = chosen_node.propertyNamed("internal-use-only-unit")) {
-        auto &iuou_prop = *iuou_prop_ptr;
-        printf("iuou prop before: 0x%08x\n", iuou_prop.as_u32());
-        assert(iuou_prop.size_raw() == 4);
-        (uint32_t &)iuou_prop.as_u32() = 1;
-        printf("iuou prop after: 0x%08x\n", iuou_prop.as_u32());
-    } else {
-        printf("internal-use-only-unit prop not found in device tree\n");
-        // sad but not fatal
-        // return;
-    }
+    printf("applying patches from nvram\n");
+    const auto nvram_dt_patches_res = DT::processPatches((DTNode &)dt);
+    printf("nvram_dt_patches_res: %s\n", nvram_dt_patches_res ? "GOOD" : "BAD");
 
     const auto cpuImplRegAddrs = DT::getCPUImplRegAddrs(dt);
     const auto rvbar = entry_pc & ~0xfff;

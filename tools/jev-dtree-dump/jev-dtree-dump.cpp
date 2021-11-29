@@ -13,6 +13,7 @@ int main(int argc, const char *argv[]) {
         ("p,property", "lookup property in the device tree", cxxopts::value<std::vector<std::string>>())
         ("P,patch", "patch property in the device tree", cxxopts::value<std::vector<std::string>>())
         ("m,multipatch", "patch multiple properties in the device tree", cxxopts::value<std::string>())
+        ("v,nvram", "apply patches from nvram-proxy-data")
         ("n,node", "lookup node in the device tree", cxxopts::value<std::vector<std::string>>())
         ("h,help", "Print usage")
     ;
@@ -26,6 +27,7 @@ int main(int argc, const char *argv[]) {
 
     uint8_t *dtbuf = Slurp::readfile(args["devicetree"].as<std::string>().data());
     const auto &dt = *(const DTNode *)dtbuf;
+    auto &dt_nc = (DTNode &)dt;
     dump_dtree(dtbuf);
 
     printf("args.count(\"property\"): %zu\n", args.count("property"));
@@ -49,7 +51,6 @@ int main(int argc, const char *argv[]) {
 
     if (args.count("patch")) {
         const auto &patches = args["patch"].as<std::vector<std::string>>();
-        auto &dt_nc = (DTNode &)dt;
         for (const auto &patch_spec : patches) {
             printf("patch_spec: %s\n", patch_spec.data());
             const auto patch_res = DT::processPatch(dt_nc, patch_spec);
@@ -60,8 +61,13 @@ int main(int argc, const char *argv[]) {
     if (args.count("multipatch")) {
         const auto &multipatch = args["multipatch"].as<std::string>();
         printf("multipatch: \"%s\"\n", multipatch.data());
-        auto &dt_nc = (DTNode &)dt;
         const auto patches_res = DT::processPatches(dt_nc, multipatch);
+        printf("patches_res: %s\n", patches_res ? "GOOD" : "BAD");
+    }
+
+    if (args.count("nvram") && args["nvram"].as<bool>()) {
+        printf("applying patches from nvram\n");
+        const auto patches_res = DT::processPatches(dt_nc);
         printf("patches_res: %s\n", patches_res ? "GOOD" : "BAD");
     }
 
