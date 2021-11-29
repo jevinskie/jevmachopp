@@ -34,10 +34,20 @@ TEST_CASE("ascending hex", "[sv2int]") {
     REQUIRE(sv2int<uint32_t>("0x4321"sv) == 0x4321);
 }
 
-// TEST_CASE("must be unsigned int", "[sv2int]") {
-//     REQUIRE(sv2int<int32_t>("0x0"sv) == 0x0);
-// }
+TEST_CASE("decimal fail negative", "[sv2int]") {
+    REQUIRE_FALSE(sv2int<uint32_t>("-123"));
+}
 
-// TEST_CASE("can't be bool", "[sv2int]") {
-//     REQUIRE(sv2int<bool>("0x0"sv) == false);
-// }
+TEST_CASE("decimal good", "[sv2int]") {
+    REQUIRE(sv2int<uint32_t>("1") == 1);
+    REQUIRE(sv2int<uint32_t>("2") == 2);
+    REQUIRE(sv2int<uint32_t>("10") == 10);
+    REQUIRE(sv2int<uint32_t>("12") == 12);
+    REQUIRE(sv2int<uint32_t>("123456789") == 123456789);
+    REQUIRE(sv2int<uint32_t>("4294967294") == 4294967294);
+    REQUIRE(sv2int<uint32_t>("4294967295") == 4294967295);
+}
+
+TEST_CASE("decimal overflow FIXME", "[sv2int]") {
+    REQUIRE(sv2int<uint32_t>("4294967296") == 0);
+}
