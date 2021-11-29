@@ -30,8 +30,6 @@ extern "C" __attribute__((noreturn)) void __assert_fail(const char *assertion, c
 #endif
 #define BOOST_NORETURN [[noreturn]]
 
-#include <boost/static_string/static_string.hpp>
-
 #include <nanorange/algorithm/any_of.hpp>
 #include <nanorange/views/filter.hpp>
 #include <nanorange/views/split.hpp>
@@ -184,10 +182,9 @@ const range_value_t<Rng> *find_if_or_nullptr(Rng &&rng, F pred) {
     return nullptr;
 }
 
-template <typename Rng, typename Str> bool rangeContainsStr(Rng &&rng, Str &&strToFind) {
-    const auto strToFindView = std::string_view{strToFind};
-    return ranges::any_of(rng, [&strToFindView](const auto &str) {
-        return str == strToFindView;
+template <typename Rng> bool rangeContainsStr(Rng &&rng, std::string_view strToFind) {
+    return ranges::any_of(rng, [strToFind](const auto &str) {
+        return str == strToFind;
     });
 }
 
@@ -212,9 +209,10 @@ struct fmt::formatter<boost::static_string<N>> : fmt::formatter<fmt::string_view
 #pragma mark Utilities
 
 template <typename Buf, std::size_t BufSz = sizeof(Buf)>
-boost::static_string<BufSz> readMaybeNullTermCString(const char *cstr) {
-    if (!cstr)
-        return "";
+std::string_view readMaybeNullTermCString(const char *cstr) {
+    if (!cstr) {
+        return {};
+    }
     if (std::memchr(cstr, '\0', BufSz)) {
         return {cstr};
     } else {
