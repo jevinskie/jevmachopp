@@ -210,9 +210,6 @@ void load_and_prep_xnu_kernelcache(const void *boot_args_base) {
         const auto nvram_dt_patches_res = DT::processPatches((DTNode &)dt);
         printf("nvram_dt_patches_res: %s\n", nvram_dt_patches_res ? "GOOD" : "BAD");
     }
-    printf("applying patches from nvram\n");
-    const auto nvram_dt_patches_res = DT::processPatches((DTNode &)dt);
-    printf("nvram_dt_patches_res: %s\n", nvram_dt_patches_res ? "GOOD" : "BAD");
 
     const auto cpuImplRegAddrs = DT::getCPUImplRegAddrs(dt);
     const auto rvbar = entry_pc & ~0xfff;
