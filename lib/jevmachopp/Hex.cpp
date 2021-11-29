@@ -40,3 +40,26 @@ bool is_decimal_digit(const uint8_t chr) {
 bool is_hex_digit(const uint8_t chr) {
     return is_decimal_digit(chr) || (chr >= 'a' && chr <= 'f');
 }
+
+bool sv2int_hex_helper(const std::string_view hexdigits, uint8_t *int_buf, std::size_t int_buf_sz) {
+    if (hexdigits.size() > int_buf_sz * 2) {
+        // (potential) overflow
+        return false;
+    }
+    if (!ranges::all_of(hexdigits, is_hex_digit)) {
+        return false;
+    }
+    // assume zeroed by caller
+    // memset(int_buf, 0, int_buf_sz);
+    static_assert_cond(__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__);
+    auto p = int_buf + int_buf_sz - 1;
+    for (int i = 0; const char hd : hexdigits) {
+        *p <<= 4;
+        *p |= ascii_hex_to_nibble(hd);
+        if (i & 1) {
+            --p;
+        }
+        ++i;
+    }
+    return true;
+}

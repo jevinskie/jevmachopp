@@ -27,6 +27,8 @@ boost::static_string<BufSz * 2> buf2hexstr(const void *buf, const std::size_t bu
     return hexstr;
 }
 
+bool sv2int_hex_helper(const std::string_view hexdigits, uint8_t *int_buf, std::size_t int_buf_sz);
+
 template <typename Int>
 requires requires(Int res) {
     !std::is_same_v<Int, bool>;
@@ -36,18 +38,11 @@ std::optional<Int> sv2int(std::string_view sv) {
     Int res = 0;
     if (sv.size() > 2 && sv.starts_with("0x"sv)) {
         const auto hexdigits = sv.substr(2);
-        if (hexdigits.size() > sizeof(res) * 2) {
-            // (potential) overflow
+        if (sv2int_hex_helper(sv.substr(2), (uint8_t *)&res, sizeof(res))) {
+            return res;
+        } else {
             return {};
         }
-        if (!ranges::all_of(hexdigits, is_hex_digit)) {
-            return {};
-        }
-        for (const char hd : hexdigits) {
-            res <<= 4;
-            res |= ascii_hex_to_nibble(hd);
-        }
-        return res;
     } else {
         // efficient way to calculate overflow for decimal goes here
         if (!ranges::all_of(sv, is_decimal_digit)) {
