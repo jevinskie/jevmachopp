@@ -63,19 +63,25 @@ const SegmentCommand *MachO::linkeditSeg() const {
 }
 
 AddrRange MachO::vmaddr_range() const {
-    AddrRange res{};
-    for (const auto &seg : segments()) {
-        res = res | seg.vmaddr_range();
-    }
-    return res;
+    // AddrRange res{};
+    // for (const auto &seg : segments()) {
+    //     res = res | seg.vmaddr_range();
+    // }
+    // return res;
+    return AddrRange::collapseRange(segments() | ranges::views::transform([](const auto &seg) {
+                                        return seg.vmaddr_range();
+                                    }));
 }
 
 AddrRange MachO::file_range() const {
-    AddrRange res{};
-    for (const auto &seg : segments()) {
-        res |= seg.file_range();
-    }
-    return res;
+    // AddrRange res{};
+    // for (const auto &seg : segments()) {
+    //     res |= seg.file_range();
+    // }
+    // return res;
+    return AddrRange::collapseRange(segments() | ranges::views::transform([](const auto &seg) {
+                                        return seg.file_range();
+                                    }));
 }
 
 #pragma mark symtab

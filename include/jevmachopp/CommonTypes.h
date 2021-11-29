@@ -58,6 +58,15 @@ public:
         return lhs -= rhs;
     }
 
+    // template <typename Rng, std::enable_if_t<std::is_same_v<range_value_t<Rng>, AddrRange>>>
+    template <typename Rng> static AddrRange collapseRange(Rng &&rng) {
+        AddrRange res{};
+        for (const auto &rhs_rng : rng) {
+            res |= rhs_rng;
+        }
+        return res;
+    }
+
 #if USE_FMT
     fmt::appender &format_to(fmt::appender &out) const;
 #endif
