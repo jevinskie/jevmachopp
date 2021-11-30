@@ -104,6 +104,10 @@ void load_and_prep_xnu_kernelcache(const void *boot_args_base) {
         return;
     }
 
+
+    const auto find_res = CallFinder::findCallsTo<>(kc, "_csr_check");
+
+
     const auto unix_thread_ptr = kc.unixThread();
     if (!unix_thread_ptr) {
         printf("missing unix thread LC, bailing out of xnu load\n");
