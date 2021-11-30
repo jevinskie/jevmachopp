@@ -9,6 +9,7 @@ set(MACHOPP_SRC
     DeviceTree.cpp
     DylibCommand.cpp
     DySymtabCommand.cpp
+    FatMachO.cpp
     FilesetEntryCommand.cpp
     FunctionStartsCommand.cpp
     Hex.cpp
