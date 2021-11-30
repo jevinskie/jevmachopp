@@ -10,7 +10,6 @@ using indirect_syms_idxes_t = std::span<const uint32_t>;
 
 using FuncStartIterator = LEB128Iterator<uint64_t>;
 using raw_func_start_range = subrange<FuncStartIterator>;
-using func_start_range = subrange<uint64_t>;
 
 class AddrRange {
 public:
