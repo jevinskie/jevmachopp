@@ -7,6 +7,7 @@
 #include "jevmachopp/DylibCommand.h"
 #include "jevmachopp/EncryptionInfoCommand.h"
 #include "jevmachopp/FilesetEntryCommand.h"
+#include "jevmachopp/FunctionStartsCommand.h"
 #include "jevmachopp/LinkeditDataCommand.h"
 #include "jevmachopp/SegmentCommand.h"
 #include "jevmachopp/SourceVersionCommand.h"
@@ -23,6 +24,8 @@ const LoadCommand *LoadSubCommand::loadCommand() const {
 
 const SubCommandVariant LoadSubCommand::get() const {
     switch (loadCommand()->cmd) {
+    case LoadCommandType::FUNCTION_STARTS:
+        return SubCommandVariant{(const FunctionStartsCommand *)this};
     case LoadCommandType::UNIXTHREAD:
         return SubCommandVariant{(const UnixThreadCommand *)this};
     case LoadCommandType::SOURCE_VERSION:
@@ -44,7 +47,6 @@ const SubCommandVariant LoadSubCommand::get() const {
         return SubCommandVariant{(const EncryptionInfoCommand *)this};
     case LoadCommandType::CODE_SIGNATURE:
     case LoadCommandType::SEGMENT_SPLIT_INFO:
-    case LoadCommandType::FUNCTION_STARTS:
     case LoadCommandType::DATA_IN_CODE:
     case LoadCommandType::DYLIB_CODE_SIGN_DRS:
     case LoadCommandType::LINKER_OPTIMIZATION_HINT:

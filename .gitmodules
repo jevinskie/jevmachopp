@@ -31,3 +31,6 @@
 [submodule "3rdparty/arch-arm64"]
 	path = 3rdparty/arch-arm64
 	url = git@git.je.vin:jevin/arch-arm64.git
+[submodule "3rdparty/uleb128"]
+	path = 3rdparty/uleb128
+	url = https://github.com/bolderflight/uleb128

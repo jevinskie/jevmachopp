@@ -10,6 +10,7 @@ set(MACHOPP_SRC
     DylibCommand.cpp
     DySymtabCommand.cpp
     FilesetEntryCommand.cpp
+    FunctionStartsCommand.cpp
     Hex.cpp
     LoadCommand.cpp
     LoadSubCommand.cpp
@@ -66,7 +67,7 @@ list(APPEND MACHOPP_SRC
 add_library(jevmachopp ${MACHOPP_SRC} ${MACHOPP_HDR})
 
 
-target_link_libraries(jevmachopp PUBLIC bn-arm64-disasm Boost::callable_traits enum.hpp fmt nanorange visit)
+target_link_libraries(jevmachopp PUBLIC bn-arm64-disasm Boost::callable_traits enum.hpp fmt nanorange uleb128 visit)
 target_compile_definitions(jevmachopp PRIVATE USE_FMT=1)
 target_compile_options(jevmachopp PRIVATE -Wall -Wextra -Wpedantic)
 target_compile_options(jevmachopp PRIVATE -fno-rtti -fno-exceptions -fno-unwind-tables -fno-asynchronous-unwind-tables)

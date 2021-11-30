@@ -10,10 +10,8 @@ public:
 #endif
 
 public:
-    uint32_t name_offset;
-    uint32_t timestamp;
-    uint32_t current_version;
-    uint32_t compatibility_version;
+    uint32_t dataoff;
+    uint32_t datasize;
 
 public:
     LinkeditDataCommand(const LinkeditDataCommand &) = delete;
@@ -22,10 +20,10 @@ public:
 
 #if __has_include(<mach-o/loader.h>)
 #include <mach-o/loader.h>
-static_assert_size_same_minus_header(LinkeditDataCommand, struct dylib_command,
+static_assert_size_same_minus_header(LinkeditDataCommand, struct linkedit_data_command,
                                      struct load_command);
 #endif
-static_assert_size_is(LinkeditDataCommand, 16);
+static_assert_size_is(LinkeditDataCommand, 8);
 
 #if USE_FMT
 template <> struct fmt::formatter<LinkeditDataCommand> {

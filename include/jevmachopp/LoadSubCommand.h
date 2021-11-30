@@ -10,6 +10,7 @@ class DylibCommand;
 class DySymtabCommand;
 class EncryptionInfoCommand;
 class FilesetEntryCommand;
+class FunctionStartsCommand;
 class LinkeditDataCommand;
 class SegmentCommand;
 class SourceVersionCommand;
@@ -21,9 +22,9 @@ class UnknownCommand;
 using SubCommandVariant =
     std::variant<const BuildVersionCommand *, const DylibCommand *, const DySymtabCommand *,
                  const EncryptionInfoCommand *, const FilesetEntryCommand *,
-                 const LinkeditDataCommand *, const SegmentCommand *, const SourceVersionCommand *,
-                 const SymtabCommand *, const UUIDCommand *, const UnixThreadCommand *,
-                 const UnknownCommand *>;
+                 const FunctionStartsCommand *, const LinkeditDataCommand *, const SegmentCommand *,
+                 const SourceVersionCommand *, const SymtabCommand *, const UUIDCommand *,
+                 const UnixThreadCommand *, const UnknownCommand *>;
 
 class LoadSubCommand {
 public:
