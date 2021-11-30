@@ -26,6 +26,7 @@ public:
     uint32_t sect_size() const;
     std::size_t sect_sizeof() const;
     std::span<const Section> sections() const;
+    const Section *sectionNamed(const std::string_view sect_name) const;
     AddrRange vmaddr_range() const;
     AddrRange file_range() const;
 

@@ -27,6 +27,12 @@ std::span<const Section> SegmentCommand::sections() const {
     return {sect_cbegin(), sect_cend()};
 }
 
+const Section *SegmentCommand::sectionNamed(const std::string_view sect_name) const {
+    return find_if_or_nullptr(sections(), [=](const auto &sect) {
+        return sect.sectName() == sect_name;
+    });
+}
+
 AddrRange SegmentCommand::vmaddr_range() const {
     return {vmaddr, vmaddr + vmsize};
 }

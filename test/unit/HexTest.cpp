@@ -8,6 +8,10 @@ TEST_CASE("not integer strings", "[sv2int]") {
     REQUIRE_FALSE(sv2int<uint32_t>("0x"sv));
 }
 
+// TEST_CASE("compile fail signed", "[sv2int]") {
+//     REQUIRE_FALSE(sv2int<int32_t>("0"));
+// }
+
 TEST_CASE("zero", "[sv2int]") {
     REQUIRE(sv2int<uint32_t>("0"sv) == 0);
     REQUIRE(sv2int<uint32_t>("000"sv) == 0);

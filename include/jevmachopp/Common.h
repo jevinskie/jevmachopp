@@ -187,6 +187,14 @@ const range_value_t<Rng> *find_if_or_nullptr(Rng &&rng, F pred) {
     return nullptr;
 }
 
+template <typename Rng, typename F> std::optional<ssize_t> get_index_in(Rng &&rng, F pred) {
+    auto res = ranges::find_if(rng, pred);
+    if (res != std::end(rng)) {
+        return ranges::distance(rng.begin(), res);
+    }
+    return {};
+}
+
 template <typename Rng> bool rangeContainsStr(Rng &&rng, std::string_view strToFind) {
     return ranges::any_of(rng, [strToFind](const auto &str) {
         return str == strToFind;
