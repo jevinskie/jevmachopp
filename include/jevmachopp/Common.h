@@ -248,3 +248,5 @@ T setIfNull(T &ptr, G getter) {
         }                                                                                          \
         (ptr);                                                                                     \
     })
+
+#define setIfNullAsserting(ptr, getter) assert(setIfNull((ptr), (getter)))

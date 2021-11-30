@@ -4,6 +4,7 @@
 #include "jevmachopp/CommonTypes.h"
 #include "jevmachopp/CpuTypeMeta.h"
 #include "jevmachopp/DylibCommand.h"
+#include "jevmachopp/FunctionStartsCommand.h"
 #include "jevmachopp/LoadCommand.h"
 #include "jevmachopp/MachOHeaderEnums.h"
 #include "jevmachopp/PackedCStr.h"
@@ -171,6 +172,10 @@ public:
                                     return *(const FilesetEntryCommand *)fseLC.subcmd();
                                 });
     }
+
+#pragma mark function starts
+    const FunctionStartsCommand *functionStartsCommand() const;
+    func_start_range functionStarts() const;
 
 #pragma mark unix thread
     const UnixThreadCommand *unixThread() const;

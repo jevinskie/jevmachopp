@@ -3,15 +3,22 @@
 #include "jevmachopp/Common.h"
 #include "jevmachopp/LoadSubCommand.h"
 
+class MachO;
+class SegmentCommand;
+
 class LinkeditDataCommand : public LoadSubCommand {
 public:
-#if USE_FMT
-    fmt::appender &format_to(fmt::appender &out) const;
-#endif
+    std::span<const uint8_t> data(const MachO *macho = nullptr,
+                                  const SegmentCommand *linkeditSeg = nullptr) const;
 
 public:
     uint32_t dataoff;
     uint32_t datasize;
+
+public:
+#if USE_FMT
+    fmt::appender &format_to(fmt::appender &out) const;
+#endif
 
 public:
     LinkeditDataCommand(const LinkeditDataCommand &) = delete;

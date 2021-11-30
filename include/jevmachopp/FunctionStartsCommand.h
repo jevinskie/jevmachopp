@@ -1,11 +1,19 @@
 #pragma once
 
 #include "jevmachopp/Common.h"
+#include "jevmachopp/LEB128.h"
 #include "jevmachopp/LinkeditDataCommand.h"
 #include "jevmachopp/LoadSubCommand.h"
 
+using FuncStartIterator = LEB128Iterator<uint64_t>;
+using func_start_range = subrange<FuncStartIterator>;
+
 class FunctionStartsCommand : public LinkeditDataCommand {
 public:
+    func_start_range functionStarts() const;
+    FuncStartIterator cbegin() const;
+    FuncStartIterator cend() const;
+
 #if USE_FMT
     fmt::appender &format_to(fmt::appender &out) const;
 #endif
