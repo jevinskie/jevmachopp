@@ -1,6 +1,9 @@
 # Boost
 add_subdirectory(callable_traits)
 
+set(BN_API_PATH ${CMAKE_CURRENT_SOURCE_DIR}/binaryninja-api)
+add_subdirectory(arch-arm64)
+
 add_subdirectory(Catch2)
 add_subdirectory(cxxopts)
 add_subdirectory(enum.hpp)
