@@ -225,10 +225,10 @@ const FunctionStartsCommand *MachO::functionStartsCommand() const {
     return (const FunctionStartsCommand *)lc->subcmd();
 }
 
-func_start_range MachO::functionStarts() const {
+func_start_range MachO::functionStartsRawOffsets() const {
     const auto *fsc = functionStartsCommand();
     assert(fsc);
-    return fsc->functionStarts();
+    return fsc->offsets_raw(*this);
 }
 
 #pragma mark unix thread

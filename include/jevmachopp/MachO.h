@@ -175,7 +175,7 @@ public:
 
 #pragma mark function starts
     const FunctionStartsCommand *functionStartsCommand() const;
-    func_start_range functionStarts() const;
+    func_start_range functionStartsRawOffsets() const;
 
 #pragma mark unix thread
     const UnixThreadCommand *unixThread() const;

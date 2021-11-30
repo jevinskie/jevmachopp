@@ -1,14 +1,14 @@
 #include "jevmachopp/FunctionStartsCommand.h"
 
-func_start_range FunctionStartsCommand::functionStarts() const {
-    return {cbegin(), cend()};
+func_start_range FunctionStartsCommand::offsets_raw(const MachO &macho) const {
+    return {offsets_raw_cbegin(macho), offsets_raw_cend()};
 }
 
-FuncStartIterator FunctionStartsCommand::cbegin() const {
-    return {data()};
+FuncStartIterator FunctionStartsCommand::offsets_raw_cbegin(const MachO &macho) const {
+    return {data(macho)};
 }
 
-FuncStartIterator FunctionStartsCommand::cend() const {
+FuncStartIterator FunctionStartsCommand::offsets_raw_cend() const {
     return {};
 }
 

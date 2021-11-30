@@ -2,14 +2,8 @@
 #include "jevmachopp/MachO.h"
 #include "jevmachopp/SegmentCommand.h"
 
-std::span<const uint8_t> LinkeditDataCommand::data(const MachO *macho,
-                                                   const SegmentCommand *linkeditSeg) const {
-    assert(macho);
-    setIfNullAsserting(linkeditSeg, [=]() {
-        return macho->linkeditSeg();
-    });
-    const auto ledata = linkeditSeg->data(*macho);
-    return {&ledata[dataoff], datasize};
+std::span<const uint8_t> LinkeditDataCommand::data(const MachO &macho) const {
+    return {(const uint8_t *)&macho + dataoff, datasize};
 }
 
 #if USE_FMT

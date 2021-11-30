@@ -16,8 +16,9 @@ public:
     using pointer = Int *;
     using reference = Int &;
 
-    LEB128Iterator() {}
-    LEB128Iterator(std::span<const uint8_t> lebBuf) : m_buf(lebBuf) {}
+    LEB128Iterator() : m_buf({}), m_val(0), m_nbytes(0), m_idx(0) {}
+    LEB128Iterator(std::span<const uint8_t> lebBuf)
+        : m_buf(lebBuf), m_val(0), m_nbytes(0), m_idx(0) {}
 
     reference operator*() {
         updateVal();
@@ -30,7 +31,12 @@ public:
     LEB128Iterator &operator++() {
         updateVal();
         m_idx += m_nbytes;
-        clearVal();
+        assert(m_idx <= m_buf.size_bytes());
+        if (m_idx == m_buf.size_bytes()) {
+            *this = {};
+        } else {
+            clearVal();
+        }
         return *this;
     }
     LEB128Iterator operator++(int) {
@@ -39,10 +45,12 @@ public:
         return tmp;
     }
     friend bool operator==(const LEB128Iterator &a, const LEB128Iterator &b) {
-        return (a.m_buf.data() == b.m_buf.data() && a.m_buf.size() == b.m_buf.size()) && a.m_idx == b.m_idx;
+        return (a.m_buf.data() == b.m_buf.data() && a.m_buf.size() == b.m_buf.size()) &&
+               a.m_idx == b.m_idx;
     };
     friend bool operator!=(const LEB128Iterator &a, const LEB128Iterator &b) {
-        return (a.m_buf.data() != b.m_buf.data() || a.m_buf.size() != b.m_buf.size()) || a.m_idx != b.m_idx;
+        return (a.m_buf.data() != b.m_buf.data() || a.m_buf.size() != b.m_buf.size()) ||
+               a.m_idx != b.m_idx;
     };
 
 private:

@@ -8,8 +8,7 @@ class SegmentCommand;
 
 class LinkeditDataCommand : public LoadSubCommand {
 public:
-    std::span<const uint8_t> data(const MachO *macho = nullptr,
-                                  const SegmentCommand *linkeditSeg = nullptr) const;
+    std::span<const uint8_t> data(const MachO &macho) const;
 
 public:
     uint32_t dataoff;

@@ -10,9 +10,9 @@ using func_start_range = subrange<FuncStartIterator>;
 
 class FunctionStartsCommand : public LinkeditDataCommand {
 public:
-    func_start_range functionStarts() const;
-    FuncStartIterator cbegin() const;
-    FuncStartIterator cend() const;
+    func_start_range offsets_raw(const MachO &macho) const;
+    FuncStartIterator offsets_raw_cbegin(const MachO &macho) const;
+    FuncStartIterator offsets_raw_cend() const;
 
 #if USE_FMT
     fmt::appender &format_to(fmt::appender &out) const;
