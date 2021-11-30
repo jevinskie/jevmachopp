@@ -7,6 +7,10 @@ std::string_view SegmentCommand::name() const {
     return readMaybeNullTermCString(segname, sizeof(segname));
 }
 
+std::span<const uint8_t> SegmentCommand::data(const MachO &macho) const {
+    return {(const uint8_t *)&macho + fileoff, filesize};
+}
+
 const Section *SegmentCommand::sect_cbegin() const {
     return (const Section *)(this + 1);
 }

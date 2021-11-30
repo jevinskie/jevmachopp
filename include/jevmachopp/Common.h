@@ -207,6 +207,11 @@ inline auto stringSplitViewDelimitedBy(std::string_view to_split, char delim) {
            });
 }
 
+template <typename NewT, typename T> std::span<NewT> span_cast(std::span<T> orig) {
+    assert(orig.size_bytes() % sizeof(NewT) == 0);
+    return {(const NewT *)orig.data(), orig.size_bytes() / sizeof(NewT)};
+}
+
 #pragma mark fmt
 
 #if USE_FMT
@@ -225,8 +230,8 @@ std::string_view readMaybeNullTermCString(const char *cstr, std::size_t buf_sz);
 
 template <typename T, typename G>
 requires requires(T &ptr, G getter) {
-    convertible_to<decltype(getter()), T>;
-    std::is_pointer_v<T>;
+    requires convertible_to<decltype(getter()), T>;
+    requires std::is_pointer_v<T>;
 }
 T setIfNull(T &ptr, G getter) {
     if (ptr) {

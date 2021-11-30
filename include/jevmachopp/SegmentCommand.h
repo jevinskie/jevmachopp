@@ -12,6 +12,8 @@
 #include "jevmachopp/LoadSubCommand.h"
 #include "jevmachopp/Section.h"
 
+class MachO;
+
 using jev_vm_prot_t = int;
 
 class SegmentCommand : public LoadSubCommand {
@@ -21,6 +23,7 @@ public:
 
 public:
     std::string_view name() const;
+    std::span<const uint8_t> data(const MachO &macho) const;
     const Section *sect_cbegin() const;
     const Section *sect_cend() const;
     uint32_t sect_size() const;
