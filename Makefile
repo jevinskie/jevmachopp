@@ -38,6 +38,7 @@ JEV_CXXFLAGS := $(filter-out -Werror=strict-prototypes,$(JEV_CXXFLAGS))
 JEV_CXXFLAGS := $(filter-out -Werror=implicit-function-declaration,$(JEV_CXXFLAGS))
 JEV_CXXFLAGS := $(filter-out -Werror=implicit-int,$(JEV_CXXFLAGS))
 JEV_CXXFLAGS := $(filter-out -std=gnu11,$(JEV_CXXFLAGS))
+JEV_CXXFLAGS += -fconcepts-diagnostics-depth=6
 
 # make print-LIBJEVMACHOPP_OBJS
 print-%:
