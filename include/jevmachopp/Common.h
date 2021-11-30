@@ -30,6 +30,11 @@ extern "C" __attribute__((noreturn)) void __assert_fail(const char *assertion, c
 #endif
 #define BOOST_NORETURN [[noreturn]]
 
+#if USE_FMT
+// for custom fmt printer
+#include <boost/static_string/static_string.hpp>
+#endif
+
 #include <nanorange/algorithm/any_of.hpp>
 #include <nanorange/views/filter.hpp>
 #include <nanorange/views/split.hpp>

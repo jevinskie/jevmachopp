@@ -1,6 +1,7 @@
 
 set(MACHOPP_SRC
     BuildVersionCommand.cpp
+    CallFinder.cpp
     Common.cpp
     CommonTypes.cpp
     DeviceTree.cpp
@@ -63,14 +64,10 @@ list(APPEND MACHOPP_SRC
 add_library(jevmachopp ${MACHOPP_SRC} ${MACHOPP_HDR})
 
 
-target_link_libraries(jevmachopp PUBLIC Boost::callable_traits enum.hpp fmt nanorange visit)
-target_compile_definitions(jevmachopp PRIVATE USE_FMT=0)
+target_link_libraries(jevmachopp PUBLIC arch_arm64 Boost::callable_traits enum.hpp fmt nanorange visit)
+target_compile_definitions(jevmachopp PRIVATE USE_FMT=1)
 target_compile_options(jevmachopp PRIVATE -Wall -Wextra -Wpedantic)
 target_compile_options(jevmachopp PRIVATE -fno-rtti -fno-exceptions -fno-unwind-tables -fno-asynchronous-unwind-tables)
-
-# FIXME: needed? better target-specific option?
-add_compile_options($<$<COMPILE_LANGUAGE:ASM>:-x$<SEMICOLON>assembler-with-cpp>)
-
 
 target_include_directories(jevmachopp PUBLIC ../../include ../../3rdparty/static_string/include ../../3rdparty/static_vector/include ../../3rdparty/hedley)
 
