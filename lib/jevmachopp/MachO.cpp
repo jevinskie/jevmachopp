@@ -5,6 +5,7 @@
 
 #include "jevmachopp/DySymtabCommand.h"
 #include "jevmachopp/FilesetEntryCommand.h"
+#include "jevmachopp/FunctionStartsCommand.h"
 #include "jevmachopp/MachO.h"
 #include "jevmachopp/PackedCStr.h"
 #include "jevmachopp/SegmentCommand.h"
@@ -223,12 +224,6 @@ const FunctionStartsCommand *MachO::functionStartsCommand() const {
         return nullptr;
     }
     return (const FunctionStartsCommand *)lc->subcmd();
-}
-
-func_start_range MachO::functionStartsRawOffsets() const {
-    const auto *fsc = functionStartsCommand();
-    assert(fsc);
-    return fsc->offsets_raw(*this);
 }
 
 #pragma mark unix thread

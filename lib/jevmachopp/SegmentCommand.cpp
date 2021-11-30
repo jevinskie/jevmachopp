@@ -44,3 +44,7 @@ AddrRange SegmentCommand::vmaddr_range() const {
 AddrRange SegmentCommand::file_range() const {
     return {fileoff, fileoff + filesize};
 }
+
+uint64_t SegmentCommand::vmaddr_fileoff_delta() const {
+    return vmaddr - fileoff;
+}

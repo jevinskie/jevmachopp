@@ -4,29 +4,48 @@
 #include "jevmachopp/LEB128.h"
 #include "jevmachopp/LinkeditDataCommand.h"
 #include "jevmachopp/LoadSubCommand.h"
+#include "jevmachopp/MachO.h"
+#include "jevmachopp/SegmentCommand.h"
 
 #include <nanorange/views/empty.hpp>
 
 using FuncStartIterator = LEB128Iterator<uint64_t>;
-using func_start_range = subrange<FuncStartIterator>;
+using raw_func_start_range = subrange<FuncStartIterator>;
+using func_start_range = subrange<uint64_t>;
 
 class FunctionStartsCommand : public LinkeditDataCommand {
 public:
-    func_start_range offsets_raw(const MachO &macho) const;
-    FuncStartIterator offsets_raw_cbegin(const MachO &macho) const;
-    FuncStartIterator offsets_raw_cend() const;
+    raw_func_start_range raw_offsets(const MachO &macho) const;
+    FuncStartIterator raw_offsets_cbegin(const MachO &macho) const;
+    FuncStartIterator raw_offsets_cend() const;
 
-    func_start_range file_offsets(const MachO &macho) const;
-    auto file_offsets_cbegin(const MachO &macho) const {
-        return 0;
-    }
-    auto file_offsets_cend() const {
-        return ranges::empty_view<const uint64_t>{};
+    auto file_offsets(const MachO &macho, const SegmentCommand *textSeg = nullptr) const {
+        setIfNullAsserting(textSeg, [&]() {
+            return macho.textSeg();
+        });
+        bool first = true;
+        uint64_t prev = 0;
+        return raw_offsets(macho) | ranges::views::transform([&](const auto &raw_off) {
+                   if (first) {
+                       first = false;
+                       prev = raw_off + textSeg->fileoff;
+                   } else {
+                       prev += raw_off;
+                   }
+                   return prev;
+               });
     }
 
-    func_start_range vm_addrs(const MachO &macho) const;
-    FuncStartIterator vm_addrs_cbegin(const MachO &macho) const;
-    FuncStartIterator vm_addrs_cend() const;
+    // auto vm_addrs(const MachO &macho, const SegmentCommand *textSeg = nullptr) const {
+    //     setIfNullAsserting(textSeg, [&]() {
+    //         return macho.textSeg();
+    //     });
+    //     const auto vmaddr_fileoff_delta = textSeg->vmaddr_fileoff_delta();
+    //     return file_offsets(macho, textSeg) | ranges::views::transform([&](const auto &file_off)
+    //     {
+    //         return file_off + vmaddr_fileoff_delta;
+    //     });
+    // }
 
 #if USE_FMT
     fmt::appender &format_to(fmt::appender &out) const;

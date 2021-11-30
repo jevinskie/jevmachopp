@@ -4,7 +4,6 @@
 #include "jevmachopp/CommonTypes.h"
 #include "jevmachopp/CpuTypeMeta.h"
 #include "jevmachopp/DylibCommand.h"
-#include "jevmachopp/FunctionStartsCommand.h"
 #include "jevmachopp/LoadCommand.h"
 #include "jevmachopp/MachOHeaderEnums.h"
 #include "jevmachopp/PackedCStr.h"
@@ -23,6 +22,7 @@ using namespace nano;
 
 class DylibCommand;
 class DySymtabCommand;
+class FunctionStartsCommand;
 class SegmentCommand;
 class SymtabCommand;
 class NList;
@@ -175,7 +175,6 @@ public:
 
 #pragma mark function starts
     const FunctionStartsCommand *functionStartsCommand() const;
-    func_start_range functionStartsRawOffsets() const;
 
 #pragma mark unix thread
     const UnixThreadCommand *unixThread() const;

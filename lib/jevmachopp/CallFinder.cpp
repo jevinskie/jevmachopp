@@ -1,6 +1,7 @@
 #include "jevmachopp/CallFinder.h"
 #include "jevmachopp/ARM64Disasm.h"
 #include "jevmachopp/CallStubs.h"
+#include "jevmachopp/FunctionStartsCommand.h"
 #include "jevmachopp/MachO.h"
 #include "jevmachopp/Section.h"
 #include "jevmachopp/SegmentCommand.h"
@@ -61,10 +62,23 @@ bool findCallsTo(const MachO &macho, const std::string_view symbol_name) {
         pc += 4;
     }
 
-    const auto func_starts_raw = macho.functionStartsRawOffsets();
+    const auto func_starts_cmd = macho.functionStartsCommand();
+    assert(func_starts_cmd);
+
+    const auto func_starts_raw = func_starts_cmd->raw_offsets(macho);
     for (const uint64_t fsro : func_starts_raw) {
         printf("fsro: %p\n", (void *)fsro);
     }
+
+    const auto func_starts_file_offs = func_starts_cmd->file_offsets(macho, text_seg);
+    for (const auto &fsfo : func_starts_file_offs) {
+        printf(">> fsfo: %p\n", (void *)fsfo);
+    }
+
+    // const auto func_starts_vmaddrs = func_starts_cmd->vm_addrs();
+    // for (const uint64_t fsvm : func_starts_file_offs) {
+    //     printf("## fsvm: %p\n", (void *)fsfo);
+    // }
 
     return true;
 }

@@ -32,6 +32,7 @@ public:
     const Section *sectionNamed(const std::string_view sect_name) const;
     AddrRange vmaddr_range() const;
     AddrRange file_range() const;
+    uint64_t vmaddr_fileoff_delta() const;
 
 public:
     char segname[16];
