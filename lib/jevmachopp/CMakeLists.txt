@@ -2,6 +2,7 @@
 set(MACHOPP_SRC
     BuildVersionCommand.cpp
     CallFinder.cpp
+    CallStubs.cpp
     Common.cpp
     CommonTypes.cpp
     DeviceTree.cpp
