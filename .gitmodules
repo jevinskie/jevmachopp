@@ -31,6 +31,3 @@
 [submodule "3rdparty/arch-arm64"]
 	path = 3rdparty/arch-arm64
 	url = git@git.je.vin:jevin/arch-arm64.git
-[submodule "3rdparty/binaryninja-api"]
-	path = 3rdparty/binaryninja-api
-	url = https://github.com/Vector35/binaryninja-api
