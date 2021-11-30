@@ -17,7 +17,11 @@ std::optional<bl_off> decodeBL(const inst_raw_t inst) {
 }
 
 bool isBLTo(const inst_raw_t inst, uint64_t pc, uint64_t target_addr) {
-    return false;
+    if (auto bl_off = decodeBL(inst)) {
+        return *bl_off + pc == target_addr;
+    } else {
+        return false;
+    }
 }
 
 } // namespace ARM64Disasm

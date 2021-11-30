@@ -1,4 +1,5 @@
 #include "jevmachopp/CallFinder.h"
+#include "jevmachopp/ARM64Disasm.h"
 #include "jevmachopp/CallStubs.h"
 #include "jevmachopp/MachO.h"
 #include "jevmachopp/Section.h"
@@ -51,8 +52,13 @@ bool findCallsTo(const MachO &macho, const std::string_view symbol_name) {
     const auto &text_raw = text_seg->data(macho);
     const auto &text_instr = span_cast<const uint32_t>(text_raw);
 
-    for (int i = 0; i < 256; ++i) {
-        printf("%04x: 0x%08x\n", i, text_instr[i]);
+    uint64_t pc = text_seg->vmaddr_range().min;
+    for (const auto instr_raw : text_instr) {
+        if (ARM64Disasm::isBLTo(instr_raw, pc, symbol_stub_addr)) {
+            printf("found BL @ %p to %.*s\n", (void *)pc, sv2pf(symbol_name).sz,
+                   sv2pf(symbol_name).str);
+        }
+        pc += 4;
     }
 
     return true;
