@@ -13,7 +13,7 @@ std::optional<bl_off> decodeBL(const inst_raw_t inst) {
     if (!isBL(inst)) {
         return {};
     }
-    return (((inst & ~bl_opc_mask) << 6) >> 6);
+    return ((((bl_off)(inst & ~bl_opc_mask)) << 6) >> 4);
 }
 
 bool isBLTo(const inst_raw_t inst, uint64_t pc, uint64_t target_addr) {
