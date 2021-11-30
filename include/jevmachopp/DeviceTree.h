@@ -204,7 +204,7 @@ public:
     std::uint32_t properties_sizeof() const;
     const DTProp *propertyNamed(const std::string_view &name) const;
     auto properties_sized(std::uint32_t size) const {
-        return ranges::views::filter(properties(), [&](const DTProp &prop) {
+        return ranges::views::filter(properties(), [size](const DTProp &prop) {
             return prop.size_raw() == size;
         });
     }
