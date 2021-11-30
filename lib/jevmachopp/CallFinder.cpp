@@ -61,6 +61,11 @@ bool findCallsTo(const MachO &macho, const std::string_view symbol_name) {
         pc += 4;
     }
 
+    const auto func_starts = macho.functionStarts();
+    for (const uint64_t fs : func_starts) {
+        printf("fs: %p\n", (void *)fs);
+    }
+
     return true;
 }
 
