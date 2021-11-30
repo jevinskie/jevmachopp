@@ -1,5 +1,7 @@
 #include "jevmachopp/FunctionStartsCommand.h"
 
+#pragma mark raw offsets
+
 func_start_range FunctionStartsCommand::offsets_raw(const MachO &macho) const {
     return {offsets_raw_cbegin(macho), offsets_raw_cend()};
 }

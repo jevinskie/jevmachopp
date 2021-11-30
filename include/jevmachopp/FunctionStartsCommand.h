@@ -5,6 +5,8 @@
 #include "jevmachopp/LinkeditDataCommand.h"
 #include "jevmachopp/LoadSubCommand.h"
 
+#include <nanorange/views/empty.hpp>
+
 using FuncStartIterator = LEB128Iterator<uint64_t>;
 using func_start_range = subrange<FuncStartIterator>;
 
@@ -13,6 +15,18 @@ public:
     func_start_range offsets_raw(const MachO &macho) const;
     FuncStartIterator offsets_raw_cbegin(const MachO &macho) const;
     FuncStartIterator offsets_raw_cend() const;
+
+    func_start_range file_offsets(const MachO &macho) const;
+    auto file_offsets_cbegin(const MachO &macho) const {
+        return 0;
+    }
+    auto file_offsets_cend() const {
+        return ranges::empty_view<const uint64_t>{};
+    }
+
+    func_start_range vm_addrs(const MachO &macho) const;
+    FuncStartIterator vm_addrs_cbegin(const MachO &macho) const;
+    FuncStartIterator vm_addrs_cend() const;
 
 #if USE_FMT
     fmt::appender &format_to(fmt::appender &out) const;
