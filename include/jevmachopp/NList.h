@@ -13,6 +13,9 @@ constexpr uint8_t JEV_N_TYPE = 0x0e;
 constexpr uint8_t JEV_N_UNDF = 0x00;
 constexpr uint8_t JEV_NO_SECT = 0;
 
+constexpr uint32_t JEV_INDIRECT_SYMBOL_LOCAL = 0x80000000;
+constexpr uint32_t JEV_INDIRECT_SYMBOL_ABS = 0x40000000;
+
 class NList {
 public:
     const char *name(const char *strtab_data) const;

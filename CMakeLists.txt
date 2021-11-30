@@ -15,8 +15,8 @@ endif ()
 add_compile_definitions(FMT_USE_USER_DEFINED_LITERALS=1 FMT_USE_NONTYPE_TEMPLATE_PARAMETERS=1 FMT_USE_INT128=0 FMT_EXCEPTIONS=0 FMT_USE_FLOAT=0 FMT_USE_DOUBLE=0 FMT_USE_LONG_DOUBLE=0)
 add_compile_definitions(BOOST_STATIC_STRING_STANDALONE=1 BOOST_NO_EXCEPTIONS=1)
 
-add_compile_options(-Oz -flto=full -fvisibility=hidden -fvisibility-inlines-hidden -fwhole-program-vtables -fvirtual-function-elimination -ffunction-sections -fdata-sections)
-add_link_options(-Oz -flto=full -Wl,-dead_strip)
+# add_compile_options(-Oz -flto=full -fvisibility=hidden -fvisibility-inlines-hidden -fwhole-program-vtables -fvirtual-function-elimination -ffunction-sections -fdata-sections)
+# add_link_options(-Oz -flto=full -Wl,-dead_strip)
 
 # lol just don't its so bad
 # add_compile_options(-fno-inline)

@@ -85,7 +85,17 @@ public:
     std::size_t ext_def_syms_size() const;
     std::span<const NList> undef_syms() const;
     std::size_t undef_syms_size() const;
-    indirect_syms_idxes_t indirect_syms_idxes(const DySymtabCommand *dysymtab_ptr = nullptr) const;
+    indirect_syms_idxes_t
+    indirect_syms_idxes_raw(const DySymtabCommand *dysymtab_ptr = nullptr) const;
+    auto indirect_syms_idxes(const DySymtabCommand *dysymtab_ptr = nullptr) const {
+        return indirect_syms_idxes_raw() | ranges::views::transform([](const uint32_t idx_raw) {
+                   if (idx_raw & JEV_INDIRECT_SYMBOL_LOCAL) {
+                       return idx_raw & ~(JEV_INDIRECT_SYMBOL_LOCAL | JEV_INDIRECT_SYMBOL_ABS);
+                   } else {
+                       return idx_raw;
+                   }
+               });
+    }
     auto indirect_syms(const SymtabCommand *symtab_ptr = nullptr,
                        const DySymtabCommand *dysymtab_ptr = nullptr) const {
         setIfNull(symtab_ptr, [this]() {
@@ -99,8 +109,9 @@ public:
         if (symtab_ptr) {
             nlists = symtab_ptr->nlists(*this);
         }
-        return ranges::views::transform(dysymtab_ptr ? indirect_syms_idxes(dysymtab_ptr)
-                                                     : indirect_syms_idxes_t{},
+        return ranges::views::transform(dysymtab_ptr
+                                            ? indirect_syms_idxes(dysymtab_ptr)
+                                            : decltype(indirect_syms_idxes(dysymtab_ptr)){},
                                         [nlists](const int idx) -> const NList & {
                                             return nlists[idx];
                                         });

@@ -171,7 +171,7 @@ std::size_t MachO::undef_syms_size() const {
     return dysymtab_ptr->nundefsym;
 }
 
-std::span<const uint32_t> MachO::indirect_syms_idxes(const DySymtabCommand *dysymtab_ptr) const {
+indirect_syms_idxes_t MachO::indirect_syms_idxes_raw(const DySymtabCommand *dysymtab_ptr) const {
     if (!dysymtab_ptr) {
         dysymtab_ptr = dysymtab();
         if (!dysymtab_ptr) {
