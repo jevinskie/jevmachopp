@@ -70,10 +70,14 @@ bool findCallsTo(const MachO &macho, const std::string_view symbol_name) {
         printf("fsro: %p\n", (void *)fsro);
     }
 
-    const auto func_starts_file_offs = func_starts_cmd->file_offsets(macho, text_seg);
-    for (const auto &fsfo : func_starts_file_offs) {
-        printf(">> fsfo: %p\n", (void *)fsfo);
-    }
+    // const auto func_starts_file_offs = func_starts_cmd->file_offsets(macho, text_seg);
+    // // for (const auto fsfo : func_starts_file_offs) {
+    // //     printf(">> fsfo: %p\n", (void *)fsfo);
+    // // }
+    // auto b = func_starts_file_offs.begin();
+    // FMT_PRINT("b type: {:s}\n", type_name<decltype(b)>());
+    // // FMT_PRINT("b: {}\n", b);
+    //  auto db = *b;
 
     // const auto func_starts_vmaddrs = func_starts_cmd->vm_addrs();
     // for (const uint64_t fsvm : func_starts_file_offs) {

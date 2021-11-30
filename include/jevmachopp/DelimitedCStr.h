@@ -49,11 +49,11 @@ public:
     };
 
 private:
-    inline std::size_t size() const {
+    std::size_t size() const {
         return std::strlen(m_ptr);
     }
 
-    inline void set_view(const char *next_del = nullptr) {
+    void set_view(const char *next_del = nullptr) {
         if (!next_del) {
             next_del = std::strchr(m_ptr, Delimiter);
         }

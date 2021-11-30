@@ -10,15 +10,16 @@ requires requires() {
 }
 class LEB128Iterator {
 public:
-    using iterator_category = std::forward_iterator_tag;
+    using iterator_category = std::input_iterator_tag;
+    using iterator_concept = std::input_iterator_tag;
     using difference_type = std::ptrdiff_t;
     using value_type = Int;
     using pointer = Int *;
     using reference = Int &;
 
     LEB128Iterator() : m_buf({}), m_val(0), m_nbytes(0), m_idx(0) {}
-    LEB128Iterator(std::span<const uint8_t> lebBuf)
-        : m_buf(lebBuf), m_val(0), m_nbytes(0), m_idx(0) {}
+    LEB128Iterator(std::span<const uint8_t> leb_buf)
+        : m_buf(leb_buf), m_val(0), m_nbytes(0), m_idx(0) {}
 
     reference operator*() {
         updateVal();

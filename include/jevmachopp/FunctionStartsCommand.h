@@ -1,17 +1,12 @@
 #pragma once
 
 #include "jevmachopp/Common.h"
+#include "jevmachopp/CommonTypes.h"
 #include "jevmachopp/LEB128.h"
 #include "jevmachopp/LinkeditDataCommand.h"
 #include "jevmachopp/LoadSubCommand.h"
 #include "jevmachopp/MachO.h"
 #include "jevmachopp/SegmentCommand.h"
-
-#include <nanorange/views/empty.hpp>
-
-using FuncStartIterator = LEB128Iterator<uint64_t>;
-using raw_func_start_range = subrange<FuncStartIterator>;
-using func_start_range = subrange<uint64_t>;
 
 class FunctionStartsCommand : public LinkeditDataCommand {
 public:
@@ -19,22 +14,25 @@ public:
     FuncStartIterator raw_offsets_cbegin(const MachO &macho) const;
     FuncStartIterator raw_offsets_cend() const;
 
+#if 0
     auto file_offsets(const MachO &macho, const SegmentCommand *textSeg = nullptr) const {
         setIfNullAsserting(textSeg, [&]() {
             return macho.textSeg();
         });
         bool first = true;
         uint64_t prev = 0;
-        return raw_offsets(macho) | ranges::views::transform([&](const auto &raw_off) {
-                   if (first) {
-                       first = false;
-                       prev = raw_off + textSeg->fileoff;
-                   } else {
-                       prev += raw_off;
-                   }
-                   return prev;
+        return raw_offsets(macho) | ranges::views::transform([&](const auto raw_off) {
+                   // if (first) {
+                   //     first = false;
+                   //     prev = raw_off + textSeg->fileoff;
+                   // } else {
+                   //     prev += raw_off;
+                   // }
+                   // return prev;
+                    return 0;
                });
     }
+#endif
 
     // auto vm_addrs(const MachO &macho, const SegmentCommand *textSeg = nullptr) const {
     //     setIfNullAsserting(textSeg, [&]() {
