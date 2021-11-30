@@ -1,4 +1,5 @@
 set(UNIT_TESTS_SRC
+    ARM64DisasmTest.cpp
     HexTest.cpp
 )
 

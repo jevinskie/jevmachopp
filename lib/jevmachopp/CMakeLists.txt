@@ -1,5 +1,6 @@
 
 set(MACHOPP_SRC
+    ARM64Disasm.cpp
     BuildVersionCommand.cpp
     CallFinder.cpp
     CallStubs.cpp
