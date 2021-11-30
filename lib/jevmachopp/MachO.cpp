@@ -41,7 +41,7 @@ MachO::lc_range MachO::loadCommands() const {
 #pragma mark segments
 
 const SegmentCommand *MachO::segmentWithName(const std::string_view &name) const {
-    return find_if_or_nullptr(segments(), [=](const SegmentCommand &segCmd) {
+    return find_if_or_nullptr(segments(), [&](const SegmentCommand &segCmd) {
         return segCmd.name() == name;
     });
 }
@@ -62,6 +62,17 @@ const SegmentCommand *MachO::linkeditSeg() const {
     return segmentWithName("__LINKEDIT");
 }
 
+segment_names_map_t MachO::segmentNamesMap() const {
+    segment_names_map_t res = {};
+    uint8_t idx = 0;
+    for (const auto &seg : segments()) {
+        for (uint32_t i = 0, e = seg.sect_size(); i < e; ++i) {
+            res[idx++] = seg.name();
+        }
+    }
+    return res;
+}
+
 AddrRange MachO::vmaddr_range() const {
     return AddrRange::collapseRange(segments() | ranges::views::transform([](const auto &seg) {
                                         return seg.vmaddr_range();
@@ -72,6 +83,19 @@ AddrRange MachO::file_range() const {
     return AddrRange::collapseRange(segments() | ranges::views::transform([](const auto &seg) {
                                         return seg.file_range();
                                     }));
+}
+
+#pragma mark sections
+
+section_names_map_t MachO::sectionNamesMap() const {
+    section_names_map_t res = {};
+    uint8_t idx = 0;
+    for (const auto &seg : segments()) {
+        for (const auto &sec : seg.sections()) {
+            res[idx++] = sec.sectName();
+        }
+    }
+    return res;
 }
 
 #pragma mark symtab
@@ -105,7 +129,7 @@ const char *MachO::strtab_data() const {
 #pragma mark dysymtab
 
 const DySymtabCommand *MachO::dysymtab() const {
-    const auto *lc = find_if_or_nullptr(loadCommands(), [=](const LoadCommand &lc) {
+    const auto *lc = find_if_or_nullptr(loadCommands(), [&](const LoadCommand &lc) {
         return lc.cmd == LoadCommandType::DYSYMTAB;
     });
     if (!lc) {
@@ -203,7 +227,7 @@ const UnixThreadCommand *MachO::unixThread() const {
 
 #pragma mark dylibs
 
-auto MachO::dylibNamesMap() const -> decltype(dylibNamesMap()) {
+dylib_names_map_t MachO::dylibNamesMap() const {
     dylib_names_map_t res = {};
     ranges::copy(ranges::views::transform(importedDylibCommands(),
                                           [](const DylibCommand &dylibCmd) -> const char * {

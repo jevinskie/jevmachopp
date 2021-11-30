@@ -24,6 +24,8 @@ public:
 
     uint8_t dylibOrdinal() const;
     const char *dylibName(const dylib_names_map_t &map) const;
+    std::string_view segmentName(const segment_names_map_t &map) const;
+    std::string_view sectionName(const section_names_map_t &map) const;
 #if USE_FMT
     fmt::appender &format_to(fmt::appender &out) const;
     fmt::appender &format_to(fmt::appender &out, const MachO &macho,

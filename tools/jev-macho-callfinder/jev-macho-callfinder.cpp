@@ -4,6 +4,7 @@
 
 #include <cxxopts.hpp>
 
+#include <jevmachopp/CallFinder.h>
 #include <jevmachopp/Common.h>
 #include <jevmachopp/MachO.h>
 #include <jevmachopp/Slurp.h>
@@ -30,8 +31,9 @@ int main(int argc, const char *argv[]) {
     const auto *macho_buf = Slurp::readfile(args["macho"].as<std::string>().data(), &macho_sz,
                                             false, (const void *)0x400000000);
     const auto &macho = *(const MachO *)macho_buf;
-
-    fmt::print("macho: {}\n", macho);
+    const auto &symbol_name = args["symbol"].as<std::string>();
+    const auto find_res = CallFinder::findCallsTo(macho, symbol_name);
+    fmt::print("findCallsTo(\"{:s}\"): {}\n", symbol_name, find_res);
 
     return 0;
 }

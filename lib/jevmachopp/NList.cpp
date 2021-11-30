@@ -23,6 +23,14 @@ const char *NList::dylibName(const dylib_names_map_t &map) const {
     return map[dylibOrdinal() - 1];
 }
 
+std::string_view NList::segmentName(const segment_names_map_t &map) const {
+    return map[sect];
+}
+
+std::string_view NList::sectionName(const section_names_map_t &map) const {
+    return map[sect];
+}
+
 #if USE_FMT
 fmt::appender &NList::format_to(fmt::appender &out) const {
     fmt::format_to(

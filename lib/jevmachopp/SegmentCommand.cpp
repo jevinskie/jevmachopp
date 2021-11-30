@@ -15,7 +15,7 @@ const Section *SegmentCommand::sect_cend() const {
     return (const Section *)((uintptr_t)(this + 1) + sect_sizeof());
 }
 
-std::size_t SegmentCommand::sect_size() const {
+uint32_t SegmentCommand::sect_size() const {
     return nsects;
 }
 

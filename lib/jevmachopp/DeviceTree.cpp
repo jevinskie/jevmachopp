@@ -110,7 +110,7 @@ std::uint32_t DTNode::properties_sizeof() const {
 }
 
 const DTProp *DTNode::propertyNamed(const std::string_view &name) const {
-    return find_if_or_nullptr(properties(), [=](const DTProp &prop) {
+    return find_if_or_nullptr(properties(), [&](const DTProp &prop) {
         return prop.name() == name;
     });
 }
@@ -149,7 +149,7 @@ std::uint32_t DTNode::children_sizeof() const {
 }
 
 const DTNode *DTNode::childNamed(const std::string_view name) const {
-    return find_if_or_nullptr(children(), [=](const DTNode &child) {
+    return find_if_or_nullptr(children(), [&](const DTNode &child) {
         const auto *name_ptr = child.name_or_nullptr();
         if (!name_ptr) {
             return false;

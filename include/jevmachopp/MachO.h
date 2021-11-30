@@ -58,9 +58,13 @@ public:
     const SegmentCommand *dataConstSeg() const;
     const SegmentCommand *dataSeg() const;
     const SegmentCommand *linkeditSeg() const;
+    segment_names_map_t segmentNamesMap() const;
 
     AddrRange vmaddr_range() const;
     AddrRange file_range() const;
+
+#pragma mark sections
+    section_names_map_t sectionNamesMap() const;
 
 #pragma mark symtab
     const SymtabCommand *symtab() const;
@@ -88,7 +92,8 @@ public:
     indirect_syms_idxes_t
     indirect_syms_idxes_raw(const DySymtabCommand *dysymtab_ptr = nullptr) const;
     auto indirect_syms_idxes(const DySymtabCommand *dysymtab_ptr = nullptr) const {
-        return indirect_syms_idxes_raw() | ranges::views::transform([](const uint32_t idx_raw) {
+        return indirect_syms_idxes_raw(dysymtab_ptr) |
+               ranges::views::transform([](const uint32_t idx_raw) {
                    if (idx_raw & JEV_INDIRECT_SYMBOL_LOCAL) {
                        return idx_raw & ~(JEV_INDIRECT_SYMBOL_LOCAL | JEV_INDIRECT_SYMBOL_ABS);
                    } else {
@@ -117,6 +122,13 @@ public:
                                         });
     }
     std::size_t indirect_syms_size() const;
+    auto indirect_sym_names(const SymtabCommand *symtab_ptr = nullptr,
+                            const DySymtabCommand *dysymtab_ptr = nullptr) const {
+        return indirect_syms(symtab_ptr, dysymtab_ptr) |
+               ranges::views::transform([this, symtab_ptr](const NList &nl) {
+                   return nl.name(*this, *symtab_ptr);
+               });
+    }
 
 #pragma mark dylibs
     auto dylibLoadCommands() const {

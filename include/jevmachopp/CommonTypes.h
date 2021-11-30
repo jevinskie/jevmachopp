@@ -3,6 +3,8 @@
 #include "jevmachopp/Common.h"
 
 using dylib_names_map_t = std::array<const char *, 0xFF>;
+using section_names_map_t = std::array<std::string_view, 0xFF>;
+using segment_names_map_t = std::array<std::string_view, 0xFF>;
 using indirect_syms_idxes_t = std::span<const uint32_t>;
 
 class AddrRange {

@@ -23,7 +23,7 @@ public:
     std::string_view name() const;
     const Section *sect_cbegin() const;
     const Section *sect_cend() const;
-    std::size_t sect_size() const;
+    uint32_t sect_size() const;
     std::size_t sect_sizeof() const;
     std::span<const Section> sections() const;
     AddrRange vmaddr_range() const;

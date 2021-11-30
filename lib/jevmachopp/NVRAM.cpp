@@ -73,7 +73,7 @@ PackedCStrIteratorEmtpyTerm NVRAMPartition::vars_cend() const {
 }
 
 const char *NVRAMPartition::varNamed(const char *name) const {
-    return *ranges::find_if(vars(), [=](const auto *varEqValStr) {
+    return *ranges::find_if(vars(), [&](const auto *varEqValStr) {
         return NVRAM::varName(varEqValStr) == name;
     });
 }
