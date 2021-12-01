@@ -43,6 +43,7 @@ private:
     /* data members == "the state" */
     struct data_members_t {
         urng_t urange;
+        C off;
     };
     data_members_t data_members;
 
@@ -50,21 +51,24 @@ private:
     struct iterator_type : iterator_t<urng_t> {
         using base = iterator_t<urng_t>;
         using reference = Val;
+        Val psum;
 
         iterator_type() = default;
-        iterator_type(base const &b) : base{b} {}
+        iterator_type(base const &b, C o) : base{b}, psum{o} {}
 
         iterator_type operator++(int) {
+            psum += *static_cast<base>(*this);
             return static_cast<base &>(*this)++;
         }
 
         iterator_type &operator++() {
+            psum += *static_cast<base>(*this);
             ++static_cast<base &>(*this);
             return (*this);
         }
 
         reference operator*() const {
-            return *static_cast<base>(*this) + 42;
+            return *static_cast<base>(*this) + psum;
         }
     };
 
@@ -87,18 +91,18 @@ public:
     ~view_add_constant() = default;
 
     view_add_constant(urng_t &&urange, C off = 0)
-        : data_members{data_members_t{std::forward<urng_t>(urange)}} {}
+        : data_members{data_members_t{std::forward<urng_t>(urange), std::forward<C>(off)}} {}
 
     /* begin and end */
     iterator begin() const {
-        return std::begin(data_members.urange);
+        return iterator(std::begin(data_members.urange), data_members.off);
     }
     iterator cbegin() const {
         return begin();
     }
 
     auto end() const {
-        return std::end(data_members.urange);
+        return iterator(std::end(data_members.urange), data_members.off);
     }
 
     auto cend() const {
@@ -149,36 +153,19 @@ public:
     FuncStartIterator raw_offsets_cbegin(const MachO &macho) const;
     FuncStartIterator raw_offsets_cend() const;
 
-#if 0
     auto file_offsets(const MachO &macho, const SegmentCommand *textSeg = nullptr) const {
         setIfNullAsserting(textSeg, [&]() {
             return macho.textSeg();
         });
-        const uint64_t text_fileoff = textSeg->fileoff;
-        uint64_t prev = text_fileoff;
-        return raw_offsets(macho) |
-               ranges::views::transform([prev, text_fileoff](const uint64_t raw_off) mutable {
-                   prev += raw_off;
-                   return prev;
-               });
-    }
-#endif
-
-    auto file_offsets(const MachO &macho, const SegmentCommand *textSeg = nullptr) const {
-        (void)textSeg;
-        return raw_offsets(macho) | view::add_constant(5);
+        return raw_offsets(macho) | view::add_constant(textSeg->fileoff);
     }
 
-    // auto vm_addrs(const MachO &macho, const SegmentCommand *textSeg = nullptr) const {
-    //     setIfNullAsserting(textSeg, [&]() {
-    //         return macho.textSeg();
-    //     });
-    //     const auto vmaddr_fileoff_delta = textSeg->vmaddr_fileoff_delta();
-    //     return file_offsets(macho, textSeg) | ranges::views::transform([&](const auto &file_off)
-    //     {
-    //         return file_off + vmaddr_fileoff_delta;
-    //     });
-    // }
+    auto vm_addrs(const MachO &macho, const SegmentCommand *textSeg = nullptr) const {
+        setIfNullAsserting(textSeg, [&]() {
+            return macho.textSeg();
+        });
+        return raw_offsets(macho) | view::add_constant(textSeg->vmaddr_fileoff_delta());
+    }
 
 #if USE_FMT
     fmt::appender &format_to(fmt::appender &out) const;

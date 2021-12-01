@@ -82,6 +82,14 @@ bool findCallsTo(const MachO &macho, const std::string_view symbol_name) {
     for (const uint64_t fsfo : func_starts_file_offs) {
         printf(">2 fsfo: %p\n", (void *)fsfo);
     }
+
+    auto func_starts_vma_addrs = func_starts_cmd->vm_addrs(macho, text_seg);
+    for (const uint64_t fsva : func_starts_vma_addrs) {
+        printf("!! fsva: %p\n", (void *)fsva);
+    }
+    for (const uint64_t fsva : func_starts_vma_addrs) {
+        printf("!2 fsva: %p\n", (void *)fsva);
+    }
     // auto b = func_starts_file_offs.begin();
     // FMT_PRINT("b type: {:s}\n", type_name<decltype(b)>());
 
