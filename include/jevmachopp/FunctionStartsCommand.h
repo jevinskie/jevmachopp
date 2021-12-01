@@ -136,7 +136,7 @@ public:
     FuncStartIterator raw_offsets_cbegin(const MachO &macho) const;
     FuncStartIterator raw_offsets_cend() const;
 
-#if 1
+#if 0
     auto file_offsets(const MachO &macho, const SegmentCommand *textSeg = nullptr) const {
         setIfNullAsserting(textSeg, [&]() {
             return macho.textSeg();
@@ -150,6 +150,11 @@ public:
                });
     }
 #endif
+
+    auto file_offsets(const MachO &macho, const SegmentCommand *textSeg = nullptr) const {
+        (void)textSeg;
+        return raw_offsets(macho) | view::add_constant;
+    }
 
     // auto vm_addrs(const MachO &macho, const SegmentCommand *textSeg = nullptr) const {
     //     setIfNullAsserting(textSeg, [&]() {
