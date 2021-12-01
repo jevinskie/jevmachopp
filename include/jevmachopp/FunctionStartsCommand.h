@@ -42,7 +42,7 @@ private:
     struct data_members_t {
         urng_t urange;
     };
-    std::shared_ptr<data_members_t> data_members;
+    data_members_t data_members;
 
     /* the iterator type */
     struct iterator_type : iterator_t<urng_t> {
@@ -85,18 +85,18 @@ public:
     ~view_add_constant() = default;
 
     view_add_constant(urng_t &&urange)
-        : data_members{new data_members_t{std::forward<urng_t>(urange)}} {}
+        : data_members{data_members_t{std::forward<urng_t>(urange)}} {}
 
     /* begin and end */
     iterator begin() const {
-        return std::begin(data_members->urange);
+        return std::begin(data_members.urange);
     }
     iterator cbegin() const {
         return begin();
     }
 
     auto end() const {
-        return std::end(data_members->urange);
+        return std::end(data_members.urange);
     }
 
     auto cend() const {
