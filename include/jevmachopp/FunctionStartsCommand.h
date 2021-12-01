@@ -31,8 +31,10 @@
 // using range_reference_t = decltype(*std::begin(std::declval<t &>()));
 
 template <typename urng_t>
-//     requires (bool)ranges::InputRange<urng_t>() &&
-//              (bool)ranges::CommonReference<range_reference_t<urng_t>, uint64_t>()
+requires requires() {
+    requires ranges::input_range<urng_t>;
+    requires ranges::common_reference_with<range_reference_t<urng_t>, uint64_t>;
+}
 class view_add_constant : public ranges::view_base {
 private:
     /* data members == "the state" */
@@ -73,6 +75,7 @@ public:
     using const_iterator = iterator_type;
 
     /* constructors and deconstructors */
+    // TODO: why needed if defaulted? need2l2cpp
     view_add_constant() = default;
     constexpr view_add_constant(view_add_constant const &rhs) = default;
     constexpr view_add_constant(view_add_constant &&rhs) = default;
@@ -101,24 +104,27 @@ public:
 };
 
 template <typename urng_t>
-//     requires (bool)ranges::InputRange<urng_t>() &&
-//              (bool)ranges::CommonReference<range_reference_t<urng_t>, uint64_t>()
+requires requires() {
+    requires ranges::input_range<urng_t>;
+    requires ranges::common_reference_with<range_reference_t<urng_t>, uint64_t>;
+}
 view_add_constant(urng_t &&)->view_add_constant<urng_t>;
-
-// static_assert((bool)ranges::input_range<view_add_constant<std::vector<uint64_t>>>());
-// static_assert((bool)ranges::view<view_add_constant<std::vector<uint64_t>>>());
 
 struct add_constant_fn {
     template <typename urng_t>
-    //         requires (bool)ranges::InputRange<urng_t>() &&
-    //                  (bool)ranges::CommonReference<range_reference_t<urng_t>, uint64_t>()
+    requires requires() {
+        requires ranges::input_range<urng_t>;
+        requires ranges::common_reference_with<range_reference_t<urng_t>, uint64_t>;
+    }
     auto operator()(urng_t &&urange) const {
         return view_add_constant{std::forward<urng_t>(urange)};
     }
 
     template <typename urng_t>
-    //         requires (bool)ranges::InputRange<urng_t>() &&
-    //                  (bool)ranges::CommonReference<range_reference_t<urng_t>, uint64_t>()
+    requires requires() {
+        requires ranges::input_range<urng_t>;
+        requires ranges::common_reference_with<range_reference_t<urng_t>, uint64_t>;
+    }
     friend auto operator|(urng_t &&urange, add_constant_fn const &) {
         return view_add_constant{std::forward<urng_t>(urange)};
     }
