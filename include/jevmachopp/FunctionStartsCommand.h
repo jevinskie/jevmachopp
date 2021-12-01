@@ -30,10 +30,11 @@
 // template <typename t>
 // using range_reference_t = decltype(*std::begin(std::declval<t &>()));
 
-template <typename urng_t>
-requires requires() {
+template <typename urng_t, typename Val = ranges::range_value_t<urng_t>>
+requires requires(Val v) {
     requires ranges::input_range<urng_t>;
-    requires ranges::common_reference_with<range_reference_t<urng_t>, uint64_t>;
+    requires ranges::common_reference_with<range_reference_t<urng_t>, Val>;
+    v += 2;
 }
 class view_add_constant : public ranges::view_base {
 private:
@@ -46,7 +47,7 @@ private:
     /* the iterator type */
     struct iterator_type : iterator_t<urng_t> {
         using base = iterator_t<urng_t>;
-        using reference = uint64_t;
+        using reference = Val;
 
         iterator_type() = default;
         iterator_type(base const &b) : base{b} {}
@@ -67,9 +68,9 @@ private:
 
 public:
     /* member type definitions */
-    using reference = uint64_t;
-    using const_reference = uint64_t;
-    using value_type = uint64_t;
+    using reference = Val;
+    using const_reference = Val;
+    using value_type = Val;
 
     using iterator = iterator_type;
     using const_iterator = iterator_type;
@@ -103,27 +104,30 @@ public:
     }
 };
 
-template <typename urng_t>
-requires requires() {
+template <typename urng_t, typename Val = ranges::range_value_t<urng_t>>
+requires requires(Val v) {
     requires ranges::input_range<urng_t>;
-    requires ranges::common_reference_with<range_reference_t<urng_t>, uint64_t>;
+    requires ranges::common_reference_with<range_reference_t<urng_t>, Val>;
+    v += 2;
 }
 view_add_constant(urng_t &&)->view_add_constant<urng_t>;
 
 struct add_constant_fn {
-    template <typename urng_t>
-    requires requires() {
+    template <typename urng_t, typename Val = ranges::range_value_t<urng_t>>
+    requires requires(Val v) {
         requires ranges::input_range<urng_t>;
-        requires ranges::common_reference_with<range_reference_t<urng_t>, uint64_t>;
+        requires ranges::common_reference_with<range_reference_t<urng_t>, Val>;
+        v += 2;
     }
     auto operator()(urng_t &&urange) const {
         return view_add_constant{std::forward<urng_t>(urange)};
     }
 
-    template <typename urng_t>
-    requires requires() {
+    template <typename urng_t, typename Val = ranges::range_value_t<urng_t>>
+    requires requires(Val v) {
         requires ranges::input_range<urng_t>;
-        requires ranges::common_reference_with<range_reference_t<urng_t>, uint64_t>;
+        requires ranges::common_reference_with<range_reference_t<urng_t>, Val>;
+        v += 3;
     }
     friend auto operator|(urng_t &&urange, add_constant_fn const &) {
         return view_add_constant{std::forward<urng_t>(urange)};
