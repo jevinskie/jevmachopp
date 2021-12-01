@@ -79,6 +79,9 @@ bool findCallsTo(const MachO &macho, const std::string_view symbol_name) {
     for (const uint64_t fsfo : func_starts_file_offs) {
         printf(">> fsfo: %p\n", (void *)fsfo);
     }
+    for (const uint64_t fsfo : func_starts_file_offs) {
+        printf(">2 fsfo: %p\n", (void *)fsfo);
+    }
     // auto b = func_starts_file_offs.begin();
     // FMT_PRINT("b type: {:s}\n", type_name<decltype(b)>());
 
