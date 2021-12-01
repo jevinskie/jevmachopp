@@ -8,6 +8,9 @@
 #include "jevmachopp/MachO.h"
 #include "jevmachopp/SegmentCommand.h"
 
+#include <nanorange/detail/views/range_adaptors.hpp>
+
+
 // template <std::ranges::forward_range V>
 // requires requires() {
 //     requires std::ranges::view<V>;
@@ -112,31 +115,35 @@ requires requires(Val v) {
 }
 view_add_constant(urng_t &&)->view_add_constant<urng_t>;
 
+namespace nano {
+namespace detail {
+
 struct add_constant_fn {
-    template <typename urng_t, typename Val = ranges::range_value_t<urng_t>>
-    requires requires(Val v) {
-        requires ranges::input_range<urng_t>;
-        requires ranges::common_reference_with<range_reference_t<urng_t>, Val>;
-        v += 2;
-    }
-    auto operator()(urng_t &&urange) const {
-        return view_add_constant{std::forward<urng_t>(urange)};
+    template <typename C>
+    constexpr auto operator()(C c) const
+    {
+
+        return detail::rao_proxy{[c = std::move(c)](auto&& r) mutable
+            -> decltype(view_add_constant{std::forward<decltype(r)>(r)})
+        {
+            return view_add_constant{std::forward<decltype(r)>(r)};
+        }};
     }
 
-    template <typename urng_t, typename Val = ranges::range_value_t<urng_t>>
-    requires requires(Val v) {
-        requires ranges::input_range<urng_t>;
-        requires ranges::common_reference_with<range_reference_t<urng_t>, Val>;
-        v += 3;
-    }
-    friend auto operator|(urng_t &&urange, add_constant_fn const &) {
-        return view_add_constant{std::forward<urng_t>(urange)};
+    template <typename E, typename F>
+    constexpr auto operator()(E&& e, F&& f) const
+        -> decltype(view_add_constant{std::forward<E>(e), std::forward<F>(f)})
+    {
+        return view_add_constant{std::forward<E>(e), std::forward<F>(f)};
     }
 };
+} // namespace detail
+} // namespace nano
+
 
 namespace view {
 
-add_constant_fn constexpr add_constant;
+nano::detail::add_constant_fn constexpr add_constant;
 
 }
 
@@ -163,7 +170,7 @@ public:
 
     auto file_offsets(const MachO &macho, const SegmentCommand *textSeg = nullptr) const {
         (void)textSeg;
-        return raw_offsets(macho) | view::add_constant;
+        return raw_offsets(macho) | view::add_constant(5);
     }
 
     // auto vm_addrs(const MachO &macho, const SegmentCommand *textSeg = nullptr) const {
