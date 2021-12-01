@@ -18,9 +18,8 @@ public:
     using reference = Int &;
     using const_reference = const Int &;
 
-    LEB128Iterator() : m_buf({}), m_val(0), m_nbytes(0), m_idx(0) {}
-    LEB128Iterator(std::span<const uint8_t> leb_buf)
-        : m_buf(leb_buf), m_val(0), m_nbytes(0), m_idx(0) {
+    LEB128Iterator() : m_buf({}), m_nbytes(0) {}
+    LEB128Iterator(std::span<const uint8_t> leb_buf) : m_buf(leb_buf), m_idx(0) {
         readAndUpdateVal();
     }
 
@@ -39,7 +38,7 @@ public:
         m_idx += m_nbytes;
         assert(m_idx <= m_buf.size_bytes());
         if (m_idx == m_buf.size_bytes()) {
-            *this = {};
+            setSentinel();
         } else {
             readAndUpdateVal();
         }
@@ -51,15 +50,31 @@ public:
         return tmp;
     }
     friend bool operator==(const LEB128Iterator &a, const LEB128Iterator &b) {
-        return (a.m_buf.data() == b.m_buf.data() && a.m_buf.size() == b.m_buf.size()) &&
-               a.m_idx == b.m_idx;
+        const bool bothSent = a.isSentinel() && b.isSentinel();
+        if (bothSent) {
+            return true;
+        }
+        const bool oneSent =
+            (!a.isSentinel() && b.isSentinel()) || (a.isSentinel() && !b.isSentinel());
+        if (oneSent) {
+            return false;
+        }
+        const bool sameView = a.m_buf.data() == b.m_buf.data() && a.m_buf.size() == b.m_buf.size();
+        const bool sameIdx = a.m_idx == b.m_idx;
+        return sameView && sameIdx;
     };
     friend bool operator!=(const LEB128Iterator &a, const LEB128Iterator &b) {
-        return (a.m_buf.data() != b.m_buf.data() || a.m_buf.size() != b.m_buf.size()) ||
-               a.m_idx != b.m_idx;
+
+        return !(a == b);
     };
 
 private:
+    bool isSentinel() const {
+        return !m_nbytes;
+    }
+    void setSentinel() {
+        m_nbytes = 0;
+    }
     void readAndUpdateVal() {
         m_nbytes = bfs::DecodeUleb128(m_buf.subspan(m_idx), &m_val);
         assert(m_nbytes);

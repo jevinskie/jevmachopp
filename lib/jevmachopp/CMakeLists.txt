@@ -44,6 +44,7 @@ set(MACHOPP_HDR_STANDALONE
     LEB128.h
     LoadCommandType.h
     PackedCStr.h
+    Ranges.h
     UnixThreadCommand.h
     UUIDCommand.h
 )
