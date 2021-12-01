@@ -19,16 +19,12 @@ public:
         setIfNullAsserting(textSeg, [&]() {
             return macho.textSeg();
         });
-        bool first = true;
         const uint64_t text_fileoff = textSeg->fileoff;
         uint64_t prev = text_fileoff;
         return raw_offsets(macho) |
-               ranges::views::transform([&prev, text_fileoff](const auto raw_off) {
-                   if (prev != text_fileoff) {
-                       prev += raw_off;
-                   }
+               ranges::views::transform([prev, text_fileoff](const uint64_t raw_off) mutable {
+                   prev += raw_off;
                    return prev;
-                   // return 0;
                });
     }
 #endif

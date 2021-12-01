@@ -34,9 +34,7 @@ public:
     const_reference operator*() const {
         return m_val;
     }
-    const pointer operator->() const {
-        return &m_val;
-    }
+
     LEB128Iterator &operator++() {
         m_idx += m_nbytes;
         assert(m_idx <= m_buf.size_bytes());
