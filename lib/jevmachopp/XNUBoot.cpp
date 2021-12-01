@@ -6,8 +6,6 @@
 #include "jevmachopp/UnixThreadCommand.h"
 #include "jevmachopp/m1n1.h"
 
-#include "jevmachopp/CallFinder.h"
-
 #if !M1N1
 #include <sys/mman.h>
 #endif
@@ -105,10 +103,6 @@ void load_and_prep_xnu_kernelcache(const void *boot_args_base) {
         printf("kc vm range != file range not handled, bailing out of xnu load\n");
         return;
     }
-
-
-    const auto find_res = CallFinder::findCallsTo<>(kc, "_csr_check"sv);
-
 
     const auto unix_thread_ptr = kc.unixThread();
     if (!unix_thread_ptr) {

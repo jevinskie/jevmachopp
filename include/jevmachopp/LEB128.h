@@ -10,33 +10,40 @@ requires requires() {
 }
 class LEB128Iterator {
 public:
-    using iterator_category = std::input_iterator_tag;
-    using iterator_concept = std::input_iterator_tag;
+    using iterator_category = std::forward_iterator_tag;
+    // using iterator_concept = std::forward_iterator_tag;
     using difference_type = std::ptrdiff_t;
     using value_type = Int;
     using pointer = Int *;
     using reference = Int &;
+    using const_reference = const Int &;
 
     LEB128Iterator() : m_buf({}), m_val(0), m_nbytes(0), m_idx(0) {}
     LEB128Iterator(std::span<const uint8_t> leb_buf)
-        : m_buf(leb_buf), m_val(0), m_nbytes(0), m_idx(0) {}
+        : m_buf(leb_buf), m_val(0), m_nbytes(0), m_idx(0) {
+        readAndUpdateVal();
+    }
 
     reference operator*() {
-        updateVal();
         return m_val;
     }
     pointer operator->() {
-        updateVal();
+        return &m_val;
+    }
+
+    const_reference operator*() const {
+        return m_val;
+    }
+    const pointer operator->() const {
         return &m_val;
     }
     LEB128Iterator &operator++() {
-        updateVal();
         m_idx += m_nbytes;
         assert(m_idx <= m_buf.size_bytes());
         if (m_idx == m_buf.size_bytes()) {
             *this = {};
         } else {
-            clearVal();
+            readAndUpdateVal();
         }
         return *this;
     }
@@ -55,16 +62,9 @@ public:
     };
 
 private:
-    void updateVal() {
-        if (!m_nbytes) {
-            m_nbytes = bfs::DecodeUleb128(m_buf.subspan(m_idx), &m_val);
-            assert(m_nbytes);
-        }
-    }
-
-    void clearVal() {
-        m_val = 0;
-        m_nbytes = 0;
+    void readAndUpdateVal() {
+        m_nbytes = bfs::DecodeUleb128(m_buf.subspan(m_idx), &m_val);
+        assert(m_nbytes);
     }
 
 private:

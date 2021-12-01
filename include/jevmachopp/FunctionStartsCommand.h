@@ -14,22 +14,21 @@ public:
     FuncStartIterator raw_offsets_cbegin(const MachO &macho) const;
     FuncStartIterator raw_offsets_cend() const;
 
-#if 0
+#if 1
     auto file_offsets(const MachO &macho, const SegmentCommand *textSeg = nullptr) const {
         setIfNullAsserting(textSeg, [&]() {
             return macho.textSeg();
         });
         bool first = true;
-        uint64_t prev = 0;
-        return raw_offsets(macho) | ranges::views::transform([&](const auto raw_off) {
-                   // if (first) {
-                   //     first = false;
-                   //     prev = raw_off + textSeg->fileoff;
-                   // } else {
-                   //     prev += raw_off;
-                   // }
-                   // return prev;
-                    return 0;
+        const uint64_t text_fileoff = textSeg->fileoff;
+        uint64_t prev = text_fileoff;
+        return raw_offsets(macho) |
+               ranges::views::transform([&prev, text_fileoff](const auto raw_off) {
+                   if (prev != text_fileoff) {
+                       prev += raw_off;
+                   }
+                   return prev;
+                   // return 0;
                });
     }
 #endif
