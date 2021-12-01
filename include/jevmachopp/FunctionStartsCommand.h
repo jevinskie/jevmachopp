@@ -10,7 +10,6 @@
 
 #include <nanorange/detail/views/range_adaptors.hpp>
 
-
 // template <std::ranges::forward_range V>
 // requires requires() {
 //     requires std::ranges::view<V>;
@@ -33,11 +32,11 @@
 // template <typename t>
 // using range_reference_t = decltype(*std::begin(std::declval<t &>()));
 
-template <typename urng_t, typename Val = ranges::range_value_t<urng_t>>
-requires requires(Val v) {
+template <typename urng_t, typename C, typename Val = ranges::range_value_t<urng_t>>
+requires requires(Val v, C off) {
     requires ranges::input_range<urng_t>;
     requires ranges::common_reference_with<range_reference_t<urng_t>, Val>;
-    v += 2;
+    v += off;
 }
 class view_add_constant : public ranges::view_base {
 private:
@@ -87,7 +86,7 @@ public:
     constexpr view_add_constant &operator=(view_add_constant &&rhs) = default;
     ~view_add_constant() = default;
 
-    view_add_constant(urng_t &&urange)
+    view_add_constant(urng_t &&urange, C off = 0)
         : data_members{data_members_t{std::forward<urng_t>(urange)}} {}
 
     /* begin and end */
@@ -107,39 +106,36 @@ public:
     }
 };
 
-template <typename urng_t, typename Val = ranges::range_value_t<urng_t>>
-requires requires(Val v) {
+template <typename urng_t, typename C, typename Val = ranges::range_value_t<urng_t>>
+requires requires(Val v, C off) {
     requires ranges::input_range<urng_t>;
     requires ranges::common_reference_with<range_reference_t<urng_t>, Val>;
-    v += 2;
+    v += off;
 }
-view_add_constant(urng_t &&)->view_add_constant<urng_t>;
+view_add_constant(urng_t &&, C)->view_add_constant<urng_t, C>;
 
 namespace nano {
 namespace detail {
 
 struct add_constant_fn {
-    template <typename C>
-    constexpr auto operator()(C c) const
-    {
+    template <typename C> constexpr auto operator()(C c) const {
 
-        return detail::rao_proxy{[c = std::move(c)](auto&& r) mutable
-            -> decltype(view_add_constant{std::forward<decltype(r)>(r)})
-        {
-            return view_add_constant{std::forward<decltype(r)>(r)};
-        }};
+        return detail::rao_proxy{
+            [c = std::move(c)](auto &&r) mutable
+            -> decltype(view_add_constant{std::forward<decltype(r)>(r), std::declval<C &&>()}) {
+                return view_add_constant{std::forward<decltype(r)>(r), std::move(c)};
+            }};
     }
 
     template <typename E, typename F>
-    constexpr auto operator()(E&& e, F&& f) const
-        -> decltype(view_add_constant{std::forward<E>(e), std::forward<F>(f)})
-    {
+    constexpr auto operator()(E &&e, F &&f) const
+        -> decltype(view_add_constant{std::forward<E>(e), std::forward<F>(f)}) {
         return view_add_constant{std::forward<E>(e), std::forward<F>(f)};
     }
 };
+
 } // namespace detail
 } // namespace nano
-
 
 namespace view {
 
