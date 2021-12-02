@@ -1,5 +1,6 @@
 #include "jevmachopp/CallFinder.h"
 #include "jevmachopp/ARM64Disasm.h"
+#include "jevmachopp/CSR.h"
 #include "jevmachopp/CallStubs.h"
 #include "jevmachopp/FunctionStartsCommand.h"
 #include "jevmachopp/LEB128.h"
@@ -8,6 +9,8 @@
 #include "jevmachopp/SegmentCommand.h"
 
 #include <concepts>
+#include <nanorange/algorithm/find.hpp>
+#include <nanorange/views/reverse.hpp>
 
 namespace CallFinder {
 
@@ -57,6 +60,7 @@ bool findCallsTo(const MachO &macho, const std::string_view symbol_name) {
 
     const auto &text_raw = text_seg->data(macho);
     const auto &text_instr = span_cast<const uint32_t>(text_raw);
+    const auto vm_file_delta = text_seg->vmaddr_fileoff_delta();
 
     const auto func_starts_cmd = macho.functionStartsCommand();
     assert(func_starts_cmd);
@@ -64,21 +68,29 @@ bool findCallsTo(const MachO &macho, const std::string_view symbol_name) {
     uint64_t pc = text_seg->vmaddr_range().min;
     for (const auto instr_raw : text_instr) {
         if (ARM64Disasm::isBLTo(instr_raw, pc, symbol_stub_addr)) {
-            const auto foff = pc - text_seg->vmaddr_fileoff_delta();
+            const auto foff = pc - vm_file_delta;
             printf("found BL @ %p (fileoff: %p) to %.*s\n", (void *)pc, (void *)foff,
                    sv2pf(symbol_name).sz, sv2pf(symbol_name).str);
-            //            const auto func_foff =
-            //                func_starts_cmd->func_start_for_file_offset(foff, macho, text_seg);
-            //            printf("func_foff: %p\n", (void *)func_foff);
-            const auto func_vmaddr = func_starts_cmd->func_start_for_vm_addr(pc, macho, text_seg);
-            printf("func_vmaddr: %p\n", (void *)func_vmaddr);
+            const auto func_fileoff =
+                func_starts_cmd->func_start_for_file_offset(foff, macho, text_seg);
+
+            const auto disass_rng = text_instr.subspan(func_fileoff / 4, (foff - func_fileoff) / 4);
+            const auto rev_disass_rng = disass_rng | ranges::views::reverse;
+            for (auto dis_pc = pc - 4; const uint32_t instr_raw : rev_disass_rng) {
+                if (ARM64Disasm::isMovWideImmTo(instr_raw, 0)) {
+                    const auto inst_info = *ARM64Disasm::decodeMovWideImm(instr_raw);
+                    const auto csrconfig = (CSRConfig)inst_info.val;
+                    printf("%p: found write of %p to r0 is64? %s\n", (void *)dis_pc,
+                           (void *)inst_info.val, YESNOCStr(inst_info.is64));
+                    printf("decoded csr_config_t:\n");
+                    for (const auto conf_flag : to_strings(csrconfig)) {
+                        printf("\t%.*s\n", sv2pf(conf_flag).sz, sv2pf(conf_flag).str);
+                    }
+                    break;
+                }
+            }
         }
         pc += 4;
-    }
-
-    auto func_starts_file_offs = func_starts_cmd->file_offsets(macho, text_seg);
-    for (const uint64_t fsfo : func_starts_file_offs) {
-        printf(">> fsfo: %p\n", (void *)fsfo);
     }
 
     return true;

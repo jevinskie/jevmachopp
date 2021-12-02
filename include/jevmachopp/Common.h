@@ -85,6 +85,10 @@ template <typename T> constexpr auto type_name() {
 
 #pragma mark Size Checking
 
+consteval std::size_t sizeofbits(const auto &o) {
+    return sizeof(o) * 8;
+}
+
 template <typename T> constexpr T abs_diff(T a, T b) {
     return a > b ? a - b : b - a;
 }
@@ -256,6 +260,11 @@ inline auto stringSplitViewDelimitedBy(std::string_view to_split, char delim) {
 
 template <typename NewT, typename T> std::span<NewT> span_cast(std::span<T> orig) {
     assert(orig.size_bytes() % sizeof(NewT) == 0);
+    return {(NewT *)orig.data(), orig.size_bytes() / sizeof(NewT)};
+}
+
+template <typename NewT, typename T> std::span<const NewT> span_cast(std::span<const T> orig) {
+    assert(orig.size_bytes() % sizeof(NewT) == 0);
     return {(const NewT *)orig.data(), orig.size_bytes() / sizeof(NewT)};
 }
 
@@ -297,3 +306,35 @@ T setIfNull(T &ptr, G getter) {
     })
 
 #define setIfNullAsserting(ptr, getter) assert(setIfNull((ptr), (getter)))
+
+template <typename T>
+requires requires(T v) {
+    (bool)v;
+}
+constexpr const char *YESNO(T v) {
+    if (v) {
+        return "YES";
+    } else {
+        return "NO";
+    }
+}
+
+template <typename T>
+requires requires(T v) {
+    (bool)v;
+}
+constexpr const char *YESNOCStr(T v) {
+    return YESNO(v);
+}
+
+template <typename T>
+requires requires(T v) {
+    (bool)v;
+}
+constexpr const std::string_view YESNO(T v) {
+    if (v) {
+        return "YES"sv;
+    } else {
+        return "NO"sv;
+    }
+}

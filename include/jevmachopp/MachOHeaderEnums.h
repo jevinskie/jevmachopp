@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <enum.hpp/enum.hpp>
 #include <experimental/fixed_capacity_vector>
-#include <string>
+#include <string_view>
 
 // clang-format off
 ENUM_HPP_CLASS_DECL(MachOFileType, std::uint32_t,
