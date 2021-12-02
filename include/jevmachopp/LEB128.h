@@ -56,8 +56,8 @@ public:
     }
 
     LEB128Iterator &operator--() {
-        readAndUpdateValBackwards();
         assert(m_idx >= m_nbytes);
+        readAndUpdateValBackwards();
         m_idx -= m_nbytes;
         return *this;
     }

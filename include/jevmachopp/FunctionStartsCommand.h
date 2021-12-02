@@ -24,23 +24,29 @@ public:
         return raw_offsets(macho) | view::psum(textSeg->fileoff);
     }
 
-    uint64_t func_start_for_file_offset(uint64_t fileoff, const MachO &macho,
-                                        const SegmentCommand *textSeg = nullptr) {
-        const auto foffs = file_offsets(macho, textSeg);
-        const auto foofs_end = foffs.end();
-        if (foffs.begin() == foffs.end()) {
+    static uint64_t func_start_for_offsets(uint64_t off, auto offs) {
+        const auto oofs_end = offs.end();
+        if (offs.begin() == offs.end()) {
             return 0;
         }
-        if (fileoff < foffs.front()) {
+        if (off < offs.front()) {
             return 0;
         }
-        const auto following_func = ranges::find_if(foffs, [fileoff](const uint64_t foff) {
-            return foff > fileoff;
-        });
-        if (following_func == foofs_end) {
-            return foffs.back();
+        uint64_t last_off_seen;
+        const auto following_func =
+            ranges::find_if(offs, [off, &last_off_seen](const uint64_t curr_off) {
+                last_off_seen = curr_off;
+                return curr_off > off;
+            });
+        if (following_func == oofs_end) {
+            return last_off_seen;
         }
         return *std::prev(following_func);
+    }
+
+    uint64_t func_start_for_file_offset(uint64_t fileoff, const MachO &macho,
+                                        const SegmentCommand *textSeg = nullptr) const {
+        return func_start_for_offsets(fileoff, file_offsets(macho, textSeg));
     }
 
     auto vm_addrs(const MachO &macho, const SegmentCommand *textSeg = nullptr) const {
@@ -48,6 +54,11 @@ public:
             return macho.textSeg();
         });
         return raw_offsets(macho) | view::psum(textSeg->vmaddr_fileoff_delta());
+    }
+
+    uint64_t func_start_for_vm_addr(uint64_t vm_addr, const MachO &macho,
+                                    const SegmentCommand *textSeg = nullptr) const {
+        return func_start_for_offsets(vm_addr, vm_addrs(macho, textSeg));
     }
 
 #if USE_FMT
