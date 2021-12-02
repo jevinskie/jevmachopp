@@ -176,6 +176,47 @@ template <typename U, typename F> struct remove_member_pointer<U F::*> {
     using class_type = F;
 };
 
+#pragma mark Spans
+
+//
+// make_span() - Utility functions for creating spans
+//
+// https://github.com/microsoft/GSL/blob/main/include/gsl/span_ext
+template <class ElementType>
+constexpr std::span<ElementType> make_span(ElementType *ptr,
+                                           typename std::span<ElementType>::size_type count) {
+    return std::span<ElementType>(ptr, count);
+}
+
+template <class ElementType>
+constexpr std::span<ElementType> make_span(ElementType *firstElem, ElementType *lastElem) {
+    return std::span<ElementType>(firstElem, lastElem);
+}
+
+template <class ElementType, std::size_t N>
+constexpr std::span<ElementType, N> make_span(ElementType (&arr)[N]) noexcept {
+    return std::span<ElementType, N>(arr);
+}
+
+template <class Container>
+constexpr std::span<typename Container::value_type> make_span(Container &cont) {
+    return std::span<typename Container::value_type>(cont);
+}
+
+template <class Container>
+constexpr std::span<const typename Container::value_type> make_span(const Container &cont) {
+    return std::span<const typename Container::value_type>(cont);
+}
+
+template <class Ptr>
+constexpr std::span<typename Ptr::element_type> make_span(Ptr &cont, std::size_t count) {
+    return std::span<typename Ptr::element_type>(cont, count);
+}
+
+template <class Ptr> constexpr std::span<typename Ptr::element_type> make_span(Ptr &cont) {
+    return std::span<typename Ptr::element_type>(cont);
+}
+
 #pragma mark Ranges
 
 template <typename Rng, typename F>
