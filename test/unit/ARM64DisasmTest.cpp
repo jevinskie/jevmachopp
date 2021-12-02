@@ -16,3 +16,9 @@ TEST_CASE("decodeBL", "[ARM64Disasm]") {
     REQUIRE(decodeBL(0x94002a57) == 0xa95c);
     REQUIRE(decodeBL(0x97ffffff) == -0x4);
 }
+
+TEST_CASE("MovWideImm", "[ARM64Disasm]") {
+    REQUIRE(isMovWideImm(0xd2800080));
+    REQUIRE(isMovWideImmTo(0xd2800080, 0));
+    REQUIRE_FALSE(isMovWideImmTo(0xd2800080, 1));
+}
