@@ -34,8 +34,19 @@ private:
             return (*this);
         }
 
+        iterator_type operator--(int) {
+            psum -= *static_cast<base>(*this);
+            return static_cast<base &>(*this)--;
+        }
+
+        iterator_type &operator--() {
+            psum -= *static_cast<base>(*this);
+            --static_cast<base &>(*this);
+            return (*this);
+        }
+
         reference operator*() const {
-            return *static_cast<base>(*this) + psum;
+            return psum;
         }
     };
 

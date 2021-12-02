@@ -33,15 +33,15 @@ public:
             return 0;
         }
         uint64_t last_off_seen;
-        const auto following_func =
-            ranges::find_if(offs, [off, &last_off_seen](const uint64_t curr_off) {
-                last_off_seen = curr_off;
-                return curr_off > off;
-            });
+        auto following_func = ranges::find_if(offs, [off, &last_off_seen](const uint64_t curr_off) {
+            last_off_seen = curr_off;
+            return curr_off > off;
+        });
         if (following_func == oofs_end) {
             return last_off_seen;
         }
-        return *std::prev(following_func);
+        const auto our_func = ranges::prev(following_func);
+        return *our_func;
     }
 
     uint64_t func_start_for_file_offset(uint64_t fileoff, const MachO &macho,

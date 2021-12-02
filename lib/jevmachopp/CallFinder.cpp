@@ -67,10 +67,11 @@ bool findCallsTo(const MachO &macho, const std::string_view symbol_name) {
             const auto foff = pc - text_seg->vmaddr_fileoff_delta();
             printf("found BL @ %p (fileoff: %p) to %.*s\n", (void *)pc, (void *)foff,
                    sv2pf(symbol_name).sz, sv2pf(symbol_name).str);
-            const auto func_foff =
-                func_starts_cmd->func_start_for_file_offset(foff, macho, text_seg);
+            //            const auto func_foff =
+            //                func_starts_cmd->func_start_for_file_offset(foff, macho, text_seg);
+            //            printf("func_foff: %p\n", (void *)func_foff);
             const auto func_vmaddr = func_starts_cmd->func_start_for_vm_addr(pc, macho, text_seg);
-            printf("func_foff: %p func_vmaddr: %p\n", (void *)func_foff, (void *)func_vmaddr);
+            printf("func_vmaddr: %p\n", (void *)func_vmaddr);
         }
         pc += 4;
     }
