@@ -9,6 +9,8 @@
 #include "jevmachopp/Ranges.h"
 #include "jevmachopp/SegmentCommand.h"
 
+#include <nanorange/algorithm/find.hpp>
+
 class FunctionStartsCommand : public LinkeditDataCommand {
 public:
     raw_func_start_range raw_offsets(const MachO &macho) const;
@@ -22,6 +24,25 @@ public:
         return raw_offsets(macho) | view::psum(textSeg->fileoff);
     }
 
+    uint64_t func_start_for_file_offset(uint64_t fileoff, const MachO &macho,
+                                        const SegmentCommand *textSeg = nullptr) {
+        const auto foffs = file_offsets(macho, textSeg);
+        const auto foofs_end = foffs.end();
+        if (foffs.begin() == foffs.end()) {
+            return 0;
+        }
+        if (fileoff < foffs.front()) {
+            return 0;
+        }
+        const auto following_func = ranges::find_if(foffs, [fileoff](const uint64_t foff) {
+            return foff > fileoff;
+        });
+        if (following_func == foofs_end) {
+            return foffs.back();
+        }
+        return *std::prev(following_func);
+    }
+
     auto vm_addrs(const MachO &macho, const SegmentCommand *textSeg = nullptr) const {
         setIfNullAsserting(textSeg, [&]() {
             return macho.textSeg();
@@ -32,6 +53,9 @@ public:
 #if USE_FMT
     fmt::appender &format_to(fmt::appender &out) const;
 #endif
+
+public:
+    // static func_start_for_offset();
 
 public:
     FunctionStartsCommand(const FunctionStartsCommand &) = delete;

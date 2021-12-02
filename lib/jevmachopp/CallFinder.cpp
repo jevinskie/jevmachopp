@@ -58,50 +58,23 @@ bool findCallsTo(const MachO &macho, const std::string_view symbol_name) {
     const auto &text_raw = text_seg->data(macho);
     const auto &text_instr = span_cast<const uint32_t>(text_raw);
 
-    uint64_t pc = text_seg->vmaddr_range().min;
-    for (const auto instr_raw : text_instr) {
-        if (ARM64Disasm::isBLTo(instr_raw, pc, symbol_stub_addr)) {
-            printf("found BL @ %p to %.*s\n", (void *)pc, sv2pf(symbol_name).sz,
-                   sv2pf(symbol_name).str);
-        }
-        pc += 4;
-    }
-
     const auto func_starts_cmd = macho.functionStartsCommand();
     assert(func_starts_cmd);
 
-    const auto func_starts_raw = func_starts_cmd->raw_offsets(macho);
-    for (const uint64_t fsro : func_starts_raw) {
-        printf("fsro: %p\n", (void *)fsro);
+    uint64_t pc = text_seg->vmaddr_range().min;
+    for (const auto instr_raw : text_instr) {
+        if (ARM64Disasm::isBLTo(instr_raw, pc, symbol_stub_addr)) {
+            const auto foff = pc - text_seg->vmaddr_fileoff_delta();
+            printf("found BL @ %p (fileoff: %p) to %.*s\n", (void *)pc, (void *)foff,
+                   sv2pf(symbol_name).sz, sv2pf(symbol_name).str);
+        }
+        pc += 4;
     }
 
     auto func_starts_file_offs = func_starts_cmd->file_offsets(macho, text_seg);
     for (const uint64_t fsfo : func_starts_file_offs) {
         printf(">> fsfo: %p\n", (void *)fsfo);
     }
-    for (const uint64_t fsfo : func_starts_file_offs) {
-        printf(">2 fsfo: %p\n", (void *)fsfo);
-    }
-
-    auto func_starts_vma_addrs = func_starts_cmd->vm_addrs(macho, text_seg);
-    for (const uint64_t fsva : func_starts_vma_addrs) {
-        printf("!! fsva: %p\n", (void *)fsva);
-    }
-    for (const uint64_t fsva : func_starts_vma_addrs) {
-        printf("!2 fsva: %p\n", (void *)fsva);
-    }
-    // auto b = func_starts_file_offs.begin();
-    // FMT_PRINT("b type: {:s}\n", type_name<decltype(b)>());
-
-    // FMT_PRINT("fart: {:s}\n", type_name<common_reference_t<LEB128Iterator<uint64_t>>>());
-    // // FMT_PRINT("b: {}\n", b);
-    // printf("b: %llx\n", static_cast<uint64_t>(*b));
-    // auto db = *b;
-
-    // const auto func_starts_vmaddrs = func_starts_cmd->vm_addrs();
-    // for (const uint64_t fsvm : func_starts_file_offs) {
-    //     printf("## fsvm: %p\n", (void *)fsfo);
-    // }
 
     return true;
 }

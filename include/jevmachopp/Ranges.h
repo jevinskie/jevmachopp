@@ -4,22 +4,19 @@
 
 #include <nanorange/detail/views/range_adaptors.hpp>
 
-template <typename Rng, typename Val = ranges::range_value_t<Rng>>
+template <typename V, typename Val = ranges::range_value_t<V>>
 requires requires() {
-    requires ranges::input_range<Rng>;
-    requires ranges::common_reference_with<range_reference_t<Rng>, Val>;
+    requires ranges::input_range<V>;
+    requires ranges::common_reference_with<range_reference_t<V>, Val>;
 }
-class psum_view : public ranges::view_base {
+class psum_view : public view_interface<psum_view<V>> {
 private:
-    struct data_members_t {
-        Rng urange;
-        Val init;
-    };
-    data_members_t data_members;
+    V uview;
+    Val init;
 
     /* the iterator type */
-    struct iterator_type : iterator_t<Rng> {
-        using base = iterator_t<Rng>;
+    struct iterator_type : iterator_t<V> {
+        using base = iterator_t<V>;
         using reference = Val;
         Val psum;
 
@@ -60,19 +57,19 @@ public:
     constexpr psum_view &operator=(psum_view &&rhs) = default;
     ~psum_view() = default;
 
-    psum_view(Rng &&urange, Val init = 0)
-        : data_members{data_members_t{std::forward<Rng>(urange), std::forward<Val>(init)}} {}
+    psum_view(V &&uview, Val init = 0)
+        : uview{std::forward<V>(uview)}, init{std::forward<Val>(init)} {}
 
     /* begin and end */
     iterator begin() const {
-        return iterator(std::begin(data_members.urange), data_members.init);
+        return iterator{std::begin(uview), init};
     }
     iterator cbegin() const {
         return begin();
     }
 
     auto end() const {
-        return iterator(std::end(data_members.urange), data_members.init);
+        return iterator{std::end(uview), init};
     }
 
     auto cend() const {
@@ -80,12 +77,12 @@ public:
     }
 };
 
-template <typename Rng, typename Val = ranges::range_value_t<Rng>>
+template <typename V, typename Val = ranges::range_value_t<V>>
 requires requires() {
-    requires ranges::input_range<Rng>;
-    requires ranges::common_reference_with<range_reference_t<Rng>, Val>;
+    requires ranges::input_range<V>;
+    requires ranges::common_reference_with<range_reference_t<V>, Val>;
 }
-psum_view(Rng &&, Val)->psum_view<Rng>;
+psum_view(V &&, Val)->psum_view<V>;
 
 namespace nano {
 namespace detail {

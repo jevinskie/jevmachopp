@@ -4,14 +4,19 @@
 
 #include <uleb128/uleb128.h>
 
+namespace LEB128 {
+
+std::size_t DecodeUleb128Backwards(std::span<const uint8_t> prev_data, uint64_t *const val);
+
+} // namespace LEB128
+
 template <typename Int>
 requires requires() {
     requires same_as<Int, uint64_t>;
 }
 class LEB128Iterator {
 public:
-    using iterator_category = std::forward_iterator_tag;
-    // using iterator_concept = std::forward_iterator_tag;
+    using iterator_category = std::bidirectional_iterator_tag;
     using difference_type = std::ptrdiff_t;
     using value_type = Int;
     using pointer = Int *;
@@ -49,6 +54,18 @@ public:
         ++(*this);
         return tmp;
     }
+
+    LEB128Iterator &operator--() {
+        readAndUpdateValBackwards();
+        assert(m_idx >= m_nbytes);
+        m_idx -= m_nbytes;
+        return *this;
+    }
+    LEB128Iterator operator--(int) {
+        LEB128Iterator tmp = *this;
+        --(*this);
+        return tmp;
+    }
     friend bool operator==(const LEB128Iterator &a, const LEB128Iterator &b) {
         const bool bothSent = a.isSentinel() && b.isSentinel();
         if (bothSent) {
@@ -77,6 +94,10 @@ private:
     }
     void readAndUpdateVal() {
         m_nbytes = bfs::DecodeUleb128(m_buf.subspan(m_idx), &m_val);
+        assert(m_nbytes);
+    }
+    void readAndUpdateValBackwards() {
+        m_nbytes = LEB128::DecodeUleb128Backwards({m_buf.data(), m_buf.data() + m_idx}, &m_val);
         assert(m_nbytes);
     }
 

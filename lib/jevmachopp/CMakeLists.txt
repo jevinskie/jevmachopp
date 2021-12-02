@@ -13,6 +13,7 @@ set(MACHOPP_SRC
     FilesetEntryCommand.cpp
     FunctionStartsCommand.cpp
     Hex.cpp
+    LEB128.cpp
     LoadCommand.cpp
     LoadSubCommand.cpp
     LinkeditDataCommand.cpp
@@ -41,7 +42,6 @@ set(MACHOPP_HDR_STANDALONE
     CpuSubType.h
     DelimitedCStr.h
     EncryptionInfoCommand.h
-    LEB128.h
     LoadCommandType.h
     PackedCStr.h
     Ranges.h
