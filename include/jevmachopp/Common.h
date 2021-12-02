@@ -217,6 +217,12 @@ template <class Ptr> constexpr std::span<typename Ptr::element_type> make_span(P
     return std::span<typename Ptr::element_type>(cont);
 }
 
+template <class ElementType, std::size_t N>
+constexpr auto make_span_from_back(ElementType (&arr)[N], std::size_t off) noexcept {
+    const auto span_ = std::span<ElementType, N>(arr);
+    return span_.subspan(0, span_.size() - off);
+}
+
 #pragma mark Ranges
 
 template <typename Rng, typename F>
