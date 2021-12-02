@@ -63,7 +63,7 @@ foreach(SRC ${MACHOPP_SRC})
 endforeach()
 
 list(APPEND MACHOPP_SRC
-    m1n1_asm.s
+    m1n1_asm.S
 )
 
 # MACHOPP_HDR added for Xcode project generation

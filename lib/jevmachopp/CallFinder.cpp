@@ -53,7 +53,7 @@ bool findCallsTo(const MachO &macho, const std::string_view symbol_name) {
     const auto symbol_stub_addr = stubs_base + *symbol_indir_idx * BYTES_PER_STUB;
     printf("symbol_stub_addr: %p\n", (void *)symbol_stub_addr);
 
-    printf("__TEXT filesize: 0x%llx\n", text_seg->filesize);
+    printf("__TEXT filesize: %px\n", (void *)text_seg->filesize);
 
     const auto &text_raw = text_seg->data(macho);
     const auto &text_instr = span_cast<const uint32_t>(text_raw);
