@@ -24,6 +24,7 @@ private:
         iterator_type(base const &b, Val i) : base{b}, psum{i} {}
 
         iterator_type operator++(int) {
+            assert(!"untested, thought broken");
             psum += *static_cast<base>(*this);
             return static_cast<base &>(*this)++;
         }
@@ -35,13 +36,14 @@ private:
         }
 
         iterator_type operator--(int) {
+            assert(!"untested, thought broken");
             psum -= *static_cast<base>(*this);
             return static_cast<base &>(*this)--;
         }
 
         iterator_type &operator--() {
-            psum -= *static_cast<base>(*this);
             --static_cast<base &>(*this);
+            psum -= *static_cast<base>(*this);
             return (*this);
         }
 
