@@ -22,6 +22,7 @@ set(MACHOPP_SRC
     MachOHeaderEnums.cpp
     NList.cpp
     NVRAM.cpp
+    SearchFS.cpp
     Section.cpp
     SegmentCommand.cpp
     Slurp.cpp
@@ -76,6 +77,8 @@ target_compile_definitions(jevmachopp PRIVATE USE_FMT=1)
 target_compile_options(jevmachopp PRIVATE -Wall -Wextra -Wpedantic)
 target_compile_options(jevmachopp PRIVATE -fno-rtti -fno-exceptions -fno-unwind-tables -fno-asynchronous-unwind-tables)
 
-target_include_directories(jevmachopp PUBLIC ../../include ../../3rdparty/static_string/include ../../3rdparty/static_vector/include ../../3rdparty/hedley)
+set_source_files_properties(SearchFS.cpp PROPERTIES COMPILE_FLAGS -fexceptions)
+
+target_include_directories(jevmachopp PUBLIC ../../include ../../3rdparty/static_string/include ../../3rdparty/static_vector/include ../../3rdparty/thread-pool ../../3rdparty/hedley)
 
 # target_compile_options(jevmachopp PRIVATE -Xclang -fdump-record-layouts)

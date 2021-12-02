@@ -34,3 +34,6 @@
 [submodule "3rdparty/uleb128"]
 	path = 3rdparty/uleb128
 	url = https://github.com/bolderflight/uleb128
+[submodule "3rdparty/thread-pool"]
+	path = 3rdparty/thread-pool
+	url = https://github.com/bshoshany/thread-pool

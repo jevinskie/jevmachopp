@@ -10,8 +10,8 @@
 #include <jevmachopp/Slurp.h>
 
 int main(int argc, const char *argv[]) {
-    cxxopts::Options options("jev-xnu-load",
-                             "Mock iBoot prep of KC and other data then mock chainloading xnu");
+    cxxopts::Options options("jev-macho-callfinder",
+                             "Find calls in MachO files and their probable arguments");
 
     // clang-format off
     options.add_options()

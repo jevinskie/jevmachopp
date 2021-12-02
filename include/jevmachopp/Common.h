@@ -61,6 +61,10 @@ struct sv2pf {
     sv2pf(const std::string_view &sv) : str(sv.data()), sz((int)sv.size()) {}
 };
 
+// FIXME: convert rest of project from sv2pf -> SV2PF
+// #define SV2PF(sv) sv2pf((sv)).sz, sv2pf((sv)).str
+#define SV2PF(sv) (int)((sv).size()), (sv).data()
+
 #pragma mark Type Utilities
 
 template <typename T> constexpr auto type_name() {

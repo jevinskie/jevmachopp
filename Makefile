@@ -13,6 +13,7 @@ LIBJEVMACHOPP_ASM_OBJS := $(notdir $(LIBJEVMACHOPP_ASM_SRCS:.S=.o))
 LIBJEVMACHOPP_OBJS := $(LIBJEVMACHOPP_CXX_OBJS) $(LIBJEVMACHOPP_ASM_OBJS)
 # no slurp/mmap on baremetal
 LIBJEVMACHOPP_OBJS := $(filter-out Slurp.o,$(LIBJEVMACHOPP_OBJS))
+LIBJEVMACHOPP_OBJS := $(filter-out SearchFS.o,$(LIBJEVMACHOPP_OBJS))
 
 AR ?= aarch64-none-elf-gcc-ar
 CC ?= aarch64-none-elf-gcc
