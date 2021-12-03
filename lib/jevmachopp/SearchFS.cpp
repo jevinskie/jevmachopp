@@ -14,26 +14,7 @@
 
 namespace SearchFS {
 
-namespace Documentation {
-
-// https://github.com/apple-opensource/diskdev_cmds/blob/5edd85296237102b4cf721025103875f9eefb9c0/quotacheck.tproj/hfs_quotacheck.c#L92-L169
-
-struct fssearchblock {
-    struct attrlist *returnattrs;
-    void *returnbuffer;
-    size_t returnbuffersize;
-    unsigned int maxmatches;
-    struct timeval timelimit;
-    void *searchparams1;
-    size_t sizeofsearchparams1;
-    void *searchparams2;
-    size_t sizeofsearchparams2;
-    struct attrlist searchattrs;
-};
-} // namespace Documentation
-
-#define ITEMS_PER_SEARCH 4096 * 128
-// #define ITEMS_PER_SEARCH 4
+constexpr auto ITEMS_PER_SEARCH = 4096 * 128;
 
 struct sz_attr_t {
     uint32_t buf_sz;
@@ -42,8 +23,26 @@ struct sz_attr_t {
 
 struct oid_attr_t {
     uint32_t buf_sz;
-    uint64_t oid;
+    ino_t ino;
 } __attribute__((aligned(4), packed));
+
+void print_result(std::string path) {
+    printf("path: %s\n", path.data());
+}
+
+// bool process_file(thread_pool pool, uint64_t fsid, uint64_t ino) {
+bool process_file(uint64_t fsid, uint64_t ino) {
+    char path_cstr[PATH_MAX];
+    fsid_t fsid_proper;
+    memcpy(&fsid_proper, &fsid, sizeof(fsid_proper));
+    printf("fsid: 0x%016llx ino: 0x%016llx\n", fsid, ino);
+    const auto getpath_res = fsgetpath(path_cstr, sizeof(path_cstr), &fsid_proper, ino);
+    assert(getpath_res);
+    std::string path{path_cstr};
+    // pool.submit(print_result, path);
+    printf("path: %s\n", path_cstr);
+    return true;
+}
 
 bool files_larger_than(const char *volume_path, std::size_t min_sz) {
     struct fssearchblock searchblk = {};
@@ -57,11 +56,13 @@ bool files_larger_than(const char *volume_path, std::size_t min_sz) {
     sz_attr_t search_attrs = {sizeof(sz_attr_t), min_sz};
     sz_attr_t search_attrs_max = {sizeof(sz_attr_t), UINT64_MAX};
     struct statfs statfs_buf = {};
-    char path[PATH_MAX];
     int res = -1;
+    thread_pool pool;
+    uint64_t fsid_raw;
 
     auto statfs_res = statfs(volume_path, &statfs_buf);
     assert(!statfs_res);
+    memcpy(&fsid_raw, &statfs_buf.f_fsid, sizeof(fsid_raw));
 
     options = SRCHFS_START | SRCHFS_MATCHFILES;
     searchblk.searchattrs.bitmapcount = ATTR_BIT_MAP_COUNT;
@@ -98,10 +99,8 @@ bool files_larger_than(const char *volume_path, std::size_t min_sz) {
 
         printf("res: %d num_matches: %lu\n", res, num_matches);
         for (unsigned long i = 0; i < num_matches; ++i) {
-            const auto getpath_res =
-                fsgetpath(path, sizeof(path), &statfs_buf.f_fsid, res_buf[i].oid);
-            assert(getpath_res);
-            printf("path: %s\n", path);
+            // pool.submit(process_file, pool, fsid_raw, res_buf[i].ino);
+            pool.submit(process_file, fsid_raw, res_buf[i].ino);
         }
 
         if (res == 0) {
