@@ -69,6 +69,7 @@ bool processVolume(const char *volume_path) {
     unsigned long num_matches = 0;
     uint32_t options = 0;
     sz_attr_buf search_attrs = {sizeof(sz_attr_buf), 4};
+    sz_attr_buf search_attrs_max = {sizeof(sz_attr_buf), INT64_MAX};
 
     foo();
 
@@ -85,6 +86,8 @@ bool processVolume(const char *volume_path) {
     searchblk.searchattrs.fileattr = ATTR_FILE_DATALENGTH;
     searchblk.searchparams1 = &search_attrs;
     searchblk.sizeofsearchparams1 = sizeof(search_attrs);
+    searchblk.searchparams2 = &search_attrs_max;
+    searchblk.sizeofsearchparams2 = sizeof(search_attrs_max);
 
     /* Ask for type, uid, gid and file bytes */
     searchblk.returnattrs = &resattr;
@@ -96,20 +99,10 @@ bool processVolume(const char *volume_path) {
     searchblk.returnbuffersize = ITEMS_PER_SEARCH * sizeof(res_attr_buf);
     searchblk.maxmatches = ITEMS_PER_SEARCH;
 
+    int j = 0;
     for (;;) {
         num_matches = 0;
         res = searchfs(volume_path, &searchblk, &num_matches, 0, options, &state);
-        printf("res: %d num_matches: %lu errno: %d error: %s\n", res, num_matches, errno,
-               strerror(errno));
-
-        printf("sz: 0x%08x fsid: 0x%016llx oid: 0x%016llx\n", qap[0].buf_sz,
-               *(uint64_t *)&qap[0].fsid, qap[0].oid);
-
-        char path[PATH_MAX] = {};
-        const auto getpath_res = fsgetpath(path, sizeof(path), &qap[0].fsid, qap[0].oid);
-        printf("getpath_res: %zd path: %s\n", getpath_res, path);
-
-        break;
 
         if (res && errno != EAGAIN && errno != EBUSY) {
             // fprintf(stderr, "%d \n", errno);
@@ -119,6 +112,19 @@ bool processVolume(const char *volume_path) {
         if (res == 0 && num_matches == 0)
             break; /* all done */
         options &= ~SRCHFS_START;
+
+        if (j++ > 100) {
+            break;
+        }
+        // printf("res: %d num_matches: %lu errno: %d error: %s\n", res, num_matches, errno,
+        // strerror(errno));
+
+        printf("sz: 0x%08x fsid: 0x%016llx oid: 0x%016llx\n", qap[0].buf_sz,
+               *(uint64_t *)&qap[0].fsid, qap[0].oid);
+
+        char path[PATH_MAX] = {};
+        const auto getpath_res = fsgetpath(path, sizeof(path), &qap[0].fsid, qap[0].oid);
+        printf("getpath_res: %zd path: %s\n", getpath_res, path);
 
         // for (i = 0; i < nummatches; ++i) {
         //     vntype = qap[i].qa_type;
