@@ -30,8 +30,8 @@ void print_result(std::string path) {
     printf("path: %s\n", path.data());
 }
 
-// bool process_file(thread_pool pool, uint64_t fsid, uint64_t ino) {
-bool process_file(uint64_t fsid, uint64_t ino) {
+bool process_file(thread_pool *pool, uint64_t fsid, uint64_t ino) {
+    // bool process_file(uint64_t fsid, uint64_t ino) {
     char path_cstr[PATH_MAX];
     fsid_t fsid_proper;
     memcpy(&fsid_proper, &fsid, sizeof(fsid_proper));
@@ -39,8 +39,8 @@ bool process_file(uint64_t fsid, uint64_t ino) {
     const auto getpath_res = fsgetpath(path_cstr, sizeof(path_cstr), &fsid_proper, ino);
     assert(getpath_res);
     std::string path{path_cstr};
-    // pool.submit(print_result, path);
-    printf("path: %s\n", path_cstr);
+    pool->submit(print_result, path);
+    // printf("path: %s\n", path_cstr);
     return true;
 }
 
@@ -99,8 +99,8 @@ bool files_larger_than(const char *volume_path, std::size_t min_sz) {
 
         printf("res: %d num_matches: %lu\n", res, num_matches);
         for (unsigned long i = 0; i < num_matches; ++i) {
-            // pool.submit(process_file, pool, fsid_raw, res_buf[i].ino);
-            pool.submit(process_file, fsid_raw, res_buf[i].ino);
+            pool.submit(process_file, &pool, fsid_raw, res_buf[i].ino);
+            // pool.submit(process_file, fsid_raw, res_buf[i].ino);
         }
 
         if (res == 0) {
