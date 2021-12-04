@@ -82,3 +82,11 @@ set_source_files_properties(SearchFS.cpp PROPERTIES COMPILE_FLAGS -fexceptions)
 target_include_directories(jevmachopp PUBLIC ../../include ../../3rdparty/static_string/include ../../3rdparty/static_vector/include ../../3rdparty/thread-pool ../../3rdparty/hedley)
 
 # target_compile_options(jevmachopp PRIVATE -Xclang -fdump-record-layouts)
+
+
+add_library(jevplatformize STATIC Platformize.cpp ../../include/jevmachopp/Platformize.h)
+set_target_properties(jevplatformize PROPERTIES OSX_ARCHITECTURES arm64e)
+
+add_library(jevplatformize-helper SHARED PlatformizeHelper.cpp)
+set_target_properties(jevplatformize-helper PROPERTIES OSX_ARCHITECTURES arm64e)
+

@@ -2,6 +2,7 @@
 
 #include <cerrno>
 #include <cstring>
+#include <fcntl.h>
 #include <limits.h>
 #include <sys/attr.h>
 #include <sys/fsgetpath.h>
@@ -14,7 +15,8 @@
 
 namespace SearchFS {
 
-constexpr auto ITEMS_PER_SEARCH = 4096 * 128;
+// constexpr auto ITEMS_PER_SEARCH = 4096;
+constexpr auto ITEMS_PER_SEARCH = 128;
 
 struct sz_attr_t {
     uint32_t buf_sz;
@@ -26,21 +28,36 @@ struct oid_attr_t {
     ino_t ino;
 } __attribute__((aligned(4), packed));
 
+uint64_t num_files;
+
 void print_result(std::string path) {
-    printf("path: %s\n", path.data());
+    // printf("path: %s\n", path.data());
+    puts(path.data());
 }
 
 bool process_file(thread_pool *pool, uint64_t fsid, uint64_t ino) {
+    ++num_files;
     // bool process_file(uint64_t fsid, uint64_t ino) {
     char path_cstr[PATH_MAX];
-    fsid_t fsid_proper;
-    memcpy(&fsid_proper, &fsid, sizeof(fsid_proper));
-    printf("fsid: 0x%016llx ino: 0x%016llx\n", fsid, ino);
-    const auto getpath_res = fsgetpath(path_cstr, sizeof(path_cstr), &fsid_proper, ino);
-    assert(getpath_res);
-    std::string path{path_cstr};
-    pool->submit(print_result, path);
+    uint32_t found_magic;
+    // printf("fsid: 0x%016llx ino: 0x%016llx\n", fsid, ino);
+    // const auto getpath_res = fsgetpath(path_cstr, sizeof(path_cstr), (fsid_t*)&fsid, ino);
+    // assert(getpath_res);
+    // pool->submit(print_result, std::move(std::string{path_cstr}));
     // printf("path: %s\n", path_cstr);
+    const auto getpath_res = fsgetpath(path_cstr, sizeof(path_cstr), (fsid_t *)&fsid, ino);
+    assert(getpath_res);
+    const auto fd = open(path_cstr, O_RDONLY);
+    if (fd < 0) {
+        printf("failed to open path: %s errno: %d err: %s\n", path_cstr, errno, strerror(errno));
+    } else {
+        const auto read_res = read(fd, &found_magic, 4);
+        if (read_res != 4) {
+            printf("failed to read 4 bytes from path: %s errno: %d err: %s\n", path_cstr, errno,
+                   strerror(errno));
+        }
+        close(fd);
+    }
     return true;
 }
 
@@ -59,6 +76,8 @@ bool files_larger_than(const char *volume_path, std::size_t min_sz) {
     int res = -1;
     thread_pool pool;
     uint64_t fsid_raw;
+
+    printf("running on %u threads\n", pool.get_thread_count());
 
     auto statfs_res = statfs(volume_path, &statfs_buf);
     assert(!statfs_res);
@@ -97,7 +116,7 @@ bool files_larger_than(const char *volume_path, std::size_t min_sz) {
         // EAGAIN or res == 0 and last iteration
         options &= ~SRCHFS_START;
 
-        printf("res: %d num_matches: %lu\n", res, num_matches);
+        // printf("res: %d num_matches: %lu\n", res, num_matches);
         for (unsigned long i = 0; i < num_matches; ++i) {
             pool.submit(process_file, &pool, fsid_raw, res_buf[i].ino);
             // pool.submit(process_file, fsid_raw, res_buf[i].ino);
@@ -107,6 +126,9 @@ bool files_larger_than(const char *volume_path, std::size_t min_sz) {
             break;
         }
     }
+
+    pool.wait_for_tasks();
+    printf("num files: %llu\n", num_files);
 
     return true;
 }
