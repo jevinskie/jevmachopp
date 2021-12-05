@@ -343,23 +343,20 @@ constexpr const std::string_view YESNO(T v) {
     }
 }
 
-
-template< typename U >
+template <typename U>
 requires requires() {
     requires unsigned_integral<U>;
 }
-constexpr U roundup_pow2( U num, unsigned int nth_pow2 )
-{
-   U mask = (static_cast<U>(1) << nth_pow2) - 1;
-   return (num + mask) & ~mask;
+constexpr U roundup_pow2(U num, unsigned int nth_pow2) {
+    U mask = (static_cast<U>(1) << nth_pow2) - 1;
+    return (num + mask) & ~mask;
 }
 
-template< typename U >
+template <typename U>
 requires requires() {
     requires unsigned_integral<U>;
 }
-constexpr U roundup_pow2_mul( U num, std::size_t pow2_mul)
-{
-   U mask = static_cast<U>(pow2_mul) - 1;
-   return (num + mask) & ~mask;
+constexpr U roundup_pow2_mul(U num, std::size_t pow2_mul) {
+    U mask = static_cast<U>(pow2_mul) - 1;
+    return (num + mask) & ~mask;
 }
