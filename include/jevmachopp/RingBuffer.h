@@ -10,16 +10,23 @@
 #include <sys/mman.h>
 #include <unistd.h>
 
-template <typename T, std::size_t Num> class RingBuffer {
+#ifdef __arm64__
+constexpr std::size_t JEV_PAGE_SZ = 0x4000;
+#else
+#error "Unsupported arch (unknown page size)"
+#endif
+
+template <typename T, std::size_t MinNum> class RingBuffer {
 public:
-    using ring_buf_t = T[2 * Num];
-    static constexpr auto buf_sz_phys_v = sizeof(T[Num]);
+    static constexpr auto min_buf_sz = sizeof(T[MinNum]);
+    static constexpr auto buf_sz_phys = roundup_pow2_mul(min_buf_sz, JEV_PAGE_SZ);
+    static constexpr auto static_size = buf_sz_phys / sizeof(T);
+    using ring_buf_t = T[static_size];
+
 
     RingBuffer() {
-        const auto page_sz = getpagesize();
-        const auto buf_sz_phys = sizeof(T) * Num;
     };
 
     // private:
-    ring_buf_t *m_buf;
+    ring_buf_t *m_buf = nullptr;
 };
