@@ -80,7 +80,7 @@ target_compile_options(jevmachopp PRIVATE -fno-rtti -fno-exceptions -fno-unwind-
 
 set_source_files_properties(SearchFS.cpp PROPERTIES COMPILE_FLAGS -fexceptions)
 
-target_include_directories(jevmachopp PUBLIC ../../include ../../3rdparty/static_string/include ../../3rdparty/static_vector/include ../../3rdparty/thread-pool ../../3rdparty/hedley)
+target_include_directories(jevmachopp PUBLIC ../../include ../../3rdparty/static_string/include ../../3rdparty/static_vector/include ../../3rdparty/thread-pool ../../3rdparty/hedley ../../3rdparty/cpp17-semaphore)
 
 # target_compile_options(jevmachopp PRIVATE -Xclang -fdump-record-layouts)
 

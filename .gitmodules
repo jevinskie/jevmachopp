@@ -37,3 +37,6 @@
 [submodule "3rdparty/thread-pool"]
 	path = 3rdparty/thread-pool
 	url = https://github.com/bshoshany/thread-pool
+[submodule "3rdparty/cpp17-semaphore"]
+	path = 3rdparty/cpp17-semaphore
+	url = https://github.com/graham-riches/cpp17-semaphore

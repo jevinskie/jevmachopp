@@ -1,11 +1,16 @@
 #include <cstdint>
 #include <memory>
 #include <string>
+#include <string_view>
+#include <thread>
 
 #include <catch2/catch_test_macros.hpp>
 #include <fmt/core.h>
 
 #include <jevmachopp/RingBuffer.h>
+
+using namespace std::string_literals;
+using namespace std::literals;
 
 constexpr std::size_t NUM_ELEM = 0x1000;
 
@@ -69,13 +74,53 @@ TEST_CASE("overflow by one", "[ringbuffer]") {
 }
 #endif
 
-TEST_CASE("MultiCons push 'n pop", "[ringbuffer]") {
+TEST_CASE("MultiCons push 'n pop trivial", "[ringbuffer]") {
     auto rb = MultiConsRingBuffer<uint32_t, NUM_ELEM>{};
 
     rb.push(1);
     rb.push(2);
-    // rb.emplace((decltype(rb)::value_type)2);
 
     REQUIRE(rb.pop() == 1);
     REQUIRE(rb.pop() == 2);
+}
+
+TEST_CASE("MultiCons push 'n pop std::string simple", "[ringbuffer]") {
+    auto rb = MultiConsRingBuffer<std::string, NUM_ELEM>{};
+
+    rb.push("one"s);
+    rb.push("two"s);
+
+    REQUIRE(rb.pop() == "one"sv);
+    REQUIRE(rb.pop() == "two"sv);
+}
+
+TEST_CASE("MultiCons push 'n pop std::string sem", "[ringbuffer]") {
+    auto rb = MultiConsRingBuffer<std::string, NUM_ELEM>{};
+
+    rb.push("one"s);
+    rb.push("two"s);
+
+    auto p0_ready_sem = std::binary_semaphore{};
+    p0_ready_sem.acquire();
+    auto p0_go_sem = std::binary_semaphore{};
+    p0_go_sem.acquire();
+
+    std::thread p0{[&]() {
+        const auto p0_res = rb.pop(&p0_ready_sem, &p0_go_sem);
+        fprintf(stderr, "p0_res: %s\n", p0_res.data());
+    }};
+
+    fprintf(stderr, "main releasing p0_ready_sem\n");
+    p0_ready_sem.release();
+    fprintf(stderr, "main reacquiring p0_ready_sem\n");
+    p0_ready_sem.acquire();
+    fprintf(stderr, "main did reacquire p0_ready_sem\n");
+
+    REQUIRE(rb.pop() == "one"sv);
+
+    p0_go_sem.release();
+
+    p0.join();
+
+    REQUIRE(rb.pop() == "two"sv);
 }

@@ -14,6 +14,8 @@
 #include <unistd.h>
 #include <utility>
 
+#include <semaphore.hpp>
+
 #ifdef __arm64__
 constexpr std::size_t JEV_PAGE_SZ = 0x4000;
 #else
@@ -87,6 +89,43 @@ public:
             new_idx_raw = rd_idx_raw + 1;
         } while (!rd_idx_raw.compare_exchange_strong(idx_raw, new_idx_raw));
 
+        our_obj->~T();
+
+        return res;
+    }
+
+    value_type pop(std::binary_semaphore *ready_sem = nullptr,
+                   std::binary_semaphore *go_sem = nullptr) noexcept requires MultiCons &&
+        (!std::is_trivially_copyable_v<value_type>) {
+        T res;
+
+        fprintf(stderr, "poppin' ready_sem: %p go_sem: %p\n", ready_sem, go_sem);
+
+        std::size_t idx_raw;
+        std::size_t idx;
+        std::size_t new_idx_raw;
+        pointer our_obj;
+        bool cas_res;
+
+        do {
+            if (ready_sem) {
+                fprintf(stderr, "waiting for ready release\n");
+                ready_sem->release();
+            }
+            idx_raw = rd_idx_raw;
+            idx = idx_raw & idx_mask;
+            our_obj = &m_buf[idx];
+            if (go_sem) {
+                fprintf(stderr, "waiting for go acquire\n");
+                go_sem->acquire();
+            }
+            res = m_buf[idx];
+            new_idx_raw = rd_idx_raw + 1;
+            cas_res = rd_idx_raw.compare_exchange_strong(idx_raw, new_idx_raw);
+            fprintf(stderr, "cas_res: %s\n", YESNOCStr(cas_res));
+        } while (!cas_res);
+
+        fprintf(stderr, "destroying %p\n", static_cast<void *>(our_obj));
         our_obj->~T();
 
         return res;
