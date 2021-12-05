@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdlib>
 #include <cstring>
 #include <limits>
 #include <optional>
@@ -341,6 +342,47 @@ constexpr const std::string_view YESNO(T v) {
     } else {
         return "NO"sv;
     }
+}
+
+template <typename I>
+requires requires() {
+    requires integral<I>;
+}
+constexpr I gcd(I a, I b) {
+    I tmpb;
+    if constexpr (std::is_signed_v<I>) {
+        a = std::abs(a);
+        b = std::abs(b);
+    }
+    while (b != 0) {
+        tmpb = b;
+        b = a % b;
+        a = tmpb;
+    }
+    return a;
+}
+
+template <typename I>
+requires requires() {
+    requires integral<I>;
+}
+constexpr I lcm(I a, I b) {
+    I c = gcd(a, b);
+    return c == 0 ? 0 : a / c * b;
+}
+
+template <typename I>
+requires requires() {
+    requires integral<I>;
+}
+constexpr bool is_pow2(I num) {
+    auto nbits_set = 0;
+    for (int i = 0, e = (int)sizeof(I) * 8; i < e; ++i) {
+        if ((1u << i) & as_unsigned(num)) {
+            ++nbits_set;
+        }
+    }
+    return nbits_set == 1;
 }
 
 template <typename U>
