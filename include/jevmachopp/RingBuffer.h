@@ -30,12 +30,12 @@ public:
         printf("MinNum: %zu min_buf_sz: 0x%zx buf_sz_phys: 0x%zx static_size: 0x%zx\n", MinNum,
                min_buf_sz, buf_sz_phys, static_size);
         for (int try_num = 0; try_num < MMAP_MAX_TRIES; ++try_num) {
-            m_buf = (ring_buf_t *)mmap(nullptr, buf_sz_phys * 2, PROT_READ | PROT_WRITE,
-                                       MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
+            m_buf = (T *)mmap(nullptr, buf_sz_phys * 2, PROT_READ | PROT_WRITE,
+                              MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
             if (!m_buf) {
                 continue;
             }
-            m_buf_mirror = m_buf + 1;
+            m_buf_mirror = m_buf + static_size;
             printf("m_buf: %p m_buf_mirror: %p diff: 0x%lx\n", (void *)m_buf, (void *)m_buf_mirror,
                    (uintptr_t)m_buf_mirror - (uintptr_t)m_buf);
 
@@ -77,6 +77,6 @@ public:
     }
 
     // private:
-    ring_buf_t *m_buf = nullptr;
-    ring_buf_t *m_buf_mirror = nullptr;
+    T *m_buf = nullptr;
+    T *m_buf_mirror = nullptr;
 };

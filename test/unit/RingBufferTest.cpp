@@ -11,7 +11,7 @@ TEST_CASE("RingBuffer()", "[ringbuffer]") {
     auto rb = RingBuffer<uint32_t, 0x4000>{};
 
     SECTION("mirror [0]") {
-        (*rb.m_buf)[0] = 0xdeadbeef;
-        REQUIRE((*rb.m_buf_mirror)[0] == (*rb.m_buf)[0]);
+        rb.m_buf[0] = 0xdeadbeef;
+        REQUIRE(rb.m_buf_mirror[0] == rb.m_buf[0]);
     }
 }
