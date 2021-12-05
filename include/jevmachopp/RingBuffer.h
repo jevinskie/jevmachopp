@@ -191,7 +191,7 @@ public:
             const auto rd_full_val = wr - static_size + 1;
             const std::size_t rd = rd_idx_raw;
             res = rd == rd_full_val;
-        } while (wr != wr_idx_raw);
+        } while (wr != wr_idx_raw.load());
         return res;
     }
 
@@ -214,7 +214,7 @@ public:
             rd = rd_idx_raw.load();
             wr = wr_idx_raw;
             res = rd == wr;
-        } while (rd != rd_idx_raw);
+        } while (rd != rd_idx_raw.load());
         return res;
     }
 
