@@ -20,7 +20,9 @@ class string {
     bool valid;
 
 public:
-    string() : _data(nullptr), valid(false) {}
+    string() : _data(nullptr), valid(false) {
+        fprintf(stderr, "string() this: %p\n", (void *)this);
+    }
 
     string(const char *p) : _data(nullptr), valid(false) {
         fprintf(stderr, "string(const char* p) this: %p p: %s\n", (void *)this, p);

@@ -73,7 +73,10 @@ public:
         return std::move(m_buf[(rd_idx_raw++ & idx_mask)]);
     }
 
-    value_type pop() noexcept requires MultiCons && std::is_trivially_copyable_v<value_type> {
+    value_type pop() noexcept requires requires() {
+        requires MultiCons && std::is_trivially_copyable_v<value_type>;
+    }
+    {
         T res;
 
         std::size_t idx_raw;
@@ -95,8 +98,10 @@ public:
     }
 
     value_type pop(std::binary_semaphore *ready_sem = nullptr,
-                   std::binary_semaphore *go_sem = nullptr) noexcept requires MultiCons &&
-        (!std::is_trivially_copyable_v<value_type>) {
+                   std::binary_semaphore *go_sem = nullptr) noexcept requires requires() {
+        requires MultiCons && !std::is_trivially_copyable_v<value_type>;
+    }
+    {
         T res;
 
         fprintf(stderr, "poppin' ready_sem: %p go_sem: %p\n", ready_sem, go_sem);
@@ -140,7 +145,58 @@ public:
     }
 
     constexpr std::size_t size() const noexcept {
-        return wr_idx_raw - rd_idx_raw;
+        // we can be conservative and report bigger even if another thread is currently reading
+        // so read the read pointer first
+        const std::size_t rd = rd_idx_raw;
+        const std::size_t wr = wr_idx_raw;
+        return wr - rd;
+    }
+
+    constexpr bool full() const noexcept requires(!MultiProd) {
+        // read write pointer first since nobody else will be changing it
+        const std::size_t wr = wr_idx_raw;
+        const auto rd_full_val = wr - static_size + 1;
+        // load read pointer that others may be updating last
+        const std::size_t rd = rd_idx_raw;
+        return rd == rd_full_val;
+    }
+
+    constexpr bool full() const noexcept requires(MultiProd) {
+        // conservative/safe return value for writer
+        // report full if another thread completes a write before we return
+        std::size_t wr;
+        bool res;
+        // loop until we check full and the write pointer is still the same
+        do {
+            wr = wr_idx_raw.load();
+            const auto rd_full_val = wr - static_size + 1;
+            const std::size_t rd = rd_idx_raw;
+            res = rd == rd_full_val;
+        } while (wr != wr_idx_raw);
+        return res;
+    }
+
+    constexpr bool empty() const noexcept requires(!MultiCons) {
+        // read read pointer first since nobody else will be changing it
+        const std::size_t rd = rd_idx_raw;
+        // load write pointer that others may be updating last
+        const std::size_t wr = wr_idx_raw;
+        return rd == wr;
+    }
+
+    constexpr bool empty() const noexcept requires(MultiCons) {
+        // conservative/safe return value for reader
+        // don't report empty if another thread completes a write before we return
+        std::size_t rd;
+        std::size_t wr;
+        bool res;
+        // loop until we check full and the write pointer is still the same
+        do {
+            rd = rd_idx_raw.load();
+            wr = wr_idx_raw;
+            res = rd == wr;
+        } while (rd != rd_idx_raw);
+        return res;
     }
 
     RingBufferBase() noexcept
