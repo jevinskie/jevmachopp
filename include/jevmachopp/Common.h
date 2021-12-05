@@ -377,8 +377,8 @@ requires requires() {
 }
 constexpr bool is_pow2(I num) {
     auto nbits_set = 0;
-    for (int i = 0, e = (int)sizeof(I) * 8; i < e; ++i) {
-        if ((1u << i) & as_unsigned(num)) {
+    for (int i = 0; i < sizeof(I) * 8; ++i) {
+        if (((decltype(as_unsigned(num)))1 << i) & as_unsigned(num)) {
             ++nbits_set;
         }
     }

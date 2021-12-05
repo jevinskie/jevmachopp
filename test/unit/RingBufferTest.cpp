@@ -21,7 +21,7 @@ TEST_CASE("push 'n pop", "[ringbuffer]") {
 
     SECTION("push 0") {
         rb.push(0xdeadbeef);
-        REQUIRE(*rb.rd_ptr == 0xdeadbeef);
+        REQUIRE(rb.peek() == 0xdeadbeef);
     }
 
     SECTION("pop 0") {

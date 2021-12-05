@@ -26,13 +26,16 @@ public:
     static constexpr auto min_buf_sz = lcm(min_buf_sz_raw, (std::size_t)2);
     static constexpr auto buf_sz_phys = roundup_pow2_mul(min_buf_sz, JEV_PAGE_SZ);
     static constexpr auto static_size = buf_sz_phys / sizeof(T);
-    using ring_buf_t = std::array<T, static_size>;
+    static_assert_cond(is_pow2(static_size));
+    static constexpr auto static_size_mask = static_size - 1;
+
     using value_type = T;
     using pointer = T *;
     using reference = T &;
 
     template <class... Args> decltype(auto) emplace(Args &&...args) noexcept {
-        return *new (wr_ptr++) value_type{std::forward<Args>(args)...};
+        return *new (&m_buf[(wr_idx_raw++ & static_size_mask)])
+            value_type{std::forward<Args>(args)...};
     }
 
     void push(const T &val) noexcept {
@@ -43,11 +46,23 @@ public:
         emplace(std::move(val));
     }
 
-    T pop() noexcept {
-        return std::move(*rd_ptr);
+    T &peek() noexcept {
+        return m_buf[rd_idx()];
     }
 
-    RingBuffer() noexcept {
+    T pop() noexcept {
+        return std::move(m_buf[(rd_idx_raw++ & static_size_mask)]);
+    }
+
+    constexpr std::size_t rd_idx() const noexcept {
+        return rd_idx_raw & static_size_mask;
+    }
+
+    constexpr std::size_t wr_idx() const noexcept {
+        return wr_idx_raw & static_size_mask;
+    }
+
+    RingBuffer() noexcept : m_buf(nullptr), m_buf_mirror(nullptr), rd_idx_raw(0), wr_idx_raw(0) {
         for (int try_num = 0; try_num < MMAP_MAX_TRIES; ++try_num) {
             m_buf = (T *)mmap(nullptr, buf_sz_phys * 2, PROT_READ | PROT_WRITE,
                               MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
@@ -85,8 +100,6 @@ public:
             break;
         }
         assert(m_buf && m_buf_mirror);
-        wr_ptr = m_buf;
-        rd_ptr = m_buf;
     };
 
     ~RingBuffer() noexcept {
@@ -96,8 +109,8 @@ public:
     }
 
     // private:
-    pointer m_buf = nullptr;
-    pointer m_buf_mirror = nullptr;
-    pointer rd_ptr = nullptr;
-    pointer wr_ptr = nullptr;
+    pointer m_buf;
+    pointer m_buf_mirror;
+    std::size_t rd_idx_raw;
+    std::size_t wr_idx_raw;
 };
