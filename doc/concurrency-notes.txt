@@ -1,0 +1,33 @@
+
+pop():
+
+t0 :>
+rd_irx = 0 wr_idx = 1
+
+t1 :>
+p0 rd_idx = 0
+p1 rd_idx = 0
+
+t2 :>
+p0 val = copy(buf[rd_idx=0]) start
+
+t3 :>
+p1 val = copy(buf[rd_idx=0]) start
+
+
+t4 :>
+p1 val = copy(buf[rd_idx=0]) finish
+p1 dtor(buf[rd_idx=0])
+p1 swapped == true = rd_idx.cas(expected=0, new=rd_idx + 1)
+p1 got the value
+p1 returns the value
+
+t4.5 :>
+p0 copy starts getting garbage from p1's dtor operation
+
+t5:
+p0 val = copy(buf[rd_idx=0]) finish // with partial garbage
+p0 dtor(buf[rd_idx=0]) // UAF
+p0 swapped == false = rd_idx.cas(expected=0, new=rd_idx + 1)
+p0 missed the value
+p0 start loop again
