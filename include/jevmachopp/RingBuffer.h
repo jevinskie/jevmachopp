@@ -19,7 +19,7 @@ constexpr std::size_t JEV_PAGE_SZ = 0x4000;
 #error "Unsupported arch (unknown page size)"
 #endif
 
-template <typename T, std::size_t MinNum> class RingBuffer {
+template <typename T, std::size_t MinNum, bool MultiProd, bool MultiCons> class RingBufferBase {
 public:
     static constexpr auto MMAP_MAX_TRIES = 16;
     static constexpr auto min_buf_sz_raw = sizeof(T[MinNum]);
@@ -29,9 +29,13 @@ public:
     static_assert_cond(is_pow2(static_size));
     static constexpr auto idx_mask = static_size * 2 - 1;
 
+    using atomic_idx_t = std::atomic_size_t;
+    using nonatomic_idx_t = std::size_t;
     using value_type = T;
     using pointer = T *;
     using reference = T &;
+    using rd_idx_t = typename std::conditional<MultiCons, atomic_idx_t, nonatomic_idx_t>::type;
+    using wr_idx_t = typename std::conditional<MultiProd, atomic_idx_t, nonatomic_idx_t>::type;
 
     template <class... Args> decltype(auto) emplace(Args &&...args) noexcept {
         assert(size() < static_size);
@@ -66,7 +70,8 @@ public:
         return wr_idx_raw - rd_idx_raw;
     }
 
-    RingBuffer() noexcept : m_buf(nullptr), m_buf_mirror(nullptr), rd_idx_raw(0), wr_idx_raw(0) {
+    RingBufferBase() noexcept
+        : m_buf(nullptr), m_buf_mirror(nullptr), rd_idx_raw(0), wr_idx_raw(0) {
         for (int try_num = 0; try_num < MMAP_MAX_TRIES; ++try_num) {
             m_buf = (T *)mmap(nullptr, buf_sz_phys * 2, PROT_READ | PROT_WRITE,
                               MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
@@ -106,7 +111,7 @@ public:
         assert(m_buf && m_buf_mirror);
     };
 
-    ~RingBuffer() noexcept {
+    ~RingBufferBase() noexcept {
         assert(!munmap(m_buf, buf_sz_phys * 2));
         m_buf = nullptr;
         m_buf_mirror = nullptr;
@@ -115,6 +120,18 @@ public:
     // private:
     pointer m_buf;
     pointer m_buf_mirror;
-    std::size_t rd_idx_raw;
+    std::atomic_size_t rd_idx_raw;
     std::size_t wr_idx_raw;
 };
+
+template <typename T, std::size_t MinNum>
+class RingBuffer : public RingBufferBase<T, MinNum, false, false> {};
+
+template <typename T, std::size_t MinNum>
+class MultiProdRingBuffer : public RingBufferBase<T, MinNum, true, false> {};
+
+template <typename T, std::size_t MinNum>
+class MultiConsRingBuffer : public RingBufferBase<T, MinNum, false, true> {};
+
+template <typename T, std::size_t MinNum>
+class MultiProdConsRingBuffer : public RingBufferBase<T, MinNum, true, true> {};
