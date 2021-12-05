@@ -47,6 +47,7 @@ set(MACHOPP_HDR_STANDALONE
     LoadCommandType.h
     PackedCStr.h
     Ranges.h
+    RingBuffer.h
     UnixThreadCommand.h
     UUIDCommand.h
 )

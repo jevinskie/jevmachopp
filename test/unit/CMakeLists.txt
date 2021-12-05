@@ -2,6 +2,7 @@ set(UNIT_TESTS_SRC
     ARM64DisasmTest.cpp
     HexTest.cpp
     LEB128Test.cpp
+    RingBufferTest.cpp
 )
 
 add_executable(jevmachopp-unit-tests ${UNIT_TESTS_SRC})
