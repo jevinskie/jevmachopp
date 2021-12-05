@@ -2,6 +2,7 @@
 
 #include "jevmachopp/Common.h"
 
+#include <algorithm>
 #include <atomic>
 #include <cassert>
 #include <cerrno>
@@ -50,12 +51,45 @@ public:
         emplace(std::move(val));
     }
 
-    T &peek() noexcept {
+    void
+    emplace_multiple(const std::span<T> &span) requires std::is_trivially_copyable_v<value_type> {
+        std::memcpy(&m_buf[wr_idx()], span.data(), span.size_bytes());
+        wr_idx_raw += span.size();
+    }
+
+    void
+    emplace_multiple(const std::span<T> &span) requires(!std::is_trivially_copyable_v<value_type>) {
+        std::copy(span.cbegin(), span.cend(), &m_buf[wr_idx()]);
+        wr_idx_raw += span.size();
+    }
+
+    reference peek() noexcept {
         return m_buf[rd_idx()];
     }
 
-    T pop() noexcept {
+    value_type pop() noexcept requires(!MultiCons) {
         return std::move(m_buf[(rd_idx_raw++ & idx_mask)]);
+    }
+
+    value_type pop() noexcept requires MultiCons && std::is_trivially_copyable_v<value_type> {
+        T res;
+
+        std::size_t idx_raw;
+        std::size_t idx;
+        std::size_t new_idx_raw;
+        pointer our_obj;
+
+        do {
+            idx_raw = rd_idx_raw;
+            idx = idx_raw & idx_mask;
+            our_obj = &m_buf[idx];
+            res = m_buf[idx];
+            new_idx_raw = rd_idx_raw + 1;
+        } while (!rd_idx_raw.compare_exchange_strong(idx_raw, new_idx_raw));
+
+        our_obj->~T();
+
+        return res;
     }
 
     constexpr std::size_t rd_idx() const noexcept {
@@ -120,8 +154,8 @@ public:
     // private:
     pointer m_buf;
     pointer m_buf_mirror;
-    std::atomic_size_t rd_idx_raw;
-    std::size_t wr_idx_raw;
+    rd_idx_t rd_idx_raw;
+    wr_idx_t wr_idx_raw;
 };
 
 template <typename T, std::size_t MinNum>

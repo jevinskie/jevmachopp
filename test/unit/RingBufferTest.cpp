@@ -31,6 +31,14 @@ TEST_CASE("push 'n pop", "[ringbuffer]") {
         REQUIRE(rb.pop() == 0xdeadbeef);
     }
 
+    SECTION("push/pop 2x") {
+        rb.push(1);
+        rb.emplace((decltype(rb)::value_type)2);
+
+        REQUIRE(rb.pop() == 1);
+        REQUIRE(rb.pop() == 2);
+    }
+
     SECTION("2x size") {
         for (std::size_t i = 0; i < 1.5 * 2 * NUM_ELEM; ++i) {
             rb.push(i);
@@ -60,3 +68,14 @@ TEST_CASE("overflow by one", "[ringbuffer]") {
     REQUIRE_FALSE(true);
 }
 #endif
+
+TEST_CASE("MultiCons push 'n pop", "[ringbuffer]") {
+    auto rb = MultiConsRingBuffer<uint32_t, NUM_ELEM>{};
+
+    rb.push(1);
+    rb.push(2);
+    // rb.emplace((decltype(rb)::value_type)2);
+
+    REQUIRE(rb.pop() == 1);
+    REQUIRE(rb.pop() == 2);
+}
