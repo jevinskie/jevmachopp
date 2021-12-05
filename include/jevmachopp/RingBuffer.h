@@ -27,15 +27,15 @@ public:
     static constexpr auto buf_sz_phys = roundup_pow2_mul(min_buf_sz, JEV_PAGE_SZ);
     static constexpr auto static_size = buf_sz_phys / sizeof(T);
     static_assert_cond(is_pow2(static_size));
-    static constexpr auto static_size_mask = static_size - 1;
+    static constexpr auto idx_mask = static_size * 2 - 1;
 
     using value_type = T;
     using pointer = T *;
     using reference = T &;
 
     template <class... Args> decltype(auto) emplace(Args &&...args) noexcept {
-        return *new (&m_buf[(wr_idx_raw++ & static_size_mask)])
-            value_type{std::forward<Args>(args)...};
+        assert(size() < static_size);
+        return *new (&m_buf[(wr_idx_raw++ & idx_mask)]) value_type{std::forward<Args>(args)...};
     }
 
     void push(const T &val) noexcept {
@@ -51,15 +51,19 @@ public:
     }
 
     T pop() noexcept {
-        return std::move(m_buf[(rd_idx_raw++ & static_size_mask)]);
+        return std::move(m_buf[(rd_idx_raw++ & idx_mask)]);
     }
 
     constexpr std::size_t rd_idx() const noexcept {
-        return rd_idx_raw & static_size_mask;
+        return rd_idx_raw & idx_mask;
     }
 
     constexpr std::size_t wr_idx() const noexcept {
-        return wr_idx_raw & static_size_mask;
+        return wr_idx_raw & idx_mask;
+    }
+
+    constexpr std::size_t size() const noexcept {
+        return wr_idx_raw - rd_idx_raw;
     }
 
     RingBuffer() noexcept : m_buf(nullptr), m_buf_mirror(nullptr), rd_idx_raw(0), wr_idx_raw(0) {
