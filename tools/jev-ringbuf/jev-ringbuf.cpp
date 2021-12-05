@@ -16,47 +16,70 @@ using namespace std::literals;
 constexpr std::size_t NUM_ELEM = 0x1000;
 
 class string {
-    char *data;
+    char *_data;
+    bool valid;
 
 public:
-    string(const char *p) {
-        fprintf(stderr, "string(const char* p) p: %s\n", p);
+    string() : _data(nullptr), valid(false) {}
+
+    string(const char *p) : _data(nullptr), valid(false) {
+        fprintf(stderr, "string(const char* p) this: %p p: %s\n", (void *)this, p);
         size_t size = std::strlen(p) + 1;
-        data = new char[size];
-        std::memcpy(data, p, size);
+        _data = new char[size];
+        std::memcpy(_data, p, size);
+        valid = true;
     }
 
     ~string() {
-        delete[] data;
+        fprintf(stderr, "~string() this: %p _data: %s valid: %s\n", (void *)this, _data,
+                YESNOCStr(valid));
+        assert(valid);
+        valid = false;
+        delete[] _data;
+        _data = nullptr;
     }
 
-    string(const string &that) {
-        fprintf(stderr, "string(const string& that) that: %s\n", that.data);
-        size_t size = std::strlen(that.data) + 1;
-        data = new char[size];
-        std::memcpy(data, that.data, size);
+    string(const string &that) : _data(nullptr), valid(false) {
+        fprintf(stderr, "string(const string& that) this: %p that: %s\n", (void *)this, that._data);
+        size_t size = std::strlen(that._data) + 1;
+        _data = new char[size];
+        std::memcpy(_data, that._data, size);
+        valid = true;
     }
 
-    string(string &&that) // string&& is an rvalue reference to a string
+    string(string &&that)
+        : _data(nullptr), valid(false) // string&& is an rvalue reference to a string
     {
-        fprintf(stderr, "string(string&& that) this: %s that: %s\n", data, that.data);
-        data = that.data;
-        that.data = nullptr;
+        fprintf(stderr, "string(string&& that) this: %p %s that: %s\n", (void *)this, _data,
+                that._data);
+        _data = that._data;
+        that.valid = false;
+        that._data = nullptr;
     }
 
     string &operator=(string that) {
-        fprintf(stderr, "operator= this: %s that: %s\n", data, that.data);
-        std::swap(data, that.data);
+        fprintf(stderr, "operator= this: %p %s that: %s\n", (void *)this, _data, that._data);
+        std::swap(valid, that.valid);
+        std::swap(_data, that._data);
         return *this;
+    }
+
+    char *data() const {
+        assert(valid);
+        return _data;
+    }
+
+    operator std::string_view() const {
+        return {_data, std::strlen(_data)};
     }
 };
 
 int main(void) {
-    auto rb = MultiConsRingBuffer<std::string, NUM_ELEM>{};
-    std::string p0_res;
+    auto rb = MultiConsRingBuffer<string, NUM_ELEM>{};
+    string p0_res;
 
-    rb.push("one"s);
-    rb.push("two"s);
+    rb.push(string{"one"});
+    rb.push(string{"two"});
 
     auto p0_ready_sem = std::binary_semaphore{0};
     //    p0_ready_sem.acquire();
