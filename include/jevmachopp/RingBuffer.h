@@ -41,35 +41,45 @@ public:
     using wr_idx_t = typename std::conditional<MultiProd, atomic_idx_t, nonatomic_idx_t>::type;
 
     template <class... Args> decltype(auto) emplace(Args &&...args) noexcept {
-        assert(size() < static_size);
+        assert(!full());
         return *new (&m_buf[(wr_idx_raw++ & idx_mask)]) value_type{std::forward<Args>(args)...};
     }
 
     void push(const T &val) noexcept {
+        while (full())
+            ;
         emplace(val);
     }
 
     void push(const T &&val) noexcept {
+        while (full())
+            ;
         emplace(std::move(val));
     }
 
     void
     emplace_multiple(const std::span<T> &span) requires std::is_trivially_copyable_v<value_type> {
+        assert(span.size() <= remaining());
         std::memcpy(&m_buf[wr_idx()], span.data(), span.size_bytes());
         wr_idx_raw += span.size();
     }
 
     void
     emplace_multiple(const std::span<T> &span) requires(!std::is_trivially_copyable_v<value_type>) {
+        assert(span.size() <= remaining());
         std::copy(span.cbegin(), span.cend(), &m_buf[wr_idx()]);
         wr_idx_raw += span.size();
     }
 
     reference peek() noexcept {
+        while (empty())
+            ;
         return m_buf[rd_idx()];
     }
 
     value_type pop() noexcept requires(!MultiCons) {
+        while (empty())
+            ;
         return std::move(m_buf[(rd_idx_raw++ & idx_mask)]);
     }
 
@@ -85,6 +95,8 @@ public:
         pointer our_obj;
 
         do {
+            while (empty())
+                ;
             idx_raw = rd_idx_raw;
             idx = idx_raw & idx_mask;
             our_obj = &m_buf[idx];
@@ -117,6 +129,8 @@ public:
                 fprintf(stderr, "waiting for ready release\n");
                 ready_sem->acquire();
             }
+            while (empty())
+                ;
             idx_raw = rd_idx_raw;
             idx = idx_raw & idx_mask;
             our_obj = &m_buf[idx];
@@ -145,11 +159,16 @@ public:
     }
 
     constexpr std::size_t size() const noexcept {
+        // FIXME: the below is quite likely wrong
         // we can be conservative and report bigger even if another thread is currently reading
         // so read the read pointer first
         const std::size_t rd = rd_idx_raw;
         const std::size_t wr = wr_idx_raw;
         return wr - rd;
+    }
+
+    constexpr std::size_t remaining() const noexcept {
+        return static_size - size();
     }
 
     constexpr bool full() const noexcept requires(!MultiProd) {
