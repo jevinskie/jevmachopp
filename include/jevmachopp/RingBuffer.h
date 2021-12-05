@@ -110,7 +110,7 @@ public:
         do {
             if (ready_sem) {
                 fprintf(stderr, "waiting for ready release\n");
-                ready_sem->release();
+                ready_sem->acquire();
             }
             idx_raw = rd_idx_raw;
             idx = idx_raw & idx_mask;
