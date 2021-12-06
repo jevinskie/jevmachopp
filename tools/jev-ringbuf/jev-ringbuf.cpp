@@ -15,143 +15,33 @@ using namespace std::literals;
 
 constexpr std::size_t NUM_ELEM = 0x1000;
 
-class string {
-    char _data[255];
-    bool valid;
+constexpr auto NUM_PUSH = NUM_ELEM * 0.3;
+// constexpr auto NUM_PUSH = NUM_ELEM * 16.3;
 
-public:
-    string() : valid(false) {
-        memset(_data, 0, sizeof(_data));
-        fprintf(stderr, "string() this: %p\n", (void *)this);
-        setValid(false);
-    }
-
-    string(const char *p) : valid(false) {
-        memset(_data, 0, sizeof(_data));
-        fprintf(stderr, "string(const char* p) this: %p p: %s\n", (void *)this, p);
-        size_t size = std::strlen(p) + 1;
-        // _data = new char[size];
-        std::memcpy(_data, p, size);
-        setValid(true);
-    }
-
-    ~string() = default;
-
-    // ~string() {
-    //     fprintf(stderr, "~string() this: %p _data: %s valid: %s\n", (void *)this, _data,
-    //             YESNOCStr(valid));
-    //     assert(valid);
-    //     valid = false;
-    //     // delete[] _data;
-    //     _data = nullptr;
-    // }
-
-    string(const string &that) : valid(false) {
-        memset(_data, 0, sizeof(_data));
-        fprintf(stderr, "string(const string& that) this: %p that: %s\n", (void *)this, that._data);
-        // _data = new char[size];
-        std::memcpy(_data, that._data, sizeof(_data));
-        setValid(true);
-    }
-
-    string(string &&that)
-        : valid(false) // string&& is an rvalue reference to a string
-    {
-        memset(_data, 0, sizeof(_data));
-        fprintf(stderr, "string(string&& that) this: %p %s that: %s\n", (void *)this, _data,
-                that._data);
-        memcpy(_data, that._data, sizeof(_data));
-        const auto that_valid = that.valid;
-        that.valid = false;
-        memset(that._data, 0, sizeof(that._data));
-        setValid(that_valid);
-    }
-
-    string &operator=(string that) {
-        fprintf(stderr, "operator= this: %p %s that: %s\n", (void *)this, _data, that._data);
-        //        std::swap(valid, that.valid);
-        const auto that_valid = that.valid;
-        const auto our_valid = valid;
-        that.setValid(our_valid);
-        setValid(that_valid);
-        std::swap(_data, that._data);
-        return *this;
-    }
-
-    char *data() {
-        assert(valid);
-        return &_data[0];
-    }
-
-    const char *data() const {
-        assert(valid);
-        return &_data[0];
-    }
-
-    operator std::string_view() const {
-        assert(valid);
-        return {_data, std::strlen(_data)};
-    }
-
-    void setValid(bool v) {
-        valid = v;
-    }
-};
-
-auto rb = MultiConsRingBuffer<string, NUM_ELEM>{};
-auto p0_runner_done_prom = std::promise<void>{};
-auto p0_joiner_done_prom = std::promise<void>{};
-
-string p0_res;
-
-std::unique_ptr<std::thread> p0;
-std::unique_ptr<std::thread> p0_joiner;
-
-void p0_runner_func(void) {
-    fprintf(stderr, "p0 thread start\n");
-    p0_res = rb.pop();
-    fprintf(stderr, "p0_res: %s\n", p0_res.data());
-    p0_runner_done_prom.set_value();
-    printf("p0_runner_func done\n");
-}
-
-void p0_joiner_func(void) {
-    fprintf(stderr, "p0_joiner thread start\n");
-    p0->detach();
-    fprintf(stderr, "p0 detached\n");
-
-    const auto p1_res = rb.pop();
-    fprintf(stderr, "p1_res: %s\n", p1_res.data());
-    assert(p1_res == "one"sv || p1_res == "two"sv);
-
-    fprintf(stderr, "p0_joiner sending done\n");
-    p0_joiner_done_prom.set_value();
-}
+constexpr auto EXPECTED_SUM = (NUM_PUSH * (NUM_PUSH + 1)) / 2;
 
 int main(void) {
+    const auto nthread = std::thread::hardware_concurrency();
+    assert(nthread >= 3);
 
-    fprintf(stderr, "pushing 1 from main\n");
-    rb.push(string{"one"});
-    fprintf(stderr, "pushing 2 from main\n");
-    rb.push(string{"two"});
+    auto rb = MultiConsRingBuffer<uint32_t, NUM_ELEM>{};
 
-    //    p0_ready_cv.acquire();
-    //    p0_go_cv.acquire();
+    std::thread producer{[&]() {
+        for (std::size_t i = 1; i <= NUM_PUSH; ++i) {
+            rb.push(i);
+        }
+    }};
 
-    p0 = std::make_unique<std::thread>(p0_runner_func);
+    std::thread consumers[nthread - 1];
+    for (std::thread *t = &consumers[0], *te = &consumers[nthread]; t != te; ++t) {
+        *t = std::thread{[]() {}};
+    }
 
-    p0_joiner = std::make_unique<std::thread>(p0_joiner_func);
+    producer.join();
 
-    fprintf(stderr, "main joining p0_joiner\n");
-    p0_joiner->detach();
+    for (auto &t : consumers) {
+        t.join();
+    }
 
-    fprintf(stderr, "main acquiring p0_joiner_done_cv\n");
-    p0_joiner_done_prom.get_future().wait();
-
-    fprintf(stderr, "main acquiring p0_runner_done_cv\n");
-    p0_runner_done_prom.get_future().wait();
-
-    fprintf(stderr, "main p0_res: %s\n", p0_res.data());
-    assert(p0_res == "two"sv || p0_res == "one"sv);
     return 0;
 }
