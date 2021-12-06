@@ -99,10 +99,12 @@ public:
 };
 
 auto rb = MultiConsRingBuffer<string, NUM_ELEM>{};
-auto p0_ready_sem = std::binary_semaphore{0};
-auto p0_go_sem = std::binary_semaphore{0};
-auto p0_runner_done_sem = std::binary_semaphore{0};
-auto p0_joiner_done_sem = std::binary_semaphore{0};
+auto p0_ready_prom = std::promise<void>{};
+auto p0_ready_fut = p0_ready_prom.get_future();
+auto p0_go_prom = std::promise<void>{};
+auto p0_go_fut = p0_go_prom.get_future();
+auto p0_runner_done_prom = std::promise<void>{};
+auto p0_joiner_done_prom = std::promise<void>{};
 
 string p0_res;
 
@@ -111,30 +113,31 @@ std::unique_ptr<std::thread> p0_joiner;
 
 void p0_runner_func(void) {
     fprintf(stderr, "p0 thread start\n");
-    p0_res = rb.pop(&p0_ready_sem, &p0_go_sem);
+    p0_res = rb.pop(&p0_ready_fut, &p0_go_fut);
     fprintf(stderr, "p0_res: %s\n", p0_res.data());
-    p0_runner_done_sem.release();
+    p0_runner_done_prom.set_value();
+    printf("p0_runner_func done\n");
 }
 
 void p0_joiner_func(void) {
-    fprintf(stderr, "p0 joiner thread start\n");
+    fprintf(stderr, "p0_joiner thread start\n");
     p0->detach();
     fprintf(stderr, "p0 detached\n");
 
-    fprintf(stderr, "p0 releasing p0_ready_sem\n");
-    p0_ready_sem.release();
-    // fprintf(stderr, "main reacquiring p0_ready_sem\n");
-    // p0_ready_sem.acquire();
-    // fprintf(stderr, "main did reacquire p0_ready_sem\n");
+    fprintf(stderr, "p0_joiner releasing p0_ready_cv\n");
+    p0_ready_prom.set_value();
+    // fprintf(stderr, "main reacquiring p0_ready_cv\n");
+    // p0_ready_cv.acquire();
+    // fprintf(stderr, "main did reacquire p0_ready_cv\n");
 
     const auto p1_res = rb.pop();
     fprintf(stderr, "p1_res: %s\n", p1_res.data());
     assert(p1_res == "one"sv);
 
-    fprintf(stderr, "p0 releasing p0_go_sem\n");
-    p0_go_sem.release();
-    fprintf(stderr, "p0 releasing done_sem\n");
-    p0_joiner_done_sem.release();
+    fprintf(stderr, "p0 releasing p0_go_cv\n");
+    p0_go_prom.set_value();
+    fprintf(stderr, "p0 releasing done_cv\n");
+    p0_joiner_done_prom.set_value();
 }
 
 int main(void) {
@@ -144,8 +147,8 @@ int main(void) {
     fprintf(stderr, "pushing 2 from main\n");
     rb.push(string{"two"});
 
-    //    p0_ready_sem.acquire();
-    //    p0_go_sem.acquire();
+    //    p0_ready_cv.acquire();
+    //    p0_go_cv.acquire();
 
     p0 = std::make_unique<std::thread>(p0_runner_func);
 
@@ -154,11 +157,11 @@ int main(void) {
     fprintf(stderr, "main joining p0_joiner\n");
     p0_joiner->detach();
 
-    fprintf(stderr, "main acquiring p0_joiner_done_sem\n");
-    p0_joiner_done_sem.acquire();
+    fprintf(stderr, "main acquiring p0_joiner_done_cv\n");
+    p0_joiner_done_prom.get_future().wait();
 
-    fprintf(stderr, "main acquiring p0_runner_done_sem\n");
-    p0_runner_done_sem.acquire();
+    fprintf(stderr, "main acquiring p0_runner_done_cv\n");
+    p0_runner_done_prom.get_future().wait();
 
     fprintf(stderr, "main p0_res: %s\n", p0_res.data());
     //    assert(p0_res == "two"sv);

@@ -6,16 +6,16 @@
 #include <atomic>
 #include <cassert>
 #include <cerrno>
+#include <condition_variable>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <future>
 #include <mach/mach.h>
 #include <sys/mman.h>
 #include <type_traits>
 #include <unistd.h>
 #include <utility>
-
-#include <semaphore.hpp>
 
 #ifdef __arm64__
 constexpr std::size_t JEV_PAGE_SZ = 0x4000;
@@ -82,15 +82,15 @@ public:
         return m_buf[rd_idx()];
     }
 
-    value_type pop(std::binary_semaphore *ready_sem = nullptr,
-                   std::binary_semaphore *go_sem = nullptr) noexcept requires(!MultiCons) {
+    value_type pop(std::future<void> *ready_cv = nullptr,
+                   std::future<void> *go_cv = nullptr) noexcept requires(!MultiCons) {
         while (empty())
             ;
         return std::move(m_buf[(rd_idx_raw++ & idx_mask)]);
     }
 
-    value_type pop(std::binary_semaphore *ready_sem = nullptr,
-                   std::binary_semaphore *go_sem = nullptr) noexcept requires requires() {
+    value_type pop(std::future<void> *ready_cv = nullptr,
+                   std::future<void> *go_cv = nullptr) noexcept requires requires() {
         requires MultiCons && std::is_trivially_copyable_v<value_type>;
     }
     {
@@ -116,14 +116,14 @@ public:
         return res;
     }
 
-    value_type pop(std::binary_semaphore *ready_sem = nullptr,
-                   std::binary_semaphore *go_sem = nullptr) noexcept requires requires() {
+    value_type pop(std::future<void> *ready_cv = nullptr,
+                   std::future<void> *go_cv = nullptr) noexcept requires requires() {
         requires MultiCons && !std::is_trivially_copyable_v<value_type>;
     }
     {
         T res;
 
-        fprintf(stderr, "poppin' ready_sem: %p go_sem: %p\n", ready_sem, go_sem);
+        fprintf(stderr, "poppin' ready_cv: %p go_cv: %p\n", ready_cv, go_cv);
 
         std::size_t idx_raw;
         std::size_t idx;
@@ -132,18 +132,18 @@ public:
         bool cas_res;
 
         do {
-            if (ready_sem) {
-                fprintf(stderr, "waiting for ready release\n");
-                ready_sem->acquire();
+            if (ready_cv) {
+                fprintf(stderr, "waiting for ready cv\n");
+                ready_cv->wait();
             }
             while (empty())
                 ;
             idx_raw = rd_idx_raw;
             idx = idx_raw & idx_mask;
             our_obj = &m_buf[idx];
-            if (go_sem) {
-                fprintf(stderr, "waiting for go acquire\n");
-                go_sem->acquire();
+            if (go_cv) {
+                fprintf(stderr, "waiting for go cv\n");
+                go_cv->wait();
             }
             fprintf(stderr, "pop() reading from m_buf[%zu]\n", idx);
             res = m_buf[idx];
@@ -152,8 +152,8 @@ public:
             fprintf(stderr, "cas_res: %s\n", YESNOCStr(cas_res));
         } while (!cas_res);
 
-        fprintf(stderr, "destroying %p\n", static_cast<void *>(our_obj));
-        our_obj->~T();
+        // fprintf(stderr, "destroying %p\n", static_cast<void *>(our_obj));
+        // our_obj->~T();
 
         return res;
     }
