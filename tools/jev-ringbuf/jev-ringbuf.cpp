@@ -16,14 +16,17 @@ using namespace std::literals;
 
 constexpr std::size_t NUM_ELEM = 0x1000;
 
-constexpr auto NUM_PUSH = NUM_ELEM * 0.3;
+constexpr auto NUM_PUSH = (std::size_t)(NUM_ELEM * 0.3);
 // constexpr auto NUM_PUSH = NUM_ELEM * 16.3;
 
-constexpr auto EXPECTED_SUM = (NUM_PUSH * (NUM_PUSH + 1)) / 2;
+constexpr auto EXPECTED_SUM = (std::size_t)((NUM_PUSH * (NUM_PUSH + 1)) / 2);
 
 int main(void) {
-    const auto nthread = std::thread::hardware_concurrency();
+    //    const auto nthread = std::thread::hardware_concurrency();
+    const unsigned nthread = 3;
     assert(nthread >= 3);
+
+    printf("NUM_ELEM: %zu NUM_PUSH: %zu EXPECTED_SUM: %zu\n", NUM_ELEM, NUM_PUSH, EXPECTED_SUM);
 
     auto rb = MultiConsRingBuffer<uint32_t, NUM_ELEM>{};
 
@@ -32,16 +35,21 @@ int main(void) {
             rb.push(i);
         }
         rb.finish();
+        fprintf(stderr, "producer finished\n");
     }};
 
     std::thread consumers[nthread - 1];
     std::vector<uint32_t> results[nthread - 1];
 
+    for (auto &v : results) {
+        v.reserve(NUM_PUSH);
+    }
+
     for (auto i = 0u; i < nthread - 1; ++i) {
-        consumers[i] = std::thread{[i, &rb]() {
+        consumers[i] = std::thread{[i, &rb, &results]() {
             fprintf(stderr, "consumer: %u\n", i);
-            while (!rb.is_done() || rb.size()) {
-                const uint32_t v = rb.pop();
+            while (!rb.is_done() && rb.size()) {
+                results[i].emplace_back(rb.pop());
             }
         }};
     }
@@ -50,6 +58,17 @@ int main(void) {
     for (auto &c : consumers) {
         c.join();
     }
+
+    std::size_t sum = 0;
+    for (auto i = 0u; i < nthread - 1; ++i) {
+        std::size_t res_sum = 0;
+        for (const auto n : results[i]) {
+            res_sum += n;
+        }
+        printf("thread # %u results sz: %zu sum: %zu\n", i, results[i].size(), res_sum);
+        sum += res_sum;
+    }
+    printf("sum: %zu\n", sum);
 
     return 0;
 }
