@@ -122,7 +122,7 @@ void p0_joiner_func(void) {
 
     const auto p1_res = rb.pop();
     fprintf(stderr, "p1_res: %s\n", p1_res.data());
-    assert(p1_res == "one"sv);
+    assert(p1_res == "one"sv || p1_res == "two"sv);
 
     fprintf(stderr, "p0_joiner sending done\n");
     p0_joiner_done_prom.set_value();
@@ -152,6 +152,6 @@ int main(void) {
     p0_runner_done_prom.get_future().wait();
 
     fprintf(stderr, "main p0_res: %s\n", p0_res.data());
-    //    assert(p0_res == "two"sv);
+    assert(p0_res == "two"sv || p0_res == "one"sv);
     return 0;
 }
