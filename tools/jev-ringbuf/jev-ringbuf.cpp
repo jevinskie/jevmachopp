@@ -99,10 +99,6 @@ public:
 };
 
 auto rb = MultiConsRingBuffer<string, NUM_ELEM>{};
-auto p0_ready_prom = std::promise<void>{};
-auto p0_ready_fut = p0_ready_prom.get_future();
-auto p0_go_prom = std::promise<void>{};
-auto p0_go_fut = p0_go_prom.get_future();
 auto p0_runner_done_prom = std::promise<void>{};
 auto p0_joiner_done_prom = std::promise<void>{};
 
@@ -113,7 +109,7 @@ std::unique_ptr<std::thread> p0_joiner;
 
 void p0_runner_func(void) {
     fprintf(stderr, "p0 thread start\n");
-    p0_res = rb.pop(&p0_ready_fut, &p0_go_fut);
+    p0_res = rb.pop();
     fprintf(stderr, "p0_res: %s\n", p0_res.data());
     p0_runner_done_prom.set_value();
     printf("p0_runner_func done\n");
@@ -124,19 +120,11 @@ void p0_joiner_func(void) {
     p0->detach();
     fprintf(stderr, "p0 detached\n");
 
-    fprintf(stderr, "p0_joiner releasing p0_ready_cv\n");
-    p0_ready_prom.set_value();
-    // fprintf(stderr, "main reacquiring p0_ready_cv\n");
-    // p0_ready_cv.acquire();
-    // fprintf(stderr, "main did reacquire p0_ready_cv\n");
-
     const auto p1_res = rb.pop();
     fprintf(stderr, "p1_res: %s\n", p1_res.data());
     assert(p1_res == "one"sv);
 
-    fprintf(stderr, "p0 releasing p0_go_cv\n");
-    p0_go_prom.set_value();
-    fprintf(stderr, "p0 releasing done_cv\n");
+    fprintf(stderr, "p0_joiner sending done\n");
     p0_joiner_done_prom.set_value();
 }
 
