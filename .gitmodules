@@ -40,3 +40,6 @@
 [submodule "3rdparty/cpp17-semaphore"]
 	path = 3rdparty/cpp17-semaphore
 	url = https://github.com/graham-riches/cpp17-semaphore
+[submodule "3rdparty/concurrent-resource"]
+	path = 3rdparty/concurrent-resource
+	url = https://github.com/mustafakemalgilor/concurrent-resource

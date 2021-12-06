@@ -85,20 +85,20 @@ TEST_CASE("MultiCons push 'n pop trivial", "[ringbuffer]") {
 }
 
 TEST_CASE("MultiCons push 'n pop std::string simple", "[ringbuffer]") {
-    auto rb = MultiConsRingBuffer<std::string, NUM_ELEM>{};
+    auto rb = MultiConsRingBuffer<std::string_view, NUM_ELEM>{};
 
-    rb.push("one"s);
-    rb.push("two"s);
+    rb.push("one"sv);
+    rb.push("two"sv);
 
-    REQUIRE(rb.pop() == "one"sv);
-    REQUIRE(rb.pop() == "two"sv);
+    REQUIRE(rb.pop() == "one"s);
+    REQUIRE(rb.pop() == "two"s);
 }
 
 TEST_CASE("MultiCons push 'n pop std::string sem", "[ringbuffer]") {
-    auto rb = MultiConsRingBuffer<std::string, NUM_ELEM>{};
+    auto rb = MultiConsRingBuffer<std::string_view, NUM_ELEM>{};
 
-    rb.push("one"s);
-    rb.push("two"s);
+    rb.push("one"sv);
+    rb.push("two"sv);
 
     auto p0_ready_sem = std::binary_semaphore{};
     p0_ready_sem.acquire();
@@ -116,11 +116,11 @@ TEST_CASE("MultiCons push 'n pop std::string sem", "[ringbuffer]") {
     p0_ready_sem.acquire();
     fprintf(stderr, "main did reacquire p0_ready_sem\n");
 
-    REQUIRE(rb.pop() == "one"sv);
+    REQUIRE(rb.pop() == "one"s);
 
     p0_go_sem.release();
 
     p0.join();
 
-    REQUIRE(rb.pop() == "two"sv);
+    REQUIRE(rb.pop() == "two"s);
 }

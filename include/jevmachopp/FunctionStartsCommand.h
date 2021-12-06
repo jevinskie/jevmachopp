@@ -32,7 +32,7 @@ public:
         if (off < offs.front()) {
             return 0;
         }
-        uint64_t last_off_seen;
+        uint64_t last_off_seen = 0;
         auto following_func = ranges::find_if(offs, [off, &last_off_seen](const uint64_t curr_off) {
             last_off_seen = curr_off;
             return curr_off > off;

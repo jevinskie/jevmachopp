@@ -16,47 +16,53 @@ using namespace std::literals;
 constexpr std::size_t NUM_ELEM = 0x1000;
 
 class string {
-    char *_data;
+    char _data[255];
     bool valid;
 
 public:
-    string() : _data(nullptr), valid(false) {
+    string() : valid(false) {
+        memset(_data, 0, sizeof(_data));
         fprintf(stderr, "string() this: %p\n", (void *)this);
     }
 
-    string(const char *p) : _data(nullptr), valid(false) {
+    string(const char *p) : valid(false) {
+        memset(_data, 0, sizeof(_data));
         fprintf(stderr, "string(const char* p) this: %p p: %s\n", (void *)this, p);
         size_t size = std::strlen(p) + 1;
-        _data = new char[size];
+        // _data = new char[size];
         std::memcpy(_data, p, size);
         valid = true;
     }
 
-    ~string() {
-        fprintf(stderr, "~string() this: %p _data: %s valid: %s\n", (void *)this, _data,
-                YESNOCStr(valid));
-        assert(valid);
-        valid = false;
-        delete[] _data;
-        _data = nullptr;
-    }
+    ~string() = default;
 
-    string(const string &that) : _data(nullptr), valid(false) {
+    // ~string() {
+    //     fprintf(stderr, "~string() this: %p _data: %s valid: %s\n", (void *)this, _data,
+    //             YESNOCStr(valid));
+    //     assert(valid);
+    //     valid = false;
+    //     // delete[] _data;
+    //     _data = nullptr;
+    // }
+
+    string(const string &that) : valid(false) {
+        memset(_data, 0, sizeof(_data));
         fprintf(stderr, "string(const string& that) this: %p that: %s\n", (void *)this, that._data);
         size_t size = std::strlen(that._data) + 1;
-        _data = new char[size];
+        // _data = new char[size];
         std::memcpy(_data, that._data, size);
         valid = true;
     }
 
     string(string &&that)
-        : _data(nullptr), valid(false) // string&& is an rvalue reference to a string
+        : valid(false) // string&& is an rvalue reference to a string
     {
+        memset(_data, 0, sizeof(_data));
         fprintf(stderr, "string(string&& that) this: %p %s that: %s\n", (void *)this, _data,
                 that._data);
-        _data = that._data;
+        memcpy(_data, that._data, sizeof(_data));
         that.valid = false;
-        that._data = nullptr;
+        memset(that._data, 0, sizeof(that._data));
     }
 
     string &operator=(string that) {
@@ -66,9 +72,14 @@ public:
         return *this;
     }
 
-    char *data() const {
+    char *data() {
         assert(valid);
-        return _data;
+        return &_data[0];
+    }
+
+    const char *data() const {
+        assert(valid);
+        return &_data[0];
     }
 
     operator std::string_view() const {

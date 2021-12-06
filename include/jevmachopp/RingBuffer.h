@@ -11,6 +11,7 @@
 #include <cstring>
 #include <mach/mach.h>
 #include <sys/mman.h>
+#include <type_traits>
 #include <unistd.h>
 #include <utility>
 
@@ -22,7 +23,11 @@ constexpr std::size_t JEV_PAGE_SZ = 0x4000;
 #error "Unsupported arch (unknown page size)"
 #endif
 
-template <typename T, std::size_t MinNum, bool MultiProd, bool MultiCons> class RingBufferBase {
+template <typename T, std::size_t MinNum, bool MultiProd, bool MultiCons>
+requires requires() {
+    requires std::is_trivially_destructible_v<T>;
+}
+class RingBufferBase {
 public:
     static constexpr auto MMAP_MAX_TRIES = 16;
     static constexpr auto min_buf_sz_raw = sizeof(T[MinNum]);
@@ -77,13 +82,15 @@ public:
         return m_buf[rd_idx()];
     }
 
-    value_type pop() noexcept requires(!MultiCons) {
+    value_type pop(std::binary_semaphore *ready_sem = nullptr,
+                   std::binary_semaphore *go_sem = nullptr) noexcept requires(!MultiCons) {
         while (empty())
             ;
         return std::move(m_buf[(rd_idx_raw++ & idx_mask)]);
     }
 
-    value_type pop() noexcept requires requires() {
+    value_type pop(std::binary_semaphore *ready_sem = nullptr,
+                   std::binary_semaphore *go_sem = nullptr) noexcept requires requires() {
         requires MultiCons && std::is_trivially_copyable_v<value_type>;
     }
     {
