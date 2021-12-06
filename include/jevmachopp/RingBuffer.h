@@ -102,7 +102,7 @@ public:
         pointer our_obj;
 
         do {
-            while (empty())
+            while (empty() && !is_done())
                 ;
             idx_raw = rd_idx_raw;
             idx = idx_raw & idx_mask;
@@ -226,6 +226,10 @@ public:
         return res;
     }
 
+    bool is_done() const noexcept {
+        return done;
+    }
+
     RingBufferBase() noexcept
         : m_buf(nullptr), m_buf_mirror(nullptr), rd_idx_raw(0), wr_idx_raw(0) {
         for (int try_num = 0; try_num < MMAP_MAX_TRIES; ++try_num) {
@@ -274,10 +278,18 @@ public:
     }
 
     // private:
+    void finish() {
+        assert(!done);
+        done = true;
+        flush_icache_line(&done);
+    }
+
+    // private:
     pointer m_buf;
     pointer m_buf_mirror;
     rd_idx_t rd_idx_raw;
     wr_idx_t wr_idx_raw;
+    bool done;
 };
 
 template <typename T, std::size_t MinNum>
