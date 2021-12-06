@@ -145,6 +145,7 @@ public:
                 fprintf(stderr, "waiting for go acquire\n");
                 go_sem->acquire();
             }
+            fprintf(stderr, "pop() reading from m_buf[%zu]\n", idx);
             res = m_buf[idx];
             new_idx_raw = rd_idx_raw + 1;
             cas_res = rd_idx_raw.compare_exchange_strong(idx_raw, new_idx_raw);
