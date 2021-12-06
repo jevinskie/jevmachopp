@@ -82,15 +82,13 @@ public:
         return m_buf[rd_idx()];
     }
 
-    value_type pop(std::future<void> *ready_cv = nullptr,
-                   std::future<void> *go_cv = nullptr) noexcept requires(!MultiCons) {
+    value_type pop() noexcept requires(!MultiCons) {
         while (empty())
             ;
         return std::move(m_buf[(rd_idx_raw++ & idx_mask)]);
     }
 
-    value_type pop(std::future<void> *ready_cv = nullptr,
-                   std::future<void> *go_cv = nullptr) noexcept requires requires() {
+    value_type pop() noexcept requires requires() {
         requires MultiCons && std::is_trivially_copyable_v<value_type>;
     }
     {
@@ -111,19 +109,17 @@ public:
             new_idx_raw = rd_idx_raw + 1;
         } while (!rd_idx_raw.compare_exchange_strong(idx_raw, new_idx_raw));
 
-        our_obj->~T();
+        // would be racey, why we need trivial dtors
+        // our_obj->~T();
 
         return res;
     }
 
-    value_type pop(std::future<void> *ready_cv = nullptr,
-                   std::future<void> *go_cv = nullptr) noexcept requires requires() {
+    value_type pop() noexcept requires requires() {
         requires MultiCons && !std::is_trivially_copyable_v<value_type>;
     }
     {
         T res;
-
-        fprintf(stderr, "poppin' ready_cv: %p go_cv: %p\n", ready_cv, go_cv);
 
         std::size_t idx_raw;
         std::size_t idx;
@@ -132,27 +128,17 @@ public:
         bool cas_res;
 
         do {
-            if (ready_cv) {
-                fprintf(stderr, "waiting for ready cv\n");
-                ready_cv->wait();
-            }
             while (empty())
                 ;
             idx_raw = rd_idx_raw;
             idx = idx_raw & idx_mask;
             our_obj = &m_buf[idx];
-            if (go_cv) {
-                fprintf(stderr, "waiting for go cv\n");
-                go_cv->wait();
-            }
-            fprintf(stderr, "pop() reading from m_buf[%zu]\n", idx);
             res = m_buf[idx];
             new_idx_raw = rd_idx_raw + 1;
             cas_res = rd_idx_raw.compare_exchange_strong(idx_raw, new_idx_raw);
-            fprintf(stderr, "cas_res: %s\n", YESNOCStr(cas_res));
         } while (!cas_res);
 
-        // fprintf(stderr, "destroying %p\n", static_cast<void *>(our_obj));
+        // would be racey, why we need trivial dtors
         // our_obj->~T();
 
         return res;

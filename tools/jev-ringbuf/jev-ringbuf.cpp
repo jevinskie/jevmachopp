@@ -59,16 +59,19 @@ int main(void) {
         c.join();
     }
 
+    std::size_t sz_sum = 0;
     std::size_t sum = 0;
     for (auto i = 0u; i < nthread - 1; ++i) {
         std::size_t res_sum = 0;
         for (const auto n : results[i]) {
             res_sum += n;
         }
-        printf("thread # %u results sz: %zu sum: %zu\n", i, results[i].size(), res_sum);
+        const auto sz = results[i].size();
+        printf("thread # %u results sz: %zu sum: %zu\n", i, sz, res_sum);
         sum += res_sum;
+        sz_sum += sz;
     }
-    printf("sum: %zu\n", sum);
+    printf("sz_sum: %zu sum: %zu\n", sz_sum, sum);
 
     return 0;
 }
