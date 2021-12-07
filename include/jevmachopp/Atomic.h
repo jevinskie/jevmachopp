@@ -10,12 +10,6 @@ __attribute__((always_inline)) static inline void flush_icache_line(void *addr) 
     asm volatile("dc cvau, %0" ::"r"(addr));
 }
 
-// struct u64_pair {
-//     uint64_t first
-// }
-
-#if 1
-
 template <typename T>
 requires requires(T o) {
     requires sizeof(T) == sizeof(uint128_t);
@@ -60,4 +54,7 @@ public:
           std::memory_order order = std::memory_order_seq_cst) volatile noexcept;
 };
 
-#endif
+namespace std {
+using atomic_uint128_t = std::atomic<uint128_t>;
+using atomic_int128_t = std::atomic<int128_t>;
+} // namespace std

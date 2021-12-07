@@ -40,14 +40,20 @@ public:
     static constexpr auto static_size = static_size_raw - 1;
     static_assert_cond(is_pow2(static_size_raw));
     static constexpr auto idx_mask = static_size_raw * 2 - 1;
+    static constexpr bool is_atomic_pair = MultiProd || MultiCons;
 
-    using atomic_idx_t = std::atomic_size_t;
     using nonatomic_idx_t = std::size_t;
+    using nonatomic_idx_pair_t = con_pair<nonatomic_idx_t, nonatomic_idx_t>;
+    using atomic_idx_t = std::atomic<nonatomic_idx_t>;
+    using atomic_idx_pair_t = std::atomic<nonatomic_idx_pair_t>;
     using value_type = T;
     using pointer = T *;
     using reference = T &;
+
     using rd_idx_t = typename std::conditional<MultiCons, atomic_idx_t, nonatomic_idx_t>::type;
     using wr_idx_t = typename std::conditional<MultiProd, atomic_idx_t, nonatomic_idx_t>::type;
+    using idx_pair_t =
+        typename std::conditional<is_atomic_pair, atomic_idx_pair_t, nonatomic_idx_pair_t>::type;
 
     template <class... Args> decltype(auto) emplace(Args &&...args) noexcept {
         assert(!full());
@@ -198,19 +204,15 @@ public:
         return rd == wr;
     }
 
-    constexpr bool empty() const noexcept requires(MultiCons) {
+    const bool empty() const noexcept requires(MultiCons) {
         assert(rd_idx_raw <= wr_idx_raw);
-        // conservative/safe return value for reader
-        // don't report empty if another thread completes a write before we return
-        std::size_t rd;
-        std::size_t wr;
-        bool res;
-        do {
-            rd = rd_idx_raw.load();
-            wr = wr_idx_raw;
-            res = rd == wr;
-        } while (rd != rd_idx_raw.load());
-        return res;
+        if constexpr (!is_atomic_pair) {
+            const nonatomic_idx_pair_t idx_pair_raw = *(nonatomic_idx_pair_t *)&rd_idx_raw;
+            return idx_pair_raw.first == idx_pair_raw.second;
+        } else {
+            const nonatomic_idx_pair_t idx_pair_raw = ((atomic_idx_pair_t *)&rd_idx_raw)->load();
+            return idx_pair_raw.first == idx_pair_raw.second;
+        }
     }
 
     bool is_done() const noexcept {
