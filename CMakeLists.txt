@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.22)
 
 project(jevmachopp CXX C ASM)
 
-set(CMAKE_OSX_ARCHITECTURES arm64e)
+# set(CMAKE_OSX_ARCHITECTURES arm64e)
 
 
 option(FORCE_COLORED_OUTPUT "Always produce ANSI-colored output (GNU/Clang only)." ON)

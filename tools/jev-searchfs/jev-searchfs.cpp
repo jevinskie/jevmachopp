@@ -35,8 +35,9 @@ __attribute__((noinline)) static std::string volume_arg(const cxxopts::ParseResu
     return args["volume"].as<std::string>();
 }
 
-__attribute__((used, visibility("default"))) extern "C" int real_main(int argc,
-                                                                      const char *argv[]) {
+// __attribute__((used, visibility("default"))) extern "C" int real_main(int argc,
+//                                                                       const char *argv[]) {
+int main(int argc, const char **argv) {
     const auto args = parse_opts(argc, argv);
     const auto volume_path = volume_arg(args);
     // const auto volume_path = std::string{"/"};

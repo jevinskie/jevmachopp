@@ -1,5 +1,6 @@
 set(UNIT_TESTS_SRC
     ARM64DisasmTest.cpp
+    AtomicTest.cpp
     HexTest.cpp
     LEB128Test.cpp
     RingBufferTest.cpp

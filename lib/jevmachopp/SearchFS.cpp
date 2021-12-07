@@ -48,13 +48,13 @@ bool process_file(thread_pool *pool, uint64_t fsid, uint64_t ino) {
     // assert(getpath_res);
     // pool->submit(print_result, std::move(std::string{path_cstr}));
     // printf("path: %s\n", path_cstr);
-    // const auto getpath_res = fsgetpath(path_cstr, sizeof(path_cstr), (fsid_t *)&fsid, ino);
-    // assert(getpath_res);
-    // const auto fd = open(path_cstr, O_RDONLY);
-    const auto fd = openbyid_np(&fsid, &ino, O_RDONLY);
+    const auto getpath_res = fsgetpath(path_cstr, sizeof(path_cstr), (fsid_t *)&fsid, ino);
+    assert(getpath_res);
+    const auto fd = open(path_cstr, O_RDONLY);
+    // const auto fd = openbyid_np(&fsid, &ino, O_RDONLY);
     if (fd < 0) {
-        const auto getpath_err_res = fsgetpath(path_cstr, sizeof(path_cstr), (fsid_t *)&fsid, ino);
-        assert(getpath_err_res);
+        // const auto getpath_err_res = fsgetpath(path_cstr, sizeof(path_cstr), (fsid_t *)&fsid,
+        // ino); assert(getpath_err_res);
         printf("failed to open path: %s errno: %d err: %s\n", path_cstr, errno, strerror(errno));
     } else {
         // const auto read_res = read(fd, &found_magic, 4);
