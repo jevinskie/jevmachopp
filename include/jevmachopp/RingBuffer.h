@@ -208,7 +208,7 @@ public:
         return idx_pair_raw.first == idx_pair_raw.second;
     }
 
-    bool is_done() const noexcept {
+    constexpr bool is_done() const noexcept {
         return done;
     }
 
@@ -261,7 +261,7 @@ public:
 
     // private:
     void finish() {
-        assert(!done);
+        assert(!is_done());
         done = true;
         // flush_icache_line(&done);
     }
@@ -273,8 +273,6 @@ public:
     rd_idx_t rd_idx_raw;
     wr_idx_t wr_idx_raw;
     // smth_t wr_smth;
-    std::atomic<unsigned __int128> lol;
-    std::atomic<con_pair<uint64_t, uint64_t>> rofl;
     bool done;
 };
 
