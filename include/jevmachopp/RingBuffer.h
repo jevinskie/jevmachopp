@@ -196,7 +196,8 @@ public:
         return res;
     }
 
-    constexpr bool empty() const noexcept requires(!MultiCons) {
+    constexpr bool empty() const noexcept requires(!is_atomic_pair) {
+        assert(rd_idx_raw <= wr_idx_raw);
         // read read pointer first since nobody else will be changing it
         const std::size_t rd = rd_idx_raw;
         // load write pointer that others may be updating last
@@ -204,15 +205,10 @@ public:
         return rd == wr;
     }
 
-    const bool empty() const noexcept requires(MultiCons) {
+    const bool empty() const noexcept requires(is_atomic_pair) {
         assert(rd_idx_raw <= wr_idx_raw);
-        if constexpr (!is_atomic_pair) {
-            const nonatomic_idx_pair_t idx_pair_raw = *(nonatomic_idx_pair_t *)&rd_idx_raw;
-            return idx_pair_raw.first == idx_pair_raw.second;
-        } else {
-            const nonatomic_idx_pair_t idx_pair_raw = ((atomic_idx_pair_t *)&rd_idx_raw)->load();
-            return idx_pair_raw.first == idx_pair_raw.second;
-        }
+        const nonatomic_idx_pair_t idx_pair_raw = ((atomic_idx_pair_t *)&rd_idx_raw)->load();
+        return idx_pair_raw.first == idx_pair_raw.second;
     }
 
     bool is_done() const noexcept {
