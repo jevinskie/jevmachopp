@@ -67,6 +67,11 @@ struct sv2pf {
 // #define SV2PF(sv) sv2pf((sv)).sz, sv2pf((sv)).str
 #define SV2PF(sv) (int)((sv).size()), (sv).data()
 
+#pragma mark Simple Types
+
+using int128_t = __int128;
+using uint128_t = unsigned __int128;
+
 #pragma mark Type Utilities
 
 template <typename T> constexpr auto type_name() {

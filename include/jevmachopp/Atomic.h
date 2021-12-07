@@ -14,15 +14,16 @@ __attribute__((always_inline)) static inline void flush_icache_line(void *addr) 
 //     uint64_t first
 // }
 
-template <typename TF, typename TS>
-requires requires(TF first, TS second) {
-    requires sizeof(TF) == sizeof(uint64_t);
-    requires sizeof(TS) == sizeof(uint64_t);
-    requires sizeof(std::pair<TF, TS>) == 2 * sizeof(uint64_t);
+#if 1
+
+template <typename T>
+requires requires(T o) {
+    requires sizeof(T) == sizeof(uint128_t);
 }
-class std::atomic<std::pair<TF, TS>> {
+class std::atomic<T> : public std::atomic<uint128_t> {
+#if 0
 public:
-    using value_type = std::pair<TF, TS>;
+    using value_type = T;
     using difference_type = value_type;
     static constexpr bool is_always_lock_free = true;
 
@@ -34,7 +35,7 @@ public:
 public:
     __attribute__((always_inline)) value_type
     load(std::memory_order order = std::memory_order_seq_cst) const noexcept {
-        _Atomic unsigned __int128 *aptr = (_Atomic unsigned __int128 *)&m_pair;
+        _Atomic uint128_t *aptr = (_Atomic uint128_t *)&m_pair;
         const auto res_raw = __c11_atomic_load(aptr, to_underlying_int(order));
         return *(value_type *)&res_raw;
     }
@@ -51,4 +52,7 @@ public:
 
 private:
     std::pair<TF, TS> m_pair;
+#endif
 };
+
+#endif

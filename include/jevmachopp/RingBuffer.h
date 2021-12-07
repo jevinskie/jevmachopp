@@ -275,6 +275,8 @@ public:
     pointer m_buf_mirror;
     rd_idx_t rd_idx_raw;
     wr_idx_t wr_idx_raw;
+    std::atomic<unsigned __int128> lol;
+    std::atomic<std::pair<uint64_t, uint64_t>> rofl;
     bool done;
 };
 
