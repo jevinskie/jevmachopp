@@ -273,9 +273,10 @@ public:
     // private:
     pointer m_buf;
     pointer m_buf_mirror;
+    smth_t rd_smth;
     rd_idx_t rd_idx_raw;
-    smth_t shared_smth;
     wr_idx_t wr_idx_raw;
+    smth_t wr_smth;
     std::atomic<unsigned __int128> lol;
     std::atomic<std::pair<uint64_t, uint64_t>> rofl;
     bool done;
