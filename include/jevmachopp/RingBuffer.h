@@ -317,6 +317,12 @@ public:
         // flush_icache_line(&done);
     }
 
+    void clear() noexcept {
+        rd_idx_raw = 0;
+        wr_idx_raw = 0;
+        done = false;
+    }
+
     // private:
     pointer m_buf;
     pointer m_buf_mirror;

@@ -7,7 +7,9 @@
 #include <thread>
 #include <vector>
 
+#include <benchmark/benchmark.h>
 #include <fmt/core.h>
+#include <nanorange/algorithm/is_sorted.hpp>
 
 #include <jevmachopp/RingBuffer.h>
 
@@ -16,38 +18,23 @@ using namespace std::literals;
 
 constexpr std::size_t NUM_ELEM = 0x1000;
 
-// constexpr auto NUM_PUSH = (std::size_t)(NUM_ELEM * 0.3);
-constexpr auto NUM_PUSH = (std::size_t)(NUM_ELEM * 16.3);
-
-constexpr auto EXPECTED_SUM = (std::size_t)((NUM_PUSH * (NUM_PUSH + 1)) / 2);
-
-int main(void) {
-    const auto nthread = std::thread::hardware_concurrency();
-    // const unsigned nthread = 3;
+template <typename T, std::size_t NumElem>
+static void RingBuffer_single_producer_multi_consumer(MultiConsRingBuffer<T, NumElem> &rb,
+                                                      const std::size_t NUM_PUSH,
+                                                      std::thread *producer, std::thread *consumers,
+                                                      std::vector<T> *results,
+                                                      const unsigned int nthread) {
     assert(nthread >= 2);
 
-    printf("NUM_ELEM: %zu NUM_PUSH: %zu EXPECTED_SUM: %zu\n", NUM_ELEM, NUM_PUSH, EXPECTED_SUM);
-
-    auto rb = MultiConsRingBuffer<uint32_t, NUM_ELEM>{};
-
-    std::thread consumers[nthread - 1];
-    std::vector<uint32_t> results[nthread - 1];
-
-    for (auto &v : results) {
-        v.reserve(NUM_PUSH);
-    }
-
-    std::thread producer{[&rb]() {
+    *producer = std::thread{[&rb, NUM_PUSH]() {
         for (std::size_t i = 1; i <= NUM_PUSH; ++i) {
             rb.push(i);
         }
         rb.finish();
-        // fprintf(stdout, "producer finished\n");
     }};
 
     for (auto i = 0u; i < nthread - 1; ++i) {
         consumers[i] = std::thread{[i, &rb, &results]() {
-            // fprintf(stdout, "consumer: %u\n", i);
             while (!(rb.is_done() && rb.empty())) {
                 const auto val = rb.pop();
                 if (val) {
@@ -57,30 +44,64 @@ int main(void) {
         }};
     }
 
-    producer.join();
+    producer->join();
 
-    for (auto &c : consumers) {
-        c.join();
-    }
-
-    std::size_t sz_sum = 0;
-    std::size_t sum = 0;
     for (auto i = 0u; i < nthread - 1; ++i) {
-        std::size_t res_sum = 0;
-        for (const auto n : results[i]) {
-            res_sum += n;
-        }
-        const auto sz = results[i].size();
-        printf("thread # %u results sz: %zu sum: %zu\n", i, sz, res_sum);
-        sum += res_sum;
-        sz_sum += sz;
+        consumers[i].join();
     }
-    printf("sz_sum: %zu sum: %zu\n", sz_sum, sum);
-
-    printf("rb idx rd: %zu wr: %zu\n", rb.rd_idx_raw.load(), rb.wr_idx_raw);
-
-    printf("sz diff: %lld sum diff: %lld\n", (int64_t)sz_sum - (int64_t)NUM_PUSH,
-           (int64_t)sum - (int64_t)EXPECTED_SUM);
-
-    return 0;
 }
+
+static void BM_RingBuffer(benchmark::State &state) {
+    const auto NUM_PUSH = (std::size_t)(NUM_ELEM * 16.3);
+    const auto EXPECTED_SUM = (std::size_t)((NUM_PUSH * (NUM_PUSH + 1)) / 2);
+    const auto nthread = std::thread::hardware_concurrency();
+    auto rb = MultiConsRingBuffer<uint32_t, NUM_ELEM>{};
+    std::thread producer;
+    std::thread consumers[nthread - 1];
+    std::vector<uint32_t> results[nthread - 1];
+    for (auto &v : results) {
+        v.reserve(NUM_PUSH);
+    }
+
+    int num_run = 0;
+
+    for (auto _ : state) {
+        rb.clear();
+        for (auto &v : results) {
+            v.clear();
+        }
+
+        RingBuffer_single_producer_multi_consumer<uint32_t, NUM_ELEM>(rb, NUM_PUSH, &producer,
+                                                                      consumers, results, nthread);
+
+        std::size_t sz_sum = 0;
+        std::size_t sum = 0;
+        for (auto i = 0u; i < nthread - 1; ++i) {
+            std::size_t res_sum = 0;
+            for (const auto n : results[i]) {
+                res_sum += n;
+            }
+            const auto sz = results[i].size();
+            sum += res_sum;
+            sz_sum += sz;
+            for (std::size_t j = 1, je = results[i].size(); j < je; ++j) {
+                const auto prev = results[i][j - 1];
+                const auto cur = results[i][j];
+                if (cur <= prev) {
+                    fprintf(stderr,
+                            "ordering violation thread %u idx: %zu prev: %u cur: %u diff: %u\n", i,
+                            j, prev, cur, prev - cur);
+                }
+            }
+            //            assert(ranges::is_sorted(results[i]));
+        }
+
+        assert(sz_sum == NUM_PUSH);
+        assert(sum == EXPECTED_SUM);
+        ++num_run;
+    }
+}
+
+BENCHMARK(BM_RingBuffer);
+
+BENCHMARK_MAIN();
