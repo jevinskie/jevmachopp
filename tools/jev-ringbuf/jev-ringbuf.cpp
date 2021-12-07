@@ -48,7 +48,7 @@ int main(void) {
     for (auto i = 0u; i < nthread - 1; ++i) {
         consumers[i] = std::thread{[i, &rb, &results]() {
             fprintf(stderr, "consumer: %u\n", i);
-            while (!rb.is_done() && !rb.empty()) {
+            while (!(rb.is_done() && rb.empty())) {
                 const auto val = rb.pop();
                 if (val) {
                     results[i].emplace_back(*val);
