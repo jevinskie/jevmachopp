@@ -82,8 +82,8 @@ TEST_CASE("MultiCons push 'n pop trivial", "[ringbuffer]") {
     rb.push(1);
     rb.push(2);
 
-    REQUIRE(rb.pop() == 1);
-    REQUIRE(rb.pop() == 2);
+    CHECK(rb.pop() == 1);
+    CHECK(rb.pop() == 2);
 }
 
 TEST_CASE("MultiCons push 'n pop std::string simple", "[ringbuffer]") {
@@ -92,8 +92,8 @@ TEST_CASE("MultiCons push 'n pop std::string simple", "[ringbuffer]") {
     rb.push("one"sv);
     rb.push("two"sv);
 
-    REQUIRE(rb.pop() == "one"s);
-    REQUIRE(rb.pop() == "two"s);
+    CHECK(rb.pop() == "one"s);
+    CHECK(rb.pop() == "two"s);
 }
 
 // FIXME: switch from semaphore to condvar

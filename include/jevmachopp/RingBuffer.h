@@ -65,7 +65,6 @@ public:
     decltype(auto) emplace(Args &&...args) noexcept requires(is_atomic_pair && !MultiProd) {
         std::size_t wr_raw;
         std::size_t new_idx;
-        std::size_t new_wr_raw;
         pointer res_ptr;
 
         do {
@@ -77,11 +76,10 @@ public:
                 // full, try again
                 continue;
             }
-            new_wr_raw = wr_raw + 1;
-            new_idx = new_wr_raw & idx_mask;
+            new_idx = wr_raw & idx_mask;
             auto new_ptr = &m_buf[new_idx];
             res_ptr = new (new_ptr) value_type{std::forward<Args>(args)...};
-            wr_idx_raw = new_wr_raw;
+            wr_idx_raw = wr_raw + 1;
             break;
         } while (true);
 
@@ -104,10 +102,10 @@ public:
                 // full, try again
                 continue;
             }
-            new_wr_raw = wr_raw + 1;
-            new_idx = new_wr_raw & idx_mask;
+            new_idx = wr_raw & idx_mask;
             auto new_ptr = &m_buf[new_idx];
             res_ptr = new (new_ptr) value_type{std::forward<Args>(args)...};
+            new_wr_raw = wr_raw + 1;
         } while (!wr_idx_raw.compare_exchange_strong(wr_raw, new_wr_raw));
 
         return *res_ptr;
@@ -168,6 +166,7 @@ public:
                 return {};
             }
             idx = rd_raw & idx_mask;
+            const auto res_ptr = &m_buf[idx];
             res = m_buf[idx];
             new_rd_raw = rd_raw + 1;
         } while (!rd_idx_raw.compare_exchange_strong(rd_raw, new_rd_raw));

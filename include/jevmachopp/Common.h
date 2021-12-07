@@ -13,6 +13,7 @@
 #if USE_FMT
 #include <fmt/compile.h>
 #include <fmt/core.h>
+#include <fmt/format.h>
 #endif
 #include <hedley.h>
 

@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.22)
 project(jevmachopp CXX C ASM)
 
 # set(CMAKE_OSX_ARCHITECTURES arm64e)
-
+set(CMAKE_XCODE_ATTRIBUTE_COMPILER_INDEX_STORE_ENABLE NO)
 
 option(FORCE_COLORED_OUTPUT "Always produce ANSI-colored output (GNU/Clang only)." ON)
 
@@ -18,11 +18,11 @@ endif ()
 add_compile_definitions(FMT_USE_USER_DEFINED_LITERALS=1 FMT_USE_NONTYPE_TEMPLATE_PARAMETERS=1 FMT_USE_INT128=0 FMT_EXCEPTIONS=0 FMT_USE_FLOAT=0 FMT_USE_DOUBLE=0 FMT_USE_LONG_DOUBLE=0)
 add_compile_definitions(BOOST_STATIC_STRING_STANDALONE=1 BOOST_NO_EXCEPTIONS=1)
 
-add_compile_options(-Os -fvisibility=hidden -fvisibility-inlines-hidden -ffunction-sections -fdata-sections)
-add_link_options(-Os -Wl,-dead_strip)
+# add_compile_options(-Os -fvisibility=hidden -fvisibility-inlines-hidden -ffunction-sections -fdata-sections)
+# add_link_options(-Os -Wl,-dead_strip)
 
-add_compile_options(-flto=full -fwhole-program-vtables -fvirtual-function-elimination)
-add_link_options(-flto=full)
+# add_compile_options(-flto=full -fwhole-program-vtables -fvirtual-function-elimination)
+# add_link_options(-flto=full)
 
 
 # lol just don't its so bad
