@@ -43,3 +43,6 @@
 [submodule "3rdparty/concurrent-resource"]
 	path = 3rdparty/concurrent-resource
 	url = https://github.com/mustafakemalgilor/concurrent-resource
+[submodule "3rdparty/benchmark"]
+	path = 3rdparty/benchmark
+	url = https://github.com/google/benchmark
