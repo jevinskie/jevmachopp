@@ -79,7 +79,8 @@ int main(void) {
 
     printf("rb idx rd: %zu wr: %zu\n", rb.rd_idx_raw.load(), rb.wr_idx_raw);
 
-    printf("sz diff: %lld sum diff: %lld\n", (int64_t)sz_sum - (int64_t)NUM_PUSH, (int64_t)sum - (int64_t)EXPECTED_SUM);
+    printf("sz diff: %lld sum diff: %lld\n", (int64_t)sz_sum - (int64_t)NUM_PUSH,
+           (int64_t)sum - (int64_t)EXPECTED_SUM);
 
     return 0;
 }

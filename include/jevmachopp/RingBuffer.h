@@ -55,20 +55,69 @@ public:
     using idx_pair_t =
         typename std::conditional<is_atomic_pair, atomic_idx_pair_t, nonatomic_idx_pair_t>::type;
 
-    template <class... Args> decltype(auto) emplace(Args &&...args) noexcept {
+    template <class... Args>
+    decltype(auto) emplace(Args &&...args) noexcept requires(!is_atomic_pair) {
         assert(!full());
         return *new (&m_buf[(wr_idx_raw++ & idx_mask)]) value_type{std::forward<Args>(args)...};
     }
 
+    template <class... Args>
+    decltype(auto) emplace(Args &&...args) noexcept requires(is_atomic_pair && !MultiProd) {
+        std::size_t wr_raw;
+        std::size_t new_idx;
+        std::size_t new_wr_raw;
+        pointer res_ptr;
+
+        do {
+            const nonatomic_idx_pair_t idx_pair_raw = ((atomic_idx_pair_t *)&rd_idx_raw)->load();
+            wr_raw = idx_pair_raw.second;
+            const auto rd_raw = idx_pair_raw.first;
+            const auto rd_full_val = wr_raw - static_size_raw + 1;
+            if (rd_raw == rd_full_val) {
+                // full, try again
+                continue;
+            }
+            new_wr_raw = wr_raw + 1;
+            new_idx = new_wr_raw & idx_mask;
+            auto new_ptr = &m_buf[new_idx];
+            res_ptr = new (new_ptr) value_type{std::forward<Args>(args)...};
+            wr_idx_raw = new_wr_raw;
+            break;
+        } while (true);
+
+        return *res_ptr;
+    }
+
+    template <class... Args>
+    decltype(auto) emplace(Args &&...args) noexcept requires(is_atomic_pair &&MultiProd) {
+        std::size_t wr_raw;
+        std::size_t new_idx;
+        std::size_t new_wr_raw;
+        pointer res_ptr;
+
+        do {
+            const nonatomic_idx_pair_t idx_pair_raw = ((atomic_idx_pair_t *)&rd_idx_raw)->load();
+            wr_raw = idx_pair_raw.second;
+            const auto rd_raw = idx_pair_raw.first;
+            const auto rd_full_val = wr_raw - static_size_raw + 1;
+            if (rd_raw == rd_full_val) {
+                // full, try again
+                continue;
+            }
+            new_wr_raw = wr_raw + 1;
+            new_idx = new_wr_raw & idx_mask;
+            auto new_ptr = &m_buf[new_idx];
+            res_ptr = new (new_ptr) value_type{std::forward<Args>(args)...};
+        } while (!wr_idx_raw.compare_exchange_strong(wr_raw, new_wr_raw));
+
+        return *res_ptr;
+    }
+
     void push(const T &val) noexcept {
-        while (full())
-            ;
         emplace(val);
     }
 
     void push(const T &&val) noexcept {
-        while (full())
-            ;
         emplace(std::move(val));
     }
 

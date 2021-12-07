@@ -131,7 +131,8 @@ TEST_CASE("MultiCons push 'n pop std::string sem", "[ringbuffer]") {
 #endif
 
 TEST_CASE("triangular numbers", "[ringbuffer]") {
-    const auto NUM_PUSH = (std::size_t)(GENERATE(NUM_ELEM * 0.3, NUM_ELEM, NUM_ELEM * 1.6, NUM_ELEM * 16.3));
+    const auto NUM_PUSH =
+        (std::size_t)(GENERATE(NUM_ELEM * 0.3, NUM_ELEM, NUM_ELEM * 1.6, NUM_ELEM * 16.3));
     const auto EXPECTED_SUM = (std::size_t)((NUM_PUSH * (NUM_PUSH + 1)) / 2);
     const auto nthread = std::thread::hardware_concurrency();
 
