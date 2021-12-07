@@ -10,6 +10,7 @@ add_subdirectory(Catch2)
 add_subdirectory(cxxopts)
 add_subdirectory(enum.hpp)
 add_subdirectory(fmt)
+add_subdirectory(nanobench)
 
 option(BUILD_TESTING "Build testing." OFF)
 option(ENABLE_BENCHMARKS "Enable benchmarks." OFF)
