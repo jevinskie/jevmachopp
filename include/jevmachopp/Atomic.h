@@ -36,8 +36,14 @@ public:
 #endif
 
 public:
-    __attribute__((always_inline)) value_type
+    __attribute__((always_inline, used)) value_type
     load(std::memory_order order = std::memory_order_seq_cst) const noexcept {
+        const uint128_t res = atomic<uint128_t>::load(order);
+        return *(value_type *)&res;
+    }
+
+    template <std::memory_order order>
+    __attribute__((always_inline, used)) value_type load() const noexcept {
         const uint128_t res = atomic<uint128_t>::load(order);
         return *(value_type *)&res;
     }
@@ -48,7 +54,7 @@ public:
 
 #endif
 
-    __attribute__((always_inline)) void
+    __attribute__((always_inline, used)) void
     store(value_type desired, std::memory_order order = std::memory_order_seq_cst) noexcept {
         atomic<uint128_t>::store(*(uint128_t *)&desired, order);
     }

@@ -33,3 +33,11 @@ TEST_CASE("load real pair u64", "[atomic]") {
     // const auto *pp = (std::pair<uint64_t, uint64_t> *)&res;
     fprintf(stderr, "pp first: 0x%llx second: 0x%llx\n", res.first, res.second);
 }
+
+TEST_CASE("order template", "[atomic]") {
+    std::atomic<std::pair<uint64_t, uint64_t>> rofl;
+    rofl.store({0xfacefeed, 0x00070007}, std::memory_order_relaxed);
+    const auto res = rofl.load<std::memory_order_relaxed>();
+    // const auto *pp = (std::pair<uint64_t, uint64_t> *)&res;
+    fprintf(stderr, "pp first: 0x%llx second: 0x%llx\n", res.first, res.second);
+}
