@@ -159,55 +159,52 @@ public:
         return wr_idx_raw & idx_mask;
     }
 
-    constexpr std::size_t size() const noexcept {
-        // FIXME: the below is quite likely wrong
-        // we can be conservative and report bigger even if another thread is currently reading
-        // so read the read pointer first
+    constexpr std::size_t size() const noexcept requires(!is_atomic_pair) {
         const std::size_t rd = rd_idx_raw;
         const std::size_t wr = wr_idx_raw;
         return wr - rd;
+    }
+
+    constexpr std::size_t size() const noexcept requires(is_atomic_pair) {
+        const nonatomic_idx_pair_t idx_pair_raw = ((atomic_idx_pair_t *)&rd_idx_raw)->load();
+        return idx_pair_raw.second - idx_pair_raw.first;
     }
 
     constexpr std::size_t remaining() const noexcept {
         return static_size - size();
     }
 
-    constexpr bool full() const noexcept requires(!MultiProd) {
+    constexpr bool full() const noexcept requires(!is_atomic_pair) {
         // read write pointer first since nobody else will be changing it
         const std::size_t wr = wr_idx_raw;
         const auto rd_full_val = wr - static_size_raw + 1;
         // load read pointer that others may be updating last
         const std::size_t rd = rd_idx_raw;
+        assert(rd <= wr);
         return rd == rd_full_val;
     }
 
-    constexpr bool full() const noexcept requires(MultiProd) {
-        // conservative/safe return value for writer
-        // report full if another thread completes a write before we return
-        std::size_t wr;
-        bool res;
-        // loop until we check full and the write pointer is still the same
-        do {
-            wr = wr_idx_raw.load();
-            const auto rd_full_val = wr - static_size_raw + 1;
-            const std::size_t rd = rd_idx_raw;
-            res = rd == rd_full_val;
-        } while (wr != wr_idx_raw.load());
-        return res;
+    constexpr bool full() const noexcept requires(is_atomic_pair) {
+        const nonatomic_idx_pair_t idx_pair_raw = ((atomic_idx_pair_t *)&rd_idx_raw)->load();
+        const std::size_t rd = idx_pair_raw.first;
+        const std::size_t wr = idx_pair_raw.second;
+        assert(rd <= wr);
+        const auto rd_full_val = wr - static_size_raw + 1;
+        return rd == rd_full_val;
     }
 
     constexpr bool empty() const noexcept requires(!is_atomic_pair) {
-        assert(rd_idx_raw <= wr_idx_raw);
         // read read pointer first since nobody else will be changing it
         const std::size_t rd = rd_idx_raw;
         // load write pointer that others may be updating last
         const std::size_t wr = wr_idx_raw;
+        assert(rd <= wr);
         return rd == wr;
     }
 
     const bool empty() const noexcept requires(is_atomic_pair) {
-        assert(rd_idx_raw <= wr_idx_raw);
         const nonatomic_idx_pair_t idx_pair_raw = ((atomic_idx_pair_t *)&rd_idx_raw)->load();
+        assert(idx_pair_raw.first <= idx_pair_raw.second);
         return idx_pair_raw.first == idx_pair_raw.second;
     }
 
@@ -216,7 +213,7 @@ public:
     }
 
     RingBufferBase() noexcept
-        : m_buf(nullptr), m_buf_mirror(nullptr), rd_idx_raw(0), wr_idx_raw(0) {
+        : m_buf(nullptr), m_buf_mirror(nullptr), rd_idx_raw(0), wr_idx_raw(0), done(false) {
         for (int try_num = 0; try_num < MMAP_MAX_TRIES; ++try_num) {
             m_buf = (T *)mmap(nullptr, buf_sz_phys * 2, PROT_READ | PROT_WRITE,
                               MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);

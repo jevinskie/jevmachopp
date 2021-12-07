@@ -108,7 +108,7 @@ struct con_pair {
     T2 second;
     static constexpr bool has_references = std::is_reference_v<T1> || std::is_reference_v<T2>;
 
-    con_pair(const T1 &x, const T2 &y) : first(x), second(y) {}
+    constexpr con_pair(const T1 &x, const T2 &y) : first(x), second(y) {}
 
     con_pair &operator=(const con_pair &) requires(!has_references) = default;
 };
