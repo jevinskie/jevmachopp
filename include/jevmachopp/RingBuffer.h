@@ -67,7 +67,7 @@ public:
         std::size_t new_idx;
         pointer res_ptr;
 
-        do {
+        while (true) {
             const nonatomic_idx_pair_t idx_pair_raw = ((atomic_idx_pair_t *)&rd_idx_raw)->load();
             wr_raw = idx_pair_raw.second;
             const auto rd_raw = idx_pair_raw.first;
@@ -81,7 +81,7 @@ public:
             res_ptr = new (new_ptr) value_type{std::forward<Args>(args)...};
             wr_idx_raw = wr_raw + 1;
             break;
-        } while (true);
+        };
 
         return *res_ptr;
     }
@@ -94,13 +94,14 @@ public:
         pointer res_ptr;
 
         do {
+        get_pair:
             const nonatomic_idx_pair_t idx_pair_raw = ((atomic_idx_pair_t *)&rd_idx_raw)->load();
             wr_raw = idx_pair_raw.second;
             const auto rd_raw = idx_pair_raw.first;
             const auto rd_full_val = wr_raw - static_size_raw + 1;
             if (rd_raw == rd_full_val) {
                 // full, try again
-                continue;
+                goto get_pair;
             }
             new_idx = wr_raw & idx_mask;
             auto new_ptr = &m_buf[new_idx];
@@ -166,7 +167,6 @@ public:
                 return {};
             }
             idx = rd_raw & idx_mask;
-            const auto res_ptr = &m_buf[idx];
             res = m_buf[idx];
             new_rd_raw = rd_raw + 1;
         } while (!rd_idx_raw.compare_exchange_strong(rd_raw, new_rd_raw));
