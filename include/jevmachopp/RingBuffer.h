@@ -83,6 +83,7 @@ public:
     }
 
     value_type pop() noexcept requires(!MultiCons) {
+        assert(false);
         while (empty())
             ;
         return std::move(m_buf[(rd_idx_raw++ & idx_mask)]);
@@ -97,20 +98,15 @@ public:
         std::size_t idx_raw;
         std::size_t idx;
         std::size_t new_idx_raw;
-        pointer our_obj;
 
         do {
             while (empty() && !is_done())
                 ;
             idx_raw = rd_idx_raw;
             idx = idx_raw & idx_mask;
-            our_obj = &m_buf[idx];
             res = m_buf[idx];
             new_idx_raw = rd_idx_raw + 1;
         } while (!rd_idx_raw.compare_exchange_strong(idx_raw, new_idx_raw));
-
-        // would be racey, why we need trivial dtors
-        // our_obj->~T();
 
         return res;
     }
@@ -120,11 +116,11 @@ public:
     }
     {
         T res;
+        assert(false);
 
         std::size_t idx_raw;
         std::size_t idx;
         std::size_t new_idx_raw;
-        pointer our_obj;
         bool cas_res;
 
         do {
@@ -132,14 +128,10 @@ public:
                 ;
             idx_raw = rd_idx_raw;
             idx = idx_raw & idx_mask;
-            our_obj = &m_buf[idx];
             res = m_buf[idx];
             new_idx_raw = rd_idx_raw + 1;
             cas_res = rd_idx_raw.compare_exchange_strong(idx_raw, new_idx_raw);
         } while (!cas_res);
-
-        // would be racey, why we need trivial dtors
-        // our_obj->~T();
 
         return res;
     }
@@ -198,6 +190,7 @@ public:
     }
 
     constexpr bool empty() const noexcept requires(MultiCons) {
+        assert(rd_idx_raw <= wr_idx_raw);
         // conservative/safe return value for reader
         // don't report empty if another thread completes a write before we return
         std::size_t rd;

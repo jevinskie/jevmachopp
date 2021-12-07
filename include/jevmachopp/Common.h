@@ -1,5 +1,6 @@
 #pragma once
 
+#include <atomic>
 #include <cstdlib>
 #include <cstring>
 #include <limits>

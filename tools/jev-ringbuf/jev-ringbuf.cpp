@@ -23,8 +23,8 @@ constexpr auto EXPECTED_SUM = (std::size_t)((NUM_PUSH * (NUM_PUSH + 1)) / 2);
 
 int main(void) {
     //    const auto nthread = std::thread::hardware_concurrency();
-    const unsigned nthread = 3;
-    assert(nthread >= 3);
+    const unsigned nthread = 2;
+    assert(nthread >= 2);
 
     printf("NUM_ELEM: %zu NUM_PUSH: %zu EXPECTED_SUM: %zu\n", NUM_ELEM, NUM_PUSH, EXPECTED_SUM);
 
@@ -45,16 +45,20 @@ int main(void) {
         v.reserve(NUM_PUSH);
     }
 
+    producer.join();
+
     for (auto i = 0u; i < nthread - 1; ++i) {
         consumers[i] = std::thread{[i, &rb, &results]() {
             fprintf(stderr, "consumer: %u\n", i);
-            while (!rb.is_done() && rb.size()) {
+            while (!rb.is_done()) {
+                results[i].emplace_back(rb.pop());
+            }
+            while (!rb.empty()) {
                 results[i].emplace_back(rb.pop());
             }
         }};
     }
 
-    producer.join();
     for (auto &c : consumers) {
         c.join();
     }
@@ -72,6 +76,8 @@ int main(void) {
         sz_sum += sz;
     }
     printf("sz_sum: %zu sum: %zu\n", sz_sum, sum);
+
+    printf("rb idx rd: %zu wr: %zu\n", rb.rd_idx_raw.load(), rb.wr_idx_raw);
 
     return 0;
 }
