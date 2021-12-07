@@ -127,19 +127,3 @@ TEST_CASE("MultiCons push 'n pop std::string sem", "[ringbuffer]") {
     REQUIRE(rb.pop() == "two"s);
 }
 #endif
-
-TEST_CASE("load int 128", "[ringbuffer]") {
-    auto rb = MultiConsRingBuffer<std::string_view, NUM_ELEM>{};
-    rb.lol.store((uint128_t)0xdeadbeef'00000000ull << 64 | 0xbaadc0de'00000000ull);
-    const auto res = rb.lol.load();
-    const auto *pp = (std::pair<uint64_t, uint64_t> *)&res;
-    fprintf(stderr, "pp first: 0x%llx second: 0x%llx\n", pp->first, pp->second);
-}
-
-TEST_CASE("load real pair u64", "[ringbuffer]") {
-    auto rb = MultiConsRingBuffer<std::string_view, NUM_ELEM>{};
-    rb.rofl.store({0xfacefeed, 0x00070007});
-    const auto res = rb.rofl.load();
-    // const auto *pp = (std::pair<uint64_t, uint64_t> *)&res;
-    fprintf(stderr, "pp first: 0x%llx second: 0x%llx\n", res.first, res.second);
-}
