@@ -21,8 +21,8 @@ add_compile_definitions(BOOST_STATIC_STRING_STANDALONE=1 BOOST_NO_EXCEPTIONS=1)
 add_compile_options(-Os -fvisibility=hidden -fvisibility-inlines-hidden -ffunction-sections -fdata-sections)
 add_link_options(-Os -Wl,-dead_strip)
 
-# add_compile_options(-flto=full -fwhole-program-vtables -fvirtual-function-elimination)
-# add_link_options(-flto=full)
+add_compile_options(-flto=full -fwhole-program-vtables -fvirtual-function-elimination)
+add_link_options(-flto=full)
 
 
 # lol just don't its so bad

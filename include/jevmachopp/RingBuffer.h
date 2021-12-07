@@ -106,19 +106,22 @@ public:
     {
         T res;
 
-        std::size_t idx_raw;
+        std::size_t rd_raw;
         std::size_t idx;
-        std::size_t new_idx_raw;
+        std::size_t new_rd_raw;
 
         do {
-            if (empty()) {
+            const nonatomic_idx_pair_t idx_pair_raw = ((atomic_idx_pair_t *)&rd_idx_raw)->load();
+            rd_raw = idx_pair_raw.first;
+            const auto wr_raw = idx_pair_raw.second;
+            if (rd_raw == wr_raw) {
+                // empty condition
                 return {};
             }
-            idx_raw = rd_idx_raw;
-            idx = idx_raw & idx_mask;
+            idx = rd_raw & idx_mask;
             res = m_buf[idx];
-            new_idx_raw = idx_raw + 1;
-        } while (!rd_idx_raw.compare_exchange_strong(idx_raw, new_idx_raw));
+            new_rd_raw = rd_raw + 1;
+        } while (!rd_idx_raw.compare_exchange_strong(rd_raw, new_rd_raw));
 
         return res;
     }

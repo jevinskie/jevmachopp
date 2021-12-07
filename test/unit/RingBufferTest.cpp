@@ -5,7 +5,9 @@
 #include <thread>
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators_all.hpp>
 #include <fmt/core.h>
+#include <nanorange/algorithm/is_sorted.hpp>
 
 #include <jevmachopp/RingBuffer.h>
 
@@ -127,3 +129,59 @@ TEST_CASE("MultiCons push 'n pop std::string sem", "[ringbuffer]") {
     REQUIRE(rb.pop() == "two"s);
 }
 #endif
+
+TEST_CASE("triangular numbers", "[ringbuffer]") {
+    const auto NUM_PUSH = (std::size_t)(GENERATE(NUM_ELEM * 0.3, NUM_ELEM, NUM_ELEM * 1.6, NUM_ELEM * 16.3));
+    const auto EXPECTED_SUM = (std::size_t)((NUM_PUSH * (NUM_PUSH + 1)) / 2);
+    const auto nthread = std::thread::hardware_concurrency();
+
+    REQUIRE(nthread >= 3);
+
+    auto rb = MultiConsRingBuffer<uint32_t, NUM_ELEM>{};
+
+    std::thread consumers[nthread - 1];
+    std::vector<uint32_t> results[nthread - 1];
+
+    for (auto &v : results) {
+        v.reserve(NUM_PUSH);
+    }
+
+    std::thread producer{[&rb, NUM_PUSH]() {
+        for (std::size_t i = 1; i <= NUM_PUSH; ++i) {
+            rb.push(i);
+        }
+        rb.finish();
+    }};
+
+    for (auto i = 0u; i < nthread - 1; ++i) {
+        consumers[i] = std::thread{[i, &rb, &results]() {
+            while (!(rb.is_done() && rb.empty())) {
+                const auto val = rb.pop();
+                if (val) {
+                    results[i].emplace_back(*val);
+                }
+            }
+        }};
+    }
+
+    producer.join();
+    for (auto &c : consumers) {
+        c.join();
+    }
+
+    std::size_t sz_sum = 0;
+    std::size_t sum = 0;
+    for (auto i = 0u; i < nthread - 1; ++i) {
+        std::size_t res_sum = 0;
+        for (const auto n : results[i]) {
+            res_sum += n;
+        }
+        const auto sz = results[i].size();
+        sum += res_sum;
+        sz_sum += sz;
+        CHECK(ranges::is_sorted(results[i]));
+    }
+
+    CHECK(sz_sum == NUM_PUSH);
+    CHECK(sum == EXPECTED_SUM);
+}
