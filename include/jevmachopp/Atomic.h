@@ -20,9 +20,9 @@ template <typename T>
 requires requires(T o) {
     requires sizeof(T) == sizeof(uint128_t);
     requires !same_as<T, uint128_t>;
+    requires std::is_trivially_copyable_v<T>;
 }
 class std::atomic<T> : public atomic<uint128_t> {
-#if 1
 public:
     using value_type = T;
     using difference_type = value_type;
@@ -36,6 +36,13 @@ public:
 
     __attribute__((always_inline)) value_type
     load(std::memory_order order = std::memory_order_seq_cst) const volatile noexcept;
+
+    __attribute__((always_inline)) operator value_type() const noexcept {
+        const uint128_t res = atomic<uint128_t>::load();
+        return *(value_type *)&res;
+    }
+
+    __attribute__((always_inline)) operator value_type() const volatile noexcept;
 
     __attribute__((always_inline)) value_type operator=(value_type desired) noexcept {
         return atomic<uint128_t>::operator=(*(uint128_t *)&desired);
@@ -51,7 +58,6 @@ public:
     __attribute__((always_inline)) void
     store(value_type desired,
           std::memory_order order = std::memory_order_seq_cst) volatile noexcept;
-#endif
 };
 
 #endif

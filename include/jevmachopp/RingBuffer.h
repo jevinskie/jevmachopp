@@ -2,6 +2,7 @@
 
 #include "jevmachopp/Atomic.h"
 #include "jevmachopp/Common.h"
+#include "jevmachopp/CommonTypes.h"
 
 #include <algorithm>
 #include <atomic>
@@ -273,12 +274,12 @@ public:
     // private:
     pointer m_buf;
     pointer m_buf_mirror;
-    smth_t rd_smth;
+    // smth_t rd_smth;
     rd_idx_t rd_idx_raw;
     wr_idx_t wr_idx_raw;
-    smth_t wr_smth;
+    // smth_t wr_smth;
     std::atomic<unsigned __int128> lol;
-    std::atomic<std::pair<uint64_t, uint64_t>> rofl;
+    std::atomic<con_pair<uint64_t, uint64_t>> rofl;
     bool done;
 };
 

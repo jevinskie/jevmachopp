@@ -3,6 +3,8 @@
 #include "jevmachopp/Common.h"
 #include "jevmachopp/LEB128.h"
 
+#include <type_traits>
+
 using dylib_names_map_t = std::array<const char *, 0xFF>;
 using section_names_map_t = std::array<std::string_view, 0xFF>;
 using segment_names_map_t = std::array<std::string_view, 0xFF>;
@@ -95,3 +97,18 @@ template <> struct fmt::formatter<AddrRange> {
     }
 };
 #endif
+
+template <class T1, class T2>
+requires requires() {
+    requires std::is_trivially_copyable_v<T1>;
+    requires std::is_trivially_copyable_v<T2>;
+}
+struct con_pair {
+    T1 first;
+    T2 second;
+    static constexpr bool has_references = std::is_reference_v<T1> || std::is_reference_v<T2>;
+
+    con_pair(const T1 &x, const T2 &y) : first(x), second(y) {}
+
+    con_pair &operator=(const con_pair &) requires(!has_references) = default;
+};
