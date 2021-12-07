@@ -403,8 +403,3 @@ constexpr U roundup_pow2_mul(U num, std::size_t pow2_mul) {
     U mask = static_cast<U>(pow2_mul) - 1;
     return (num + mask) & ~mask;
 }
-
-// FIXME: find a better place for this, guard with ifdefs maybe
-__attribute__((always_inline)) static inline void flush_icache_line(void *addr) {
-    asm volatile("dc cvau, %0" ::"r"(addr));
-}

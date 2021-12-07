@@ -34,6 +34,7 @@ set(MACHOPP_SRC
 )
 
 set(MACHOPP_HDR_STANDALONE
+    Atomic.h
     c/jevdtree.h
     c/jevmacho.h
     c/jevnvram.h

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "jevmachopp/Atomic.h"
 #include "jevmachopp/Common.h"
 
 #include <algorithm>
@@ -103,7 +104,7 @@ public:
         std::size_t new_idx_raw;
 
         do {
-            if (empty() || is_done()) {
+            if (empty()) {
                 return {};
             }
             idx_raw = rd_idx_raw;
@@ -112,12 +113,10 @@ public:
             new_idx_raw = idx_raw + 1;
         } while (!rd_idx_raw.compare_exchange_strong(idx_raw, new_idx_raw));
 
-        if (is_done() && empty()) {
-            return {};
-        }
         return res;
     }
 
+#if 0
     std::optional<value_type> pop() noexcept requires requires() {
         requires MultiCons && !std::is_trivially_copyable_v<value_type>;
     }
@@ -144,6 +143,7 @@ public:
 
         return res;
     }
+#endif
 
     constexpr std::size_t rd_idx() const noexcept {
         return rd_idx_raw & idx_mask;
@@ -205,7 +205,6 @@ public:
         std::size_t rd;
         std::size_t wr;
         bool res;
-        // loop until we check full and the write pointer is still the same
         do {
             rd = rd_idx_raw.load();
             wr = wr_idx_raw;
@@ -269,7 +268,7 @@ public:
     void finish() {
         assert(!done);
         done = true;
-        flush_icache_line(&done);
+        // flush_icache_line(&done);
     }
 
     // private:
