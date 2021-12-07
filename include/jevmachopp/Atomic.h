@@ -34,24 +34,9 @@ public:
 public:
     __attribute__((always_inline)) value_type
     load(std::memory_order order = std::memory_order_seq_cst) const noexcept {
-        // pid_t *pid_arg_result = NULL;
-
-        // register pid_t *pid_arg __asm("x0") = pid;
-        // register const char *path_arg __asm("x1") = path;
-        // register const void *attr_buf_arg __asm("x2") = attr_buf;
-        // register char *const *argv_arg __asm("x3") = argv;
-        // register char *const *envp_arg __asm("x4") = envp;
-
-        // __asm __volatile (
-        //       "mov x16, %[syscall_num]     \n\t"
-        //       "svc #0x80                   \n\t"
-        //     : "=r" (pid_arg)                                     /* outputs */
-        //     : [syscall_num] "I" (244), "r" (pid_arg), "r" (path_arg), "r" (attr_buf_arg), "r"
-        //     (argv_arg), "r" (envp_arg) /* inputs */
-        //                   : "cc", "x5", "x6", "x8", "x9", "x10", "x11", "x12", "x13", "x14",
-        //                   "x15", "x16", "x17", "lr" /* clobbers */
-        // );
-        // pid_arg_result = pid_arg;
+        _Atomic unsigned __int128 *aptr = (_Atomic unsigned __int128 *)&m_pair;
+        const auto res_raw = __c11_atomic_load(aptr, to_underlying_int(order));
+        return *(value_type *)&res_raw;
     }
 
     __attribute__((always_inline)) value_type

@@ -35,9 +35,10 @@ public:
     static constexpr auto min_buf_sz_raw = sizeof(T[MinNum]);
     static constexpr auto min_buf_sz = lcm(min_buf_sz_raw, (std::size_t)2);
     static constexpr auto buf_sz_phys = roundup_pow2_mul(min_buf_sz, JEV_PAGE_SZ);
-    static constexpr auto static_size = buf_sz_phys / sizeof(T);
-    static_assert_cond(is_pow2(static_size));
-    static constexpr auto idx_mask = static_size * 2 - 1;
+    static constexpr auto static_size_raw = buf_sz_phys / sizeof(T);
+    static constexpr auto static_size = static_size_raw - 1;
+    static_assert_cond(is_pow2(static_size_raw));
+    static constexpr auto idx_mask = static_size_raw * 2 - 1;
 
     using atomic_idx_t = std::atomic_size_t;
     using nonatomic_idx_t = std::size_t;
@@ -86,7 +87,6 @@ public:
     }
 
     std::optional<value_type> pop() noexcept requires(!MultiCons) {
-        assert(false);
         if (empty()) {
             return {};
         }
@@ -122,7 +122,6 @@ public:
     }
     {
         T res;
-        assert(false);
 
         std::size_t idx_raw;
         std::size_t idx;
@@ -169,7 +168,7 @@ public:
     constexpr bool full() const noexcept requires(!MultiProd) {
         // read write pointer first since nobody else will be changing it
         const std::size_t wr = wr_idx_raw;
-        const auto rd_full_val = wr - static_size + 1;
+        const auto rd_full_val = wr - static_size_raw + 1;
         // load read pointer that others may be updating last
         const std::size_t rd = rd_idx_raw;
         return rd == rd_full_val;
@@ -183,7 +182,7 @@ public:
         // loop until we check full and the write pointer is still the same
         do {
             wr = wr_idx_raw.load();
-            const auto rd_full_val = wr - static_size + 1;
+            const auto rd_full_val = wr - static_size_raw + 1;
             const std::size_t rd = rd_idx_raw;
             res = rd == rd_full_val;
         } while (wr != wr_idx_raw.load());
@@ -225,7 +224,7 @@ public:
             if (!m_buf) {
                 continue;
             }
-            m_buf_mirror = m_buf + static_size;
+            m_buf_mirror = m_buf + static_size_raw;
 
             if (const auto munmap_res = munmap((void *)m_buf_mirror, buf_sz_phys)) {
                 printf("munmap_res: %d errno: %d err: %s\n", munmap_res, errno, strerror(errno));

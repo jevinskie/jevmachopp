@@ -10,5 +10,10 @@
 #include <jevmachopp/Atomic.h>
 
 TEST_CASE("ctor std::atomic<std::pair<uint64_t, uint64_t>>", "[atomic]") {
-    std::atomic<std::pair<uint64_t, uint64_t>> a;
+    std::atomic<std::pair<uint64_t, uint64_t>> p;
+}
+
+TEST_CASE("load std::atomic<std::pair<uint64_t, uint64_t>>", "[atomic]") {
+    std::atomic<std::pair<uint64_t, uint64_t>> p;
+    p.load();
 }
