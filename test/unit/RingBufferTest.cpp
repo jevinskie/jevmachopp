@@ -28,26 +28,26 @@ TEST_CASE("push 'n pop", "[ringbuffer]") {
 
     SECTION("push") {
         rb.push(0xdeadbeef);
-        REQUIRE(rb.peek() == 0xdeadbeef);
+        REQUIRE(**rb.peek() == 0xdeadbeef);
     }
 
     SECTION("pop") {
         rb.push(0xdeadbeef);
-        REQUIRE(rb.pop() == 0xdeadbeef);
+        REQUIRE(*rb.pop() == 0xdeadbeef);
     }
 
     SECTION("push/pop 2x") {
         rb.push(1);
         rb.emplace((decltype(rb)::value_type)2);
 
-        REQUIRE(rb.pop() == 1);
-        REQUIRE(rb.pop() == 2);
+        REQUIRE(*rb.pop() == 1);
+        REQUIRE(*rb.pop() == 2);
     }
 
     SECTION("2x size") {
         for (std::size_t i = 0; i < 1.5 * 2 * NUM_ELEM; ++i) {
             rb.push(i);
-            REQUIRE(rb.pop() == i);
+            REQUIRE(*rb.pop() == i);
         }
     }
 }

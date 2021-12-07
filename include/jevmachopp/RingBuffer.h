@@ -12,6 +12,7 @@
 #include <cstring>
 #include <future>
 #include <mach/mach.h>
+#include <optional>
 #include <sys/mman.h>
 #include <type_traits>
 #include <unistd.h>
@@ -76,20 +77,22 @@ public:
         wr_idx_raw += span.size();
     }
 
-    reference peek() noexcept {
-        while (empty())
-            ;
-        return m_buf[rd_idx()];
+    std::optional<pointer> peek() noexcept {
+        if (empty()) {
+            return {};
+        }
+        return &m_buf[rd_idx()];
     }
 
-    value_type pop() noexcept requires(!MultiCons) {
+    std::optional<value_type> pop() noexcept requires(!MultiCons) {
         assert(false);
-        while (empty())
-            ;
+        if (empty()) {
+            return {};
+        }
         return std::move(m_buf[(rd_idx_raw++ & idx_mask)]);
     }
 
-    value_type pop() noexcept requires requires() {
+    std::optional<value_type> pop() noexcept requires requires() {
         requires MultiCons && std::is_trivially_copyable_v<value_type>;
     }
     {
@@ -100,10 +103,8 @@ public:
         std::size_t new_idx_raw;
 
         do {
-            while (empty() && !is_done())
-                ;
-            if (empty() && is_done()) {
-                break;
+            if (empty() || is_done()) {
+                return {};
             }
             idx_raw = rd_idx_raw;
             idx = idx_raw & idx_mask;
@@ -111,10 +112,13 @@ public:
             new_idx_raw = idx_raw + 1;
         } while (!rd_idx_raw.compare_exchange_strong(idx_raw, new_idx_raw));
 
+        if (is_done() && empty()) {
+            return {};
+        }
         return res;
     }
 
-    value_type pop() noexcept requires requires() {
+    std::optional<value_type> pop() noexcept requires requires() {
         requires MultiCons && !std::is_trivially_copyable_v<value_type>;
     }
     {
@@ -126,9 +130,11 @@ public:
         std::size_t new_idx_raw;
         bool cas_res;
 
+        if (empty()) {
+            return {};
+        }
+
         do {
-            while (empty())
-                ;
             idx_raw = rd_idx_raw;
             idx = idx_raw & idx_mask;
             res = m_buf[idx];
