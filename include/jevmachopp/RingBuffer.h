@@ -102,10 +102,13 @@ public:
         do {
             while (empty() && !is_done())
                 ;
+            if (empty() && is_done()) {
+                break;
+            }
             idx_raw = rd_idx_raw;
             idx = idx_raw & idx_mask;
             res = m_buf[idx];
-            new_idx_raw = rd_idx_raw + 1;
+            new_idx_raw = idx_raw + 1;
         } while (!rd_idx_raw.compare_exchange_strong(idx_raw, new_idx_raw));
 
         return res;
@@ -129,7 +132,7 @@ public:
             idx_raw = rd_idx_raw;
             idx = idx_raw & idx_mask;
             res = m_buf[idx];
-            new_idx_raw = rd_idx_raw + 1;
+            new_idx_raw = idx_raw + 1;
             cas_res = rd_idx_raw.compare_exchange_strong(idx_raw, new_idx_raw);
         } while (!cas_res);
 

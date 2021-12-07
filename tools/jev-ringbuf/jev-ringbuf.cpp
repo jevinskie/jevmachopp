@@ -22,8 +22,8 @@ constexpr auto NUM_PUSH = (std::size_t)(NUM_ELEM * 0.3);
 constexpr auto EXPECTED_SUM = (std::size_t)((NUM_PUSH * (NUM_PUSH + 1)) / 2);
 
 int main(void) {
-    //    const auto nthread = std::thread::hardware_concurrency();
-    const unsigned nthread = 2;
+    // const auto nthread = std::thread::hardware_concurrency();
+    const unsigned nthread = 3;
     assert(nthread >= 2);
 
     printf("NUM_ELEM: %zu NUM_PUSH: %zu EXPECTED_SUM: %zu\n", NUM_ELEM, NUM_PUSH, EXPECTED_SUM);
