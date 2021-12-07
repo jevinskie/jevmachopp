@@ -45,8 +45,6 @@ int main(void) {
         v.reserve(NUM_PUSH);
     }
 
-    producer.join();
-
     for (auto i = 0u; i < nthread - 1; ++i) {
         consumers[i] = std::thread{[i, &rb, &results]() {
             fprintf(stderr, "consumer: %u\n", i);
@@ -58,6 +56,8 @@ int main(void) {
             }
         }};
     }
+
+    producer.join();
 
     for (auto &c : consumers) {
         c.join();
