@@ -159,6 +159,15 @@ static void BM_RingBuffer_simple() {
     });
 }
 
+inline uint64_t arm_v8_get_timing(void) {
+    return __builtin_arm_rsr64("CNTPCT_EL0");
+}
+
 int main() {
+    const auto start_cnt = arm_v8_get_timing();
+    printf("start count: %llu\n", start_cnt);
     BM_RingBuffer_simple();
+    const auto end_cnt = arm_v8_get_timing();
+    printf("end count: %llu\n", end_cnt);
+    printf("num cyc: %llu\n", end_cnt - start_cnt);
 }

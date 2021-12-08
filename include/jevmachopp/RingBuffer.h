@@ -320,6 +320,7 @@ public:
     void clear() noexcept {
         rd_idx_raw = 0;
         wr_idx_raw = 0;
+        std::memset(m_buf, 0, buf_sz_phys);
         done = false;
     }
 
