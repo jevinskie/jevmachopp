@@ -67,6 +67,7 @@ public:
         std::size_t new_idx;
         pointer res_ptr;
 
+
         while (true) {
             const nonatomic_idx_pair_t idx_pair_raw = ((atomic_idx_pair_t *)&rd_idx_raw)->load();
             wr_raw = idx_pair_raw.second;
@@ -79,11 +80,10 @@ public:
             new_idx = wr_raw & idx_mask;
             auto new_ptr = &m_buf[new_idx];
             res_ptr = new (new_ptr) value_type{std::forward<Args>(args)...};
+            const auto res = *res_ptr;
             wr_idx_raw = wr_raw + 1;
-            break;
-        };
-
-        return *res_ptr;
+            return res;
+        }
     }
 
     template <class... Args>
@@ -95,10 +95,10 @@ public:
 
         do {
         get_pair:
-            const nonatomic_idx_pair_t idx_pair_raw = ((atomic_idx_pair_t *)&rd_idx_raw)->load();
+            nonatomic_idx_pair_t idx_pair_raw = ((atomic_idx_pair_t *)&rd_idx_raw)->load();
             wr_raw = idx_pair_raw.second;
-            const auto rd_raw = idx_pair_raw.first;
-            const auto rd_full_val = wr_raw - static_size_raw + 1;
+            auto rd_raw = idx_pair_raw.first;
+            auto rd_full_val = wr_raw - static_size_raw + 1;
             if (rd_raw == rd_full_val) {
                 // full, try again
                 goto get_pair;
@@ -134,6 +134,7 @@ public:
         wr_idx_raw += span.size();
     }
 
+    // totally racey
     std::optional<pointer> peek() noexcept {
         if (empty()) {
             return {};

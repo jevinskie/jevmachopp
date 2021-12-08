@@ -1,3 +1,6 @@
+start count: 8436779113237
+ordering violation thread 4 idx: 6924 prev: 39575 cur: 35480 diff: 4095
+Assertion failed: (sum == EXPECTED_SUM), function operator(), file jev-ringbuf.cpp, line 157.
 
 pop():
 
