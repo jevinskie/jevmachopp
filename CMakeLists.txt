@@ -35,6 +35,8 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" ST
    add_compile_options(-ferror-limit=100)
 endif()
 
+# add_compile_options($<$<COMPILE_LANG_AND_ID:CXX,Clang>:-stdlib=libc++>)
+
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_EXTENSIONS YES)
 
