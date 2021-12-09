@@ -12,7 +12,7 @@
 	url = git@git.je.vin:jevin/rollbear-visit.git
 [submodule "3rdparty/nanorange"]
 	path = 3rdparty/nanorange
-	url = https://github.com/tcbrindle/NanoRange
+	url = git@git.je.vin:jevin/NanoRange.git
 [submodule "3rdparty/callable_traits"]
 	path = 3rdparty/callable_traits
 	url = https://github.com/boostorg/callable_traits
