@@ -330,8 +330,10 @@ public:
                 continue;
             }
 
-            m_buf = (T *)mmap(nullptr, buf_sz_phys, PROT_READ | PROT_WRITE, MAP_SHARED_VALIDATE,
-                              m_memfd, 0);
+            // constexpr void *preferred_addr = (void *)0x4'0000'0000;
+            constexpr void *preferred_addr = nullptr;
+            m_buf = (T *)mmap(preferred_addr, buf_sz_phys, PROT_READ | PROT_WRITE,
+                              MAP_SHARED_VALIDATE, m_memfd, 0);
             if (!m_buf) {
                 fprintf(stderr, "mmap_res: %p errno: %d err: %s\n", m_buf, errno, strerror(errno));
                 const auto close_res = close(m_memfd);
