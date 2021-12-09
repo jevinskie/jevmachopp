@@ -18,6 +18,9 @@ endif ()
 # add_compile_options(-Os -fvisibility=hidden -fvisibility-inlines-hidden -ffunction-sections -fdata-sections)
 # add_link_options(-Os -Wl,-dead_strip)
 
+add_compile_options(-O0 -ggdb3)
+# 
+
 # add_compile_options(-flto=full -fwhole-program-vtables -fvirtual-function-elimination)
 # add_link_options(-flto=full)
 

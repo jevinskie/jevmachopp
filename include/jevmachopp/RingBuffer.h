@@ -270,26 +270,36 @@ public:
     }
 
     RingBufferBase() noexcept
-        : m_buf(nullptr), m_buf_mirror(nullptr), rd_idx_raw(0), wr_idx_raw(0), done(false) {
+        : m_buf(nullptr), m_buf_mirror(nullptr), rd_idx_raw(0), wr_idx_raw(0), done(false)
+#ifndef __APPLE__
+          ,
+          m_memfd(0)
+#endif
+    {
         for (int try_num = 0; try_num < MMAP_MAX_TRIES; ++try_num) {
+#if defined(__APPLE__)
             m_buf = (T *)mmap(nullptr, buf_sz_phys * 2, PROT_READ | PROT_WRITE,
                               MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
             if (!m_buf) {
+                fprintf(stderr, "mmap_res: %p errno: %d err: %s\n", m_buf, errno, strerror(errno));
                 continue;
             }
             m_buf_mirror = m_buf + static_size_raw;
 
+            make_volatile(m_buf[0]) = 0xdeadbeef;
+            if (make_volatile(m_buf[0]) != 0xdeadbeef) {
+                fprintf(stderr, "cant deadbeef m_buf!\n");
+            }
+
             if (const auto munmap_res = munmap((void *)m_buf_mirror, buf_sz_phys)) {
-                printf("munmap_res: %d errno: %d err: %s\n", munmap_res, errno, strerror(errno));
+                fprintf(stderr, "munmap_res: %d errno: %d err: %s\n", munmap_res, errno,
+                        strerror(errno));
                 assert(!munmap(m_buf, buf_sz_phys * 2));
                 m_buf = nullptr;
                 m_buf_mirror = nullptr;
                 continue;
             }
-            // err nope thats linux
-            // m_buf_mirror = mremap((void*)m_buf, buf_sz_phys, buf_sz_phys, PROT_READ | PROT_WRITE,
-            // )
-#if defined(__APPLE__)
+
             vm_prot_t cur_prot;
             vm_prot_t max_prot;
             const auto vm_remap_res =
@@ -306,14 +316,48 @@ public:
                 m_buf_mirror = nullptr;
             }
 #else
-            const auto vm_remap_res =
-                mremap((void *)m_buf, buf_sz_phys, buf_sz_phys, PROT_READ | PROT_WRITE,
-                       MREMAP_FIXED, (void *)m_buf_mirror);
-            if (vm_remap_res != m_buf_mirror) {
+            m_memfd = memfd_create("RingBuffer", 0);
+            if (m_memfd <= 0) {
+                fprintf(stderr, "memfd_create res: %d errno: %d err: %s\n", m_memfd, errno,
+                        strerror(errno));
+                continue;
+            }
+            const auto memfd_ftruncate_res = ftruncate(m_memfd, buf_sz_phys);
+            if (memfd_ftruncate_res) {
+                fprintf(stderr, "memfd_ftruncate res: %d errno: %d err: %s\n", memfd_ftruncate_res,
+                        errno, strerror(errno));
+                assert(!close(m_memfd));
+                continue;
+            }
+
+            m_buf = (T *)mmap(nullptr, buf_sz_phys, PROT_READ | PROT_WRITE, MAP_SHARED_VALIDATE,
+                              m_memfd, 0);
+            if (!m_buf) {
+                fprintf(stderr, "mmap_res: %p errno: %d err: %s\n", m_buf, errno, strerror(errno));
+                assert(!close(m_memfd));
+                continue;
+            }
+            m_buf_mirror = m_buf + static_size_raw;
+            make_volatile(m_buf[0]) = 0xdeadbeef;
+            if (make_volatile(m_buf[0]) != 0xdeadbeef) {
+                fprintf(stderr, "cant deadbeef m_buf!\n");
+            }
+
+            const auto mmap_mirror_res = mmap(m_buf_mirror, buf_sz_phys, PROT_READ | PROT_WRITE,
+                                              MAP_FIXED | MAP_SHARED_VALIDATE, m_memfd, 0);
+            if (mmap_mirror_res != m_buf_mirror) {
+                fprintf(stderr, "mmap_mirror_res: %p errno: %d err: %s\n", mmap_mirror_res, errno,
+                        strerror(errno));
+                assert(!mmap_mirror_res);
+                m_buf_mirror = nullptr;
                 assert(!munmap(m_buf, buf_sz_phys));
                 m_buf = nullptr;
-                m_buf_mirror = nullptr;
+                fprintf(stderr, "close res: %d errno: %d err: %s\n", close(m_memfd), errno,
+                        strerror(errno));
+                // assert(!close(m_memfd));
+                continue;
             }
+            getchar();
 #endif
             break;
         }
@@ -321,7 +365,16 @@ public:
     };
 
     ~RingBufferBase() noexcept {
+#ifdef __APPLE__
         assert(!munmap(m_buf, buf_sz_phys * 2));
+#else
+        assert(!munmap(m_buf, buf_sz_phys));
+        assert(!munmap(m_buf_mirror, buf_sz_phys));
+        fprintf(stderr, "close res: %d errno: %d err: %s\n", close(m_memfd), errno,
+                strerror(errno));
+        // assert(!close(m_memfd));
+        m_memfd = 0;
+#endif
         m_buf = nullptr;
         m_buf_mirror = nullptr;
     }
@@ -348,6 +401,9 @@ public:
     wr_idx_t wr_idx_raw;
     // smth_t wr_smth;
     bool done;
+#ifndef __APPLE__
+    int m_memfd;
+#endif
 };
 
 template <typename T, std::size_t MinNum>

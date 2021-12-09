@@ -21,6 +21,7 @@ TEST_CASE("ctor", "[ringbuffer]") {
 
     SECTION("mirror [0]") {
         rb.m_buf[0] = 0xdeadbeef;
+        REQUIRE(rb.m_buf[0] == 0xdeadbeef);
         REQUIRE(rb.m_buf_mirror[0] == rb.m_buf[0]);
     }
 }

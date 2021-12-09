@@ -300,7 +300,8 @@ struct fmt::formatter<boost::static_string<N>> : fmt::formatter<fmt::string_view
 
 #define PI64 "%" PRId64
 #define PU64 "%" PRIu64
-#define PX64 "%" PRIx64
+#define PX64 "0x%" PRIx64
+#define PX64F "0x%016" PRIx64
 
 #pragma mark Utilities
 
@@ -418,4 +419,8 @@ requires requires() {
 constexpr U roundup_pow2_mul(U num, std::size_t pow2_mul) {
     U mask = static_cast<U>(pow2_mul) - 1;
     return (num + mask) & ~mask;
+}
+
+template <typename T> constexpr std::add_volatile_t<T> &make_volatile(T &o) {
+    return (decltype(make_volatile(o)))(o);
 }
