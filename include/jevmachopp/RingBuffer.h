@@ -3,6 +3,7 @@
 #include "jevmachopp/Atomic.h"
 #include "jevmachopp/Common.h"
 #include "jevmachopp/CommonTypes.h"
+#include "jevmachopp/Sanitizer.h"
 
 #include <algorithm>
 #include <atomic>
@@ -340,6 +341,7 @@ public:
                 m_memfd = -1;
                 continue;
             }
+            ASAN_UNPOISON_MEMORY_REGION(m_buf, buf_sz_phys);
             m_buf_mirror = m_buf + static_size_raw;
             *(volatile uint32_t *)m_buf = 0xdeadbeef;
             if (*(volatile uint32_t *)m_buf != 0xdeadbeef) {
@@ -354,6 +356,7 @@ public:
                 assert(!mmap_mirror_res);
                 m_buf_mirror = nullptr;
                 assert(!munmap(m_buf, buf_sz_phys));
+                ASAN_POISON_MEMORY_REGION(m_buf, buf_sz_phys);
                 m_buf = nullptr;
                 const auto close_res = close(m_memfd);
                 fprintf(stderr, "close res: %d errno: %d err: %s\n", close_res, errno,
@@ -362,13 +365,17 @@ public:
                 m_memfd = -1;
                 continue;
             }
+            ASAN_UNPOISON_MEMORY_REGION(m_buf_mirror, buf_sz_phys);
+            // ASAN_POISON_MEMORY_REGION(m_buf_mirror, buf_sz_phys);
 
             *(volatile uint32_t *)m_buf_mirror = 0xfacef00d;
             if (*(volatile uint32_t *)m_buf_mirror != 0xfacef00d) {
                 fprintf(stderr, "cant facef00d m_buf_mirror!\n");
             }
-            fprintf(stderr, "m_buf        deadbeef: 0x%08x\n", *(volatile uint32_t *)m_buf);
-            fprintf(stderr, "m_buf_mirror facef00d: 0x%08x\n", *(volatile uint32_t *)m_buf_mirror);
+            fprintf(stderr, "m_buf        %p deadbeef: 0x%08x\n", (void *)m_buf,
+                    *(volatile uint32_t *)m_buf);
+            fprintf(stderr, "m_buf_mirror %p facef00d: 0x%08x\n", (void *)m_buf_mirror,
+                    *(volatile uint32_t *)m_buf_mirror);
 
 #endif
             break;
@@ -379,16 +386,20 @@ public:
     ~RingBufferBase() noexcept {
 #ifdef __APPLE__
         assert(!munmap(m_buf, buf_sz_phys * 2));
+        m_buf = nullptr;
+        m_buf_mirror = nullptr;
 #else
         assert(!munmap(m_buf, buf_sz_phys));
+        ASAN_POISON_MEMORY_REGION(m_buf, buf_sz_phys);
+        m_buf = nullptr;
         assert(!munmap(m_buf_mirror, buf_sz_phys));
+        ASAN_POISON_MEMORY_REGION(m_buf_mirror, buf_sz_phys);
+        m_buf_mirror = nullptr;
         const auto close_res = close(m_memfd);
         fprintf(stderr, "close res: %d errno: %d err: %s\n", close_res, errno, strerror(errno));
         // assert(!close(m_memfd));
         m_memfd = -1;
 #endif
-        m_buf = nullptr;
-        m_buf_mirror = nullptr;
     }
 
     // private:
