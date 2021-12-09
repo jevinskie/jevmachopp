@@ -40,6 +40,13 @@ static void RingBuffer_single_producer_multi_consumer(MultiConsRingBuffer<T, Num
             while (!(rb.is_done() && rb.empty())) {
                 const auto val = rb.pop();
                 if (val) {
+                    const auto prev = results[i].back();
+                    const auto cur = *val;
+                    if (cur <= prev) {
+                        fprintf(stderr,
+                                "ordering violation consumer thread %u idx: %zu prev: %u cur: %u diff: %u\n", i,
+                                results[i].size() + 1, prev, cur, prev - cur);
+                    }
                     results[i].emplace_back(*val);
                 }
             }

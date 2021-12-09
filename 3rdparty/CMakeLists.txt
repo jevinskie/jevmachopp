@@ -16,6 +16,8 @@ option(BUILD_TESTING "Build testing." OFF)
 option(ENABLE_BENCHMARKS "Enable benchmarks." OFF)
 add_subdirectory(nanorange)
 
+add_subdirectory(perf-macos)
+
 add_subdirectory(uleb128)
 
 option(BENCHMARK_ENABLE_TESTING "Enable google benchmark testing." OFF)

@@ -98,6 +98,7 @@ public:
             nonatomic_idx_pair_t idx_pair_raw = ((atomic_idx_pair_t *)&rd_idx_raw)->load();
             wr_raw = idx_pair_raw.second;
             auto rd_raw = idx_pair_raw.first;
+            assert(rd_raw <= wr_raw);
             auto rd_full_val = wr_raw - static_size_raw + 1;
             if (rd_raw == rd_full_val) {
                 // full, try again
@@ -163,6 +164,7 @@ public:
             const nonatomic_idx_pair_t idx_pair_raw = ((atomic_idx_pair_t *)&rd_idx_raw)->load();
             rd_raw = idx_pair_raw.first;
             const auto wr_raw = idx_pair_raw.second;
+            assert(rd_raw <= wr_raw);
             if (rd_raw == wr_raw) {
                 // empty condition
                 return {};
