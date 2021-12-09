@@ -13,15 +13,19 @@
 #include <cstdlib>
 #include <cstring>
 #include <future>
+#ifdef __APPLE__
 #include <mach/mach.h>
+#endif
 #include <optional>
 #include <sys/mman.h>
 #include <type_traits>
 #include <unistd.h>
 #include <utility>
 
-#ifdef __arm64__
+#if defined(__arm64__)
 constexpr std::size_t JEV_PAGE_SZ = 0x4000;
+#elif defined(__aarch64__) || defined(__x86_64__)
+constexpr std::size_t JEV_PAGE_SZ = 0x1000;
 #else
 #error "Unsupported arch (unknown page size)"
 #endif
@@ -286,7 +290,7 @@ public:
             // err nope thats linux
             // m_buf_mirror = mremap((void*)m_buf, buf_sz_phys, buf_sz_phys, PROT_READ | PROT_WRITE,
             // )
-
+#if defined(__APPLE__)
             vm_prot_t cur_prot;
             vm_prot_t max_prot;
             const auto vm_remap_res =
@@ -302,6 +306,14 @@ public:
                 m_buf = nullptr;
                 m_buf_mirror = nullptr;
             }
+#else
+            const auto vm_remap_res = mremap((void*)m_buf, buf_sz_phys, buf_sz_phys, PROT_READ | PROT_WRITE, MREMAP_FIXED, (void *)m_buf_mirror);
+            if (vm_remap_res != m_buf_mirror) {
+                assert(!munmap(m_buf, buf_sz_phys));
+                m_buf = nullptr;
+                m_buf_mirror = nullptr;
+            }
+#endif
             break;
         }
         assert(m_buf && m_buf_mirror);

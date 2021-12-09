@@ -16,7 +16,9 @@ option(BUILD_TESTING "Build testing." OFF)
 option(ENABLE_BENCHMARKS "Enable benchmarks." OFF)
 add_subdirectory(nanorange)
 
-add_subdirectory(perf-macos)
+if (APPLE)
+	add_subdirectory(perf-macos)
+endif()
 
 add_subdirectory(uleb128)
 

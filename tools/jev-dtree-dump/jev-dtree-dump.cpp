@@ -1,8 +1,8 @@
+#include <cxxopts.hpp>
+
 #include <jevmachopp/DeviceTree.h>
 #include <jevmachopp/Slurp.h>
 #include <jevmachopp/c/jevdtree.h>
-
-#include <cxxopts.hpp>
 
 int main(int argc, const char *argv[]) {
     cxxopts::Options options("jev-dtree-dump", "DeviceTree tool");

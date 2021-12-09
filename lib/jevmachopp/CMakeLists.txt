@@ -22,7 +22,6 @@ set(MACHOPP_SRC
     MachOHeaderEnums.cpp
     NList.cpp
     NVRAM.cpp
-    SearchFS.cpp
     Section.cpp
     SegmentCommand.cpp
     Slurp.cpp
@@ -32,6 +31,12 @@ set(MACHOPP_SRC
     UnknownCommand.cpp
     XNUBoot.cpp
 )
+
+if (APPLE)
+    list(APPEND MACHOPP_SRC
+        SearchFS.cpp
+    )
+endif()
 
 set(MACHOPP_HDR_STANDALONE
     Atomic.h
@@ -84,6 +89,15 @@ set_source_files_properties(SearchFS.cpp PROPERTIES COMPILE_FLAGS -fexceptions)
 target_include_directories(jevmachopp PUBLIC ../../include ../../3rdparty/static_string/include ../../3rdparty/static_vector/include ../../3rdparty/thread-pool ../../3rdparty/hedley ../../3rdparty/cpp17-semaphore ../../3rdparty/concurrent-resource)
 
 # target_compile_options(jevmachopp PRIVATE -Xclang -fdump-record-layouts)
+
+
+target_compile_definitions(jevmachopp PRIVATE FMT_USE_USER_DEFINED_LITERALS=1 FMT_USE_NONTYPE_TEMPLATE_PARAMETERS=1 FMT_USE_INT128=0 FMT_EXCEPTIONS=0 FMT_USE_FLOAT=0 FMT_USE_DOUBLE=0 FMT_USE_LONG_DOUBLE=0)
+target_compile_definitions(jevmachopp PUBLIC BOOST_STATIC_STRING_STANDALONE=1 BOOST_NO_EXCEPTIONS=1)
+
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    # Wpedantic __int128
+    target_compile_options(jevmachopp PUBLIC -Wno-unknown-pragmas)
+endif()
 
 
 add_library(jevplatformize STATIC Platformize.cpp ../../include/jevmachopp/Platformize.h)

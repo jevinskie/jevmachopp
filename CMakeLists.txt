@@ -15,9 +15,6 @@ if (${FORCE_COLORED_OUTPUT})
     endif ()
 endif ()
 
-add_compile_definitions(FMT_USE_USER_DEFINED_LITERALS=1 FMT_USE_NONTYPE_TEMPLATE_PARAMETERS=1 FMT_USE_INT128=0 FMT_EXCEPTIONS=0 FMT_USE_FLOAT=0 FMT_USE_DOUBLE=0 FMT_USE_LONG_DOUBLE=0)
-add_compile_definitions(BOOST_STATIC_STRING_STANDALONE=1 BOOST_NO_EXCEPTIONS=1)
-
 # add_compile_options(-Os -fvisibility=hidden -fvisibility-inlines-hidden -ffunction-sections -fdata-sections)
 # add_link_options(-Os -Wl,-dead_strip)
 
@@ -29,7 +26,9 @@ add_compile_definitions(BOOST_STATIC_STRING_STANDALONE=1 BOOST_NO_EXCEPTIONS=1)
 # add_compile_options(-fno-inline)
 # add_link_options(-fno-inline)
 
-add_compile_options(-ferror-limit=100)
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+   add_compile_options(-ferror-limit=100)
+endif()
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_EXTENSIONS YES)
