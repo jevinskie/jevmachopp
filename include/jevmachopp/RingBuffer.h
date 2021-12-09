@@ -273,7 +273,7 @@ public:
         : m_buf(nullptr), m_buf_mirror(nullptr), rd_idx_raw(0), wr_idx_raw(0), done(false)
 #ifndef __APPLE__
           ,
-          m_memfd(0)
+          m_memfd(-1)
 #endif
     {
         for (int try_num = 0; try_num < MMAP_MAX_TRIES; ++try_num) {
@@ -285,11 +285,6 @@ public:
                 continue;
             }
             m_buf_mirror = m_buf + static_size_raw;
-
-            make_volatile(m_buf[0]) = 0xdeadbeef;
-            if (make_volatile(m_buf[0]) != 0xdeadbeef) {
-                fprintf(stderr, "cant deadbeef m_buf!\n");
-            }
 
             if (const auto munmap_res = munmap((void *)m_buf_mirror, buf_sz_phys)) {
                 fprintf(stderr, "munmap_res: %d errno: %d err: %s\n", munmap_res, errno,
@@ -326,7 +321,11 @@ public:
             if (memfd_ftruncate_res) {
                 fprintf(stderr, "memfd_ftruncate res: %d errno: %d err: %s\n", memfd_ftruncate_res,
                         errno, strerror(errno));
-                assert(!close(m_memfd));
+                const auto close_res = close(m_memfd);
+                fprintf(stderr, "close res: %d errno: %d err: %s\n", close_res, errno,
+                        strerror(errno));
+                // assert(!close(m_memfd));
+                m_memfd = -1;
                 continue;
             }
 
@@ -334,12 +333,16 @@ public:
                               m_memfd, 0);
             if (!m_buf) {
                 fprintf(stderr, "mmap_res: %p errno: %d err: %s\n", m_buf, errno, strerror(errno));
-                assert(!close(m_memfd));
+                const auto close_res = close(m_memfd);
+                fprintf(stderr, "close res: %d errno: %d err: %s\n", close_res, errno,
+                        strerror(errno));
+                // assert(!close(m_memfd));
+                m_memfd = -1;
                 continue;
             }
             m_buf_mirror = m_buf + static_size_raw;
-            make_volatile(m_buf[0]) = 0xdeadbeef;
-            if (make_volatile(m_buf[0]) != 0xdeadbeef) {
+            *(volatile uint32_t *)m_buf = 0xdeadbeef;
+            if (*(volatile uint32_t *)m_buf != 0xdeadbeef) {
                 fprintf(stderr, "cant deadbeef m_buf!\n");
             }
 
@@ -352,12 +355,21 @@ public:
                 m_buf_mirror = nullptr;
                 assert(!munmap(m_buf, buf_sz_phys));
                 m_buf = nullptr;
-                fprintf(stderr, "close res: %d errno: %d err: %s\n", close(m_memfd), errno,
+                const auto close_res = close(m_memfd);
+                fprintf(stderr, "close res: %d errno: %d err: %s\n", close_res, errno,
                         strerror(errno));
                 // assert(!close(m_memfd));
+                m_memfd = -1;
                 continue;
             }
-            getchar();
+
+            *(volatile uint32_t *)m_buf_mirror = 0xfacef00d;
+            if (*(volatile uint32_t *)m_buf_mirror != 0xfacef00d) {
+                fprintf(stderr, "cant facef00d m_buf_mirror!\n");
+            }
+            fprintf(stderr, "m_buf        deadbeef: 0x%08x\n", *(volatile uint32_t *)m_buf);
+            fprintf(stderr, "m_buf_mirror facef00d: 0x%08x\n", *(volatile uint32_t *)m_buf_mirror);
+
 #endif
             break;
         }
@@ -370,10 +382,10 @@ public:
 #else
         assert(!munmap(m_buf, buf_sz_phys));
         assert(!munmap(m_buf_mirror, buf_sz_phys));
-        fprintf(stderr, "close res: %d errno: %d err: %s\n", close(m_memfd), errno,
-                strerror(errno));
+        const auto close_res = close(m_memfd);
+        fprintf(stderr, "close res: %d errno: %d err: %s\n", close_res, errno, strerror(errno));
         // assert(!close(m_memfd));
-        m_memfd = 0;
+        m_memfd = -1;
 #endif
         m_buf = nullptr;
         m_buf_mirror = nullptr;

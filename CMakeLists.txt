@@ -19,7 +19,9 @@ endif ()
 # add_link_options(-Os -Wl,-dead_strip)
 
 add_compile_options(-O0 -ggdb3)
-# 
+
+add_compile_options(-fsanitize=address)
+add_link_options(-fsanitize=address)
 
 # add_compile_options(-flto=full -fwhole-program-vtables -fvirtual-function-elimination)
 # add_link_options(-flto=full)
