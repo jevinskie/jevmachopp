@@ -33,7 +33,7 @@
 	url = git@git.je.vin:jevin/arch-arm64.git
 [submodule "3rdparty/uleb128"]
 	path = 3rdparty/uleb128
-	url = https://github.com/bolderflight/uleb128
+	url = git@github.com:jevinskie/uleb128.git
 [submodule "3rdparty/thread-pool"]
 	path = 3rdparty/thread-pool
 	url = https://github.com/bshoshany/thread-pool
