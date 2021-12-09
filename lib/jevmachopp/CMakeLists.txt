@@ -93,6 +93,8 @@ target_include_directories(jevmachopp PUBLIC ../../include ../../3rdparty/static
 
 target_compile_definitions(jevmachopp PRIVATE FMT_USE_USER_DEFINED_LITERALS=1 FMT_USE_NONTYPE_TEMPLATE_PARAMETERS=1 FMT_USE_INT128=0 FMT_EXCEPTIONS=0 FMT_USE_FLOAT=0 FMT_USE_DOUBLE=0 FMT_USE_LONG_DOUBLE=0)
 target_compile_definitions(jevmachopp PUBLIC BOOST_STATIC_STRING_STANDALONE=1 BOOST_NO_EXCEPTIONS=1)
+target_compile_definitions(jevmachopp PUBLIC NANORANGE_NO_STD_FORWARD_DECLARATIONS)
+
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     # Wpedantic __int128
