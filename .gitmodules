@@ -45,7 +45,7 @@
 	url = https://github.com/mustafakemalgilor/concurrent-resource
 [submodule "3rdparty/benchmark"]
 	path = 3rdparty/benchmark
-	url = https://github.com/google/benchmark
+	url = git@git.je.vin:jevin/benchmark.git
 [submodule "3rdparty/nanobench"]
 	path = 3rdparty/nanobench
 	url = https://github.com/martinus/nanobench
