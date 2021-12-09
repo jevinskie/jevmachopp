@@ -1,2 +1,2 @@
 add_subdirectory(ranges-test)
-add_subdirectory(unit)
+add_subdirectory(unit-catch2)

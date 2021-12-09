@@ -18,10 +18,13 @@ endif ()
 # add_compile_options(-Os -fvisibility=hidden -fvisibility-inlines-hidden -ffunction-sections -fdata-sections)
 # add_link_options(-Os -Wl,-dead_strip)
 
-add_compile_options(-O0 -ggdb3)
+add_compile_options(-O0 -ggdb3 -fno-omit-frame-pointer)
 
-add_compile_options(-fsanitize=address)
-add_link_options(-fsanitize=address)
+# add_compile_options(-fsanitize=address)
+# add_link_options(-fsanitize=address)
+
+add_compile_options(-fsanitize=memory)
+add_link_options(-fsanitize=memory)
 
 # add_compile_options(-flto=full -fwhole-program-vtables -fvirtual-function-elimination)
 # add_link_options(-flto=full)
@@ -35,7 +38,8 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" ST
    add_compile_options(-ferror-limit=100)
 endif()
 
-# add_compile_options($<$<COMPILE_LANG_AND_ID:CXX,Clang>:-stdlib=libc++>)
+add_compile_options($<$<COMPILE_LANG_AND_ID:CXX,Clang>:-stdlib=libc++>)
+add_link_options($<$<COMPILE_LANG_AND_ID:CXX,Clang>:-stdlib=libc++>)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_EXTENSIONS YES)
