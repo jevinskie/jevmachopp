@@ -71,7 +71,6 @@ public:
         std::size_t new_idx;
         pointer res_ptr;
 
-
         while (true) {
             const nonatomic_idx_pair_t idx_pair_raw = ((atomic_idx_pair_t *)&rd_idx_raw)->load();
             wr_raw = idx_pair_raw.second;
@@ -307,7 +306,9 @@ public:
                 m_buf_mirror = nullptr;
             }
 #else
-            const auto vm_remap_res = mremap((void*)m_buf, buf_sz_phys, buf_sz_phys, PROT_READ | PROT_WRITE, MREMAP_FIXED, (void *)m_buf_mirror);
+            const auto vm_remap_res =
+                mremap((void *)m_buf, buf_sz_phys, buf_sz_phys, PROT_READ | PROT_WRITE,
+                       MREMAP_FIXED, (void *)m_buf_mirror);
             if (vm_remap_res != m_buf_mirror) {
                 assert(!munmap(m_buf, buf_sz_phys));
                 m_buf = nullptr;

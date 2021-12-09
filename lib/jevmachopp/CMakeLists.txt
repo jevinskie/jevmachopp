@@ -101,6 +101,9 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     target_compile_options(jevmachopp PUBLIC -Wno-unknown-pragmas)
 endif()
 
+if (NOT APPLE)
+    target_link_libraries(jevmachopp PUBLIC atomic pthread)
+endif()
 
 add_library(jevplatformize STATIC Platformize.cpp ../../include/jevmachopp/Platformize.h)
 set_target_properties(jevplatformize PROPERTIES OSX_ARCHITECTURES arm64e)

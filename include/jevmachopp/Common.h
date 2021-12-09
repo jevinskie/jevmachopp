@@ -1,6 +1,7 @@
 #pragma once
 
 #include <atomic>
+#include <cinttypes>
 #include <cstdlib>
 #include <cstring>
 #include <limits>
@@ -294,6 +295,12 @@ struct fmt::formatter<boost::static_string<N>> : fmt::formatter<fmt::string_view
     }
 };
 #endif
+
+#pragma mark printf
+
+#define PI64 "%" PRId64
+#define PU64 "%" PRIu64
+#define PX64 "%" PRIx64
 
 #pragma mark Utilities
 

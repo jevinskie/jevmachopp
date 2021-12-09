@@ -1,7 +1,7 @@
     .arch armv8-a
     .text
 
-#if defined(__ELF__) && __ELF__
+#if defined(__ELF__) && __ELF__ && M1N1
     .global printf
     .align  2
     .type   printf, %function

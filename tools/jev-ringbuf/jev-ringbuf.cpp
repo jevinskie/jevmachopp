@@ -44,8 +44,9 @@ static void RingBuffer_single_producer_multi_consumer(MultiConsRingBuffer<T, Num
                     const auto cur = *val;
                     if (cur <= prev) {
                         fprintf(stderr,
-                                "ordering violation consumer thread %u idx: %zu prev: %u cur: %u diff: %u\n", i,
-                                results[i].size() + 1, prev, cur, prev - cur);
+                                "ordering violation consumer thread %u idx: %zu prev: %u cur: %u "
+                                "diff: %u\n",
+                                i, results[i].size() + 1, prev, cur, prev - cur);
                     }
                     results[i].emplace_back(*val);
                 }
@@ -167,14 +168,20 @@ static void BM_RingBuffer_simple() {
 }
 
 inline uint64_t arm_v8_get_timing(void) {
+#if __has_builtin(__builtin_arm_rsr64)
     return __builtin_arm_rsr64("CNTPCT_EL0");
+#else
+    uint64_t res;
+    asm volatile("mrs %0, CNTPCT_EL0" : "=r"(res));
+    return res;
+#endif
 }
 
 int main() {
     const auto start_cnt = arm_v8_get_timing();
-    printf("start count: %llu\n", start_cnt);
+    printf("start count: " PU64 "\n", start_cnt);
     BM_RingBuffer_simple();
     const auto end_cnt = arm_v8_get_timing();
-    printf("end count: %llu\n", end_cnt);
-    printf("num cyc: %llu\n", end_cnt - start_cnt);
+    printf("end count: " PU64 "\n", end_cnt);
+    printf("num cyc: " PU64 "\n", end_cnt - start_cnt);
 }

@@ -6,8 +6,7 @@
 
 using jev_cpu_subtype_t = std::int32_t;
 
-enum class CpuSubType : jev_cpu_subtype_t
-{
+enum class CpuSubType : jev_cpu_subtype_t {
     ANY = -1,
     VAX_ALL = 0,
     VAX780 = 1,
