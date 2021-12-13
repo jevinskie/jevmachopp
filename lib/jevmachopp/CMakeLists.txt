@@ -17,7 +17,6 @@ set(MACHOPP_SRC
     LoadCommand.cpp
     LoadSubCommand.cpp
     LinkeditDataCommand.cpp
-    m1n1.cpp
     MachO.cpp
     MachOHeaderEnums.cpp
     NList.cpp
@@ -31,6 +30,12 @@ set(MACHOPP_SRC
     UnknownCommand.cpp
     XNUBoot.cpp
 )
+
+if (M1N1)
+    list(APPEND MACHOPP_SRC
+        m1n1.cpp
+    )
+endif()
 
 if (APPLE)
     list(APPEND MACHOPP_SRC
@@ -72,9 +77,11 @@ foreach(SRC ${MACHOPP_SRC})
     list(APPEND MACHOPP_HDR ${HDR})
 endforeach()
 
-list(APPEND MACHOPP_SRC
-    m1n1_asm.S
-)
+if (M1N1)
+    list(APPEND MACHOPP_SRC
+        m1n1_asm.S
+    )
+endif()
 
 # MACHOPP_HDR added for Xcode project generation
 add_library(jevmachopp ${MACHOPP_SRC} ${MACHOPP_HDR})

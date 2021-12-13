@@ -178,10 +178,10 @@ inline uint64_t arm_v8_get_timing(void) {
 }
 
 int main() {
-    const auto start_cnt = arm_v8_get_timing();
-    printf("start count: " PU64 "\n", start_cnt);
+    // const auto start_cnt = arm_v8_get_timing();
+    // printf("start count: " PU64 "\n", start_cnt);
     BM_RingBuffer_simple();
-    const auto end_cnt = arm_v8_get_timing();
-    printf("end count: " PU64 "\n", end_cnt);
-    printf("num cyc: " PU64 "\n", end_cnt - start_cnt);
+    // const auto end_cnt = arm_v8_get_timing();
+    // printf("end count: " PU64 "\n", end_cnt);
+    // printf("num cyc: " PU64 "\n", end_cnt - start_cnt);
 }
