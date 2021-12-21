@@ -23,8 +23,8 @@ add_compile_options(-O0 -ggdb3 -fno-omit-frame-pointer)
 # add_compile_options(-fsanitize=address)
 # add_link_options(-fsanitize=address)
 
-add_compile_options(-fsanitize=memory)
-add_link_options(-fsanitize=memory)
+# add_compile_options(-fsanitize=memory)
+# add_link_options(-fsanitize=memory)
 
 # add_compile_options(-flto=full -fwhole-program-vtables -fvirtual-function-elimination)
 # add_link_options(-flto=full)

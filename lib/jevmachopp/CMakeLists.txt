@@ -31,7 +31,7 @@ set(MACHOPP_SRC
     XNUBoot.cpp
 )
 
-if (M1N1)
+if (M1N1 OR APPLE)
     list(APPEND MACHOPP_SRC
         m1n1.cpp
     )
@@ -77,7 +77,7 @@ foreach(SRC ${MACHOPP_SRC})
     list(APPEND MACHOPP_HDR ${HDR})
 endforeach()
 
-if (M1N1)
+if (M1N1 OR APPLE)
     list(APPEND MACHOPP_SRC
         m1n1_asm.S
     )
