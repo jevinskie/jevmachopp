@@ -1,0 +1,21 @@
+typedef uchar uint8_t;
+typedef uint16 uint16_t;
+typedef uint32 uint32_t;
+typedef struct {
+	uint8_t  sig;
+	uint8_t  cksum;
+	uint16_t len;
+	char     name[12];
+	/* uint8_t  data[len * 16]; */
+} chrp_nvram_header_t;
+typedef struct {
+	chrp_nvram_header_t chrp;
+	uint32_t adler;
+	uint32_t generation;
+	uint8_t  padding[8];
+} apple_nvram_header_t;
+apple_nvram_header_t apple_hdr;
+chrp_nvram_header_t common_hdr;
+uint8_t common_data[common_hdr.len * 0x10 - 0x10];
+chrp_nvram_header_t system_hdr;
+uint8_t system_data[system_hdr.len * 0x10 - 0x10];

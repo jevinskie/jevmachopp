@@ -1,0 +1,54 @@
+[submodule "3rdparty/fmt"]
+	path = 3rdparty/fmt
+	url = https://github.com/fmtlib/fmt
+[submodule "3rdparty/hedley"]
+	path = 3rdparty/hedley
+	url = https://github.com/nemequ/hedley
+[submodule "3rdparty/enum.hpp"]
+	path = 3rdparty/enum.hpp
+	url = https://github.com/BlackMATov/enum.hpp
+[submodule "3rdparty/visit"]
+	path = 3rdparty/visit
+	url = https://github.com/jevinskie/visit
+[submodule "3rdparty/nanorange"]
+	path = 3rdparty/nanorange
+	url = https://github.com/jevinskie/NanoRange
+[submodule "3rdparty/callable_traits"]
+	path = 3rdparty/callable_traits
+	url = https://github.com/boostorg/callable_traits
+[submodule "3rdparty/static_string"]
+	path = 3rdparty/static_string
+	url = https://github.com/jevinskie/static_string
+[submodule "3rdparty/static_vector"]
+	path = 3rdparty/static_vector
+	url = https://github.com/jevinskie/static_vector
+[submodule "3rdparty/cxxopts"]
+	path = 3rdparty/cxxopts
+	url = https://github.com/jarro2783/cxxopts
+[submodule "3rdparty/Catch2"]
+	path = 3rdparty/Catch2
+	url = https://github.com/catchorg/Catch2
+[submodule "3rdparty/arch-arm64"]
+	path = 3rdparty/arch-arm64
+	url = https://github.com/jevinskie/arch-arm64
+[submodule "3rdparty/uleb128"]
+	path = 3rdparty/uleb128
+	url = https://github.com/jevinskie/uleb128
+[submodule "3rdparty/thread-pool"]
+	path = 3rdparty/thread-pool
+	url = https://github.com/bshoshany/thread-pool
+[submodule "3rdparty/cpp17-semaphore"]
+	path = 3rdparty/cpp17-semaphore
+	url = https://github.com/graham-riches/cpp17-semaphore
+[submodule "3rdparty/concurrent-resource"]
+	path = 3rdparty/concurrent-resource
+	url = https://github.com/mustafakemalgilor/concurrent-resource
+[submodule "3rdparty/benchmark"]
+	path = 3rdparty/benchmark
+	url = https://github.com/jevinskie/benchmark
+[submodule "3rdparty/nanobench"]
+	path = 3rdparty/nanobench
+	url = https://github.com/martinus/nanobench
+[submodule "3rdparty/perf-macos"]
+	path = 3rdparty/perf-macos
+	url = https://github.com/jevinskie/perf-macos
