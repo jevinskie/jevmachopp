@@ -65,7 +65,7 @@ const SegmentCommand *MachO::linkeditSeg() const {
 
 segment_names_map_t MachO::segmentNamesMap() const {
     segment_names_map_t res = {};
-    uint8_t idx = 0;
+    uint8_t idx             = 0;
     for (const auto &seg : segments()) {
         for (uint32_t i = 0, e = seg.sect_size(); i < e; ++i) {
             res[idx++] = seg.name();
@@ -90,7 +90,7 @@ AddrRange MachO::file_range() const {
 
 section_names_map_t MachO::sectionNamesMap() const {
     section_names_map_t res = {};
-    uint8_t idx = 0;
+    uint8_t idx             = 0;
     for (const auto &seg : segments()) {
         for (const auto &sec : seg.sections()) {
             res[idx++] = sec.sectName();
@@ -140,7 +140,7 @@ const DySymtabCommand *MachO::dysymtab() const {
 }
 
 std::span<const NList> MachO::local_syms() const {
-    const auto *symtab_ptr = symtab();
+    const auto *symtab_ptr   = symtab();
     const auto *dysymtab_ptr = dysymtab();
     if (!symtab_ptr || !dysymtab_ptr) {
         return {};
@@ -159,7 +159,7 @@ std::size_t MachO::local_syms_size() const {
 }
 
 std::span<const NList> MachO::ext_def_syms() const {
-    const auto *symtab_ptr = symtab();
+    const auto *symtab_ptr   = symtab();
     const auto *dysymtab_ptr = dysymtab();
     if (!symtab_ptr || !dysymtab_ptr) {
         return {};
@@ -178,7 +178,7 @@ std::size_t MachO::ext_def_syms_size() const {
 }
 
 std::span<const NList> MachO::undef_syms() const {
-    const auto *symtab_ptr = symtab();
+    const auto *symtab_ptr   = symtab();
     const auto *dysymtab_ptr = dysymtab();
     if (!symtab_ptr || !dysymtab_ptr) {
         return {};
@@ -267,7 +267,7 @@ fmt::appender &MachO::format_to(fmt::appender &out) const {
 void dump_macho(const void *macho_header) {
     int idx;
     auto macho_ptr = (const MachO *)macho_header;
-    auto &macho = *macho_ptr;
+    auto &macho    = *macho_ptr;
 
     FMT_PRINT("macho: {}\n", (void *)&macho);
     printf("macho: %p\n", (const void *)&macho);

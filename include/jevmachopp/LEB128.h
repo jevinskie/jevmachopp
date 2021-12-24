@@ -17,11 +17,11 @@ requires requires() {
 class LEB128Iterator {
 public:
     using iterator_category = std::bidirectional_iterator_tag;
-    using difference_type = std::ptrdiff_t;
-    using value_type = Int;
-    using pointer = Int *;
-    using reference = Int &;
-    using const_reference = const Int &;
+    using difference_type   = std::ptrdiff_t;
+    using value_type        = Int;
+    using pointer           = Int *;
+    using reference         = Int &;
+    using const_reference   = const Int &;
 
     LEB128Iterator() : m_buf({}), m_nbytes(0) {}
     LEB128Iterator(std::span<const uint8_t> leb_buf) : m_buf(leb_buf), m_idx(0) {
@@ -77,7 +77,7 @@ public:
             return false;
         }
         const bool sameView = a.m_buf.data() == b.m_buf.data() && a.m_buf.size() == b.m_buf.size();
-        const bool sameIdx = a.m_idx == b.m_idx;
+        const bool sameIdx  = a.m_idx == b.m_idx;
         return sameView && sameIdx;
     };
     friend bool operator!=(const LEB128Iterator &a, const LEB128Iterator &b) {

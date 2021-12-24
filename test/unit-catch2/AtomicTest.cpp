@@ -34,7 +34,7 @@ TEST_CASE("load std::atomic<con_pair<uint64_t, uint64_t>>", "[atomic]") {
 TEST_CASE("load int 128", "[atomic]") {
     std::atomic<uint128_t> lol;
     lol.store((uint128_t)0xdeadbeef'00000000ull << 64 | 0xbaadc0de'00000000ull);
-    const auto res = lol.load(std::memory_order_relaxed);
+    const auto res   = lol.load(std::memory_order_relaxed);
     const auto &pair = *(con_pair<uint64_t, uint64_t> *)&res;
     REQUIRE(pair.first == 0xbaadc0de'00000000ull);
     REQUIRE(pair.second == 0xdeadbeef'00000000ull);

@@ -179,9 +179,9 @@ const DTProp *DTNode::lookupProperty(std::string_view propertyPath) const {
     if (ranges::distance(propPathHashSV) != 2) {
         return nullptr;
     }
-    auto hash_iter = propPathHashSV.begin();
-    const auto nodePath = *hash_iter++;
-    const auto propName = *hash_iter;
+    auto hash_iter       = propPathHashSV.begin();
+    const auto nodePath  = *hash_iter++;
+    const auto propName  = *hash_iter;
     const auto *node_ptr = DTNode::lookupNode(nodePath);
     if (!node_ptr) {
         return nullptr;
@@ -250,10 +250,10 @@ bool DT::processPatch(DTNode &rootNode, std::string_view patchSpec) {
     if (ranges::distance(patchSpecSV) != 2) {
         return false;
     }
-    auto equals_iter = patchSpecSV.begin();
-    const auto propPath = *equals_iter++;
+    auto equals_iter      = patchSpecSV.begin();
+    const auto propPath   = *equals_iter++;
     const auto propValStr = *equals_iter;
-    const auto *prop = rootNode.lookupProperty(propPath);
+    const auto *prop      = rootNode.lookupProperty(propPath);
     if (!prop) {
         return false;
     }
@@ -264,7 +264,7 @@ bool DT::processPatch(DTNode &rootNode, std::string_view patchSpec) {
                    sv2pf(propValStr).str);
             return false;
         }
-        const auto before = prop->as_u32();
+        const auto before          = prop->as_u32();
         (uint64_t &)prop->as_u32() = *propVal;
         printf("Patched %.*s from 0x%x to 0x%x\n", sv2pf(propPath).sz, sv2pf(propPath).str, before,
                *propVal);
@@ -276,7 +276,7 @@ bool DT::processPatch(DTNode &rootNode, std::string_view patchSpec) {
                    sv2pf(propValStr).str);
             return false;
         }
-        const auto before = prop->as_u64();
+        const auto before          = prop->as_u64();
         (uint64_t &)prop->as_u64() = *propVal;
         printf("Patched %.*s from %p to %p\n", sv2pf(propPath).sz, sv2pf(propPath).str,
                (void *)before, (void *)*propVal);
@@ -290,7 +290,7 @@ bool DT::processPatch(DTNode &rootNode, std::string_view patchSpec) {
 
 bool DT::processPatches(DTNode &rootNode, std::string_view patchesSpec) {
     const auto patchesSpecSV = stringSplitViewDelimitedBy(patchesSpec, ' ');
-    bool good = true;
+    bool good                = true;
     for (const auto &patchspec : patchesSpecSV) {
         good &= DT::processPatch(rootNode, patchspec);
     }
@@ -306,7 +306,7 @@ bool DT::processPatches(DTNode &rootNode) {
     if (!nvram_proxy_data_prop) {
         return false;
     }
-    const auto proxyData = NVRAM::extractProxyData(nvram_proxy_data_prop->data());
+    const auto proxyData           = NVRAM::extractProxyData(nvram_proxy_data_prop->data());
     const auto *patchesVarEqValStr = proxyData.common_part.varNamed("dt-patches");
     if (!patchesVarEqValStr) {
         printf("dt-patches nvram var not found, bailing out of patching DT\n");
@@ -324,7 +324,7 @@ void dump_dtree(const void *dtree_buf) {
     FMT_PRINT("dtree: {:p}\n", dtree_buf);
 
     auto dtree_root_node_ptr = (const DTNode *)dtree_buf;
-    auto &dtree_root_node = *dtree_root_node_ptr;
+    auto &dtree_root_node    = *dtree_root_node_ptr;
     // FMT_PRINT("dtree_root_node: {}\n", dtree_root_node);
 
     printf("DT root node # props: %u # children: %u\n", dtree_root_node.properties_size(),
@@ -356,7 +356,7 @@ void dump_dtree(const void *dtree_buf) {
         if (nvram_proxy_data_prop_ptr) {
             auto &nvram_proxy_data_prop = *nvram_proxy_data_prop_ptr;
             // FMT_PRINT("nvram-proxy-data prop: {}\n", nvram_proxy_data_prop);
-            const auto proxyData = NVRAM::extractProxyData(nvram_proxy_data_prop.data());
+            const auto proxyData            = NVRAM::extractProxyData(nvram_proxy_data_prop.data());
             const char *bootArgsVarEqValStr = proxyData.system_part.varNamed("boot-args");
             if (bootArgsVarEqValStr) {
                 const char *bootArgs = NVRAM::varValue(bootArgsVarEqValStr);

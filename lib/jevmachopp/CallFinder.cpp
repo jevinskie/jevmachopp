@@ -21,8 +21,8 @@ bool findCallsTo(const MachO &macho, const std::string_view symbol_name) {
 
     const SymtabCommand *symtab = macho.symtab();
     assert(symtab);
-    const auto dylib_name_map = macho.dylibNamesMap();
-    const auto seg_name_map = macho.segmentNamesMap();
+    const auto dylib_name_map  = macho.dylibNamesMap();
+    const auto seg_name_map    = macho.segmentNamesMap();
     const NList *symbol_nl_ptr = find_if_or_nullptr(macho.indirect_syms(), [&](const NList &nl) {
         return nl.name(macho, *symtab) == symbol_name && nl.segmentName(seg_name_map) == "__TEXT"sv;
     });
@@ -52,14 +52,14 @@ bool findCallsTo(const MachO &macho, const std::string_view symbol_name) {
     });
     assert(stub_sect);
 
-    const auto stubs_base = stub_sect->addr;
+    const auto stubs_base       = stub_sect->addr;
     const auto symbol_stub_addr = stubs_base + *symbol_indir_idx * BYTES_PER_STUB;
     printf("symbol_stub_addr: %p\n", (void *)symbol_stub_addr);
 
     printf("__TEXT filesize: %px\n", (void *)text_seg->filesize);
 
-    const auto &text_raw = text_seg->data(macho);
-    const auto &text_instr = span_cast<const uint32_t>(text_raw);
+    const auto &text_raw     = text_seg->data(macho);
+    const auto &text_instr   = span_cast<const uint32_t>(text_raw);
     const auto vm_file_delta = text_seg->vmaddr_fileoff_delta();
 
     const auto func_starts_cmd = macho.functionStartsCommand();

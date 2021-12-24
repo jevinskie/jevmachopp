@@ -10,10 +10,10 @@
 template <char Delimiter> class DelimitedCStrIterator {
 public:
     using iterator_category = std::forward_iterator_tag;
-    using difference_type = std::ptrdiff_t;
-    using value_type = std::string_view;
-    using pointer = std::string_view *;
-    using reference = std::string_view &;
+    using difference_type   = std::ptrdiff_t;
+    using value_type        = std::string_view;
+    using pointer           = std::string_view *;
+    using reference         = std::string_view &;
 
     DelimitedCStrIterator() : m_ptr(nullptr) {}
     DelimitedCStrIterator(const char *delimitedCStr) : m_ptr(delimitedCStr) {

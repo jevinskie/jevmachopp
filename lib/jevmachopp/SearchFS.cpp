@@ -71,17 +71,17 @@ bool process_file(thread_pool *pool, uint64_t fsid, uint64_t ino) {
 
 bool files_larger_than(const char *volume_path, std::size_t min_sz) {
     struct fssearchblock searchblk = {};
-    struct attrlist resattrlist = {};
-    struct searchstate state = {};
+    struct attrlist resattrlist    = {};
+    struct searchstate state       = {};
     // oid_attr_t res_buf[ITEMS_PER_SEARCH];
     uint8_t res_buf_raw[ITEMS_PER_SEARCH * sizeof(oid_attr_t) + 1];
-    oid_attr_t *res_buf = (oid_attr_t *)res_buf_raw;
-    unsigned long num_matches = 0;
-    uint32_t options = 0;
-    sz_attr_t search_attrs = {sizeof(sz_attr_t), min_sz};
+    oid_attr_t *res_buf        = (oid_attr_t *)res_buf_raw;
+    unsigned long num_matches  = 0;
+    uint32_t options           = 0;
+    sz_attr_t search_attrs     = {sizeof(sz_attr_t), min_sz};
     sz_attr_t search_attrs_max = {sizeof(sz_attr_t), UINT64_MAX};
-    struct statfs statfs_buf = {};
-    int res = -1;
+    struct statfs statfs_buf   = {};
+    int res                    = -1;
     thread_pool pool;
     uint64_t fsid_raw;
 
@@ -91,27 +91,27 @@ bool files_larger_than(const char *volume_path, std::size_t min_sz) {
     assert(!statfs_res);
     memcpy(&fsid_raw, &statfs_buf.f_fsid, sizeof(fsid_raw));
 
-    options = SRCHFS_START | SRCHFS_MATCHFILES;
+    options                           = SRCHFS_START | SRCHFS_MATCHFILES;
     searchblk.searchattrs.bitmapcount = ATTR_BIT_MAP_COUNT;
-    searchblk.searchattrs.fileattr = ATTR_FILE_DATALENGTH;
-    searchblk.searchparams1 = &search_attrs;
-    searchblk.sizeofsearchparams1 = sizeof(search_attrs);
-    searchblk.searchparams2 = &search_attrs_max;
-    searchblk.sizeofsearchparams2 = sizeof(search_attrs_max);
+    searchblk.searchattrs.fileattr    = ATTR_FILE_DATALENGTH;
+    searchblk.searchparams1           = &search_attrs;
+    searchblk.sizeofsearchparams1     = sizeof(search_attrs);
+    searchblk.searchparams2           = &search_attrs_max;
+    searchblk.sizeofsearchparams2     = sizeof(search_attrs_max);
 
     /* Ask for type, uid, gid and file bytes */
-    searchblk.returnattrs = &resattrlist;
+    searchblk.returnattrs   = &resattrlist;
     resattrlist.bitmapcount = ATTR_BIT_MAP_COUNT;
-    resattrlist.commonattr = ATTR_CMN_OBJID;
+    resattrlist.commonattr  = ATTR_CMN_OBJID;
 
     /* Collect 2,500 items at a time (~60K) */
-    searchblk.returnbuffer = res_buf;
+    searchblk.returnbuffer     = res_buf;
     searchblk.returnbuffersize = sizeof(res_buf_raw);
-    searchblk.maxmatches = ITEMS_PER_SEARCH;
+    searchblk.maxmatches       = ITEMS_PER_SEARCH;
 
     for (;;) {
         num_matches = 0;
-        res = searchfs(volume_path, &searchblk, &num_matches, 0x08000103, options, &state);
+        res         = searchfs(volume_path, &searchblk, &num_matches, 0x08000103, options, &state);
 
         if (res && !(errno != EAGAIN || errno != EBUSY)) {
             fprintf(stderr, "%d errno: %s\n", errno, strerror(errno));

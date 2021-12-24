@@ -102,7 +102,7 @@ public:
                    }
                });
     }
-    auto indirect_syms(const SymtabCommand *symtab_ptr = nullptr,
+    auto indirect_syms(const SymtabCommand *symtab_ptr     = nullptr,
                        const DySymtabCommand *dysymtab_ptr = nullptr) const {
         setIfNull(symtab_ptr, [this]() {
             return symtab();
@@ -123,7 +123,7 @@ public:
                                         });
     }
     std::size_t indirect_syms_size() const;
-    auto indirect_sym_names(const SymtabCommand *symtab_ptr = nullptr,
+    auto indirect_sym_names(const SymtabCommand *symtab_ptr     = nullptr,
                             const DySymtabCommand *dysymtab_ptr = nullptr) const {
         return indirect_syms(symtab_ptr, dysymtab_ptr) |
                ranges::views::transform([this, symtab_ptr](const NList &nl) {

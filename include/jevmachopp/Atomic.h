@@ -18,7 +18,7 @@ requires requires(T o) {
 }
 class std::atomic<T> : public atomic<uint128_t> {
 public:
-    using value_type = T;
+    using value_type      = T;
     using difference_type = value_type;
 
 public:
@@ -56,5 +56,5 @@ public:
 
 namespace std {
 using atomic_uint128_t = std::atomic<uint128_t>;
-using atomic_int128_t = std::atomic<int128_t>;
+using atomic_int128_t  = std::atomic<int128_t>;
 } // namespace std

@@ -27,12 +27,12 @@ int main(int argc, const char *argv[]) {
         return 1;
     }
 
-    size_t macho_sz = 0;
-    const auto *macho_buf = Slurp::readfile(args["macho"].as<std::string>().data(), &macho_sz,
-                                            false, (const void *)0x400000000);
-    const auto &macho = *(const MachO *)macho_buf;
+    size_t macho_sz         = 0;
+    const auto *macho_buf   = Slurp::readfile(args["macho"].as<std::string>().data(), &macho_sz,
+                                              false, (const void *)0x400000000);
+    const auto &macho       = *(const MachO *)macho_buf;
     const auto &symbol_name = args["symbol"].as<std::string>();
-    const auto find_res = CallFinder::findCallsTo(macho, symbol_name);
+    const auto find_res     = CallFinder::findCallsTo(macho, symbol_name);
     fmt::print("findCallsTo(\"{:s}\"): {}\n", symbol_name, find_res);
 
     return 0;

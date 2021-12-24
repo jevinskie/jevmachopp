@@ -23,14 +23,14 @@ void load_and_prep_xnu_kernelcache(const void *boot_args_base) {
     }
 
     const auto &bootArgs = *(const XNUBootArgs *)boot_args_base;
-    const auto virtBase = bootArgs.virtBase;
-    const auto physBase = bootArgs.physBase;
-    const auto virtOff = virtBase - physBase;
+    const auto virtBase  = bootArgs.virtBase;
+    const auto physBase  = bootArgs.physBase;
+    const auto virtOff   = virtBase - physBase;
     FMT_PRINT("bootArgs.commandLine: {:s} virtBase: {:p} physBase: {:p} virtOff: {:p}\n",
               bootArgs.commandLine, (void *)virtBase, (void *)physBase, (void *)virtOff);
 
     const auto *dt_phys_ptr = (const DTNode *)((uintptr_t)bootArgs.deviceTree - virtOff);
-    const auto &dt = *dt_phys_ptr;
+    const auto &dt          = *dt_phys_ptr;
 
     auto chosen_node_ptr = dt.childNamed("chosen");
     if (!chosen_node_ptr) {
@@ -64,7 +64,7 @@ void load_and_prep_xnu_kernelcache(const void *boot_args_base) {
         return;
     }
     auto &mach_header_prop = *mach_header_prop_ptr;
-    auto &mach_header_reg = mach_header_prop.as_reg();
+    auto &mach_header_reg  = mach_header_prop.as_reg();
     printf("mach_header_reg: addr: %p size: 0x%zx\n", mach_header_reg.base, mach_header_reg.size);
     const auto machoBase = (uintptr_t)mach_header_reg.base;
     printf("machoBase: %p\n", (const void *)machoBase);
@@ -76,8 +76,8 @@ void load_and_prep_xnu_kernelcache(const void *boot_args_base) {
         printf("couldn't find chosen/memory-map/Kernel-PYLD, bailing out of xnu load\n");
         return;
     }
-    auto &payload_prop = *payload_prop_ptr;
-    auto &payload_reg = payload_prop.as_reg();
+    auto &payload_prop      = *payload_prop_ptr;
+    auto &payload_reg       = payload_prop.as_reg();
     const auto payload_base = (uintptr_t)payload_reg.base;
     printf("payload_reg: addr: %p size: 0x%zx\n", payload_reg.base, payload_reg.size);
 
@@ -109,10 +109,10 @@ void load_and_prep_xnu_kernelcache(const void *boot_args_base) {
         printf("missing unix thread LC, bailing out of xnu load\n");
         return;
     }
-    const auto &unix_thread = *unix_thread_ptr;
+    const auto &unix_thread    = *unix_thread_ptr;
     const auto entry_pc_vmaddr = unix_thread.pc;
-    const auto entry_off = entry_pc_vmaddr - kc_vmaddr_range.min;
-    const auto entry_pc = machoBase + entry_off;
+    const auto entry_off       = entry_pc_vmaddr - kc_vmaddr_range.min;
+    const auto entry_pc        = machoBase + entry_off;
     printf("entry_pc: %p\n", (void *)entry_pc);
 
     auto sepfw_prop_ptr = memory_map_node.propertyNamed("SEPFW");
@@ -121,12 +121,12 @@ void load_and_prep_xnu_kernelcache(const void *boot_args_base) {
         return;
     }
     auto &sepfw_prop = *sepfw_prop_ptr;
-    auto &sepfw_reg = sepfw_prop.as_reg();
+    auto &sepfw_reg  = sepfw_prop.as_reg();
     printf("sepfw_reg: addr: %p size: 0x%zx\n", sepfw_reg.base, sepfw_reg.size);
 
-    const auto kc_end = payload_base + kc_vmaddr_range.size();
+    const auto kc_end          = payload_base + kc_vmaddr_range.size();
     const auto sepfw_copy_base = kc_end;
-    const auto sepfw_copy_end = sepfw_copy_base + sepfw_reg.size;
+    const auto sepfw_copy_end  = sepfw_copy_base + sepfw_reg.size;
     printf("sepfw_copy_base: %p\n", (void *)sepfw_copy_base);
     memcpy((char *)sepfw_copy_base, sepfw_reg.base, sepfw_reg.size);
 
@@ -136,16 +136,16 @@ void load_and_prep_xnu_kernelcache(const void *boot_args_base) {
         return;
     }
     auto &ba_prop = *ba_prop_ptr;
-    auto &ba_reg = ba_prop.as_reg();
+    auto &ba_reg  = ba_prop.as_reg();
     printf("ba_reg: addr: %p size: 0x%zx\n", ba_reg.base, ba_reg.size);
 
     const auto ba_copy_base = sepfw_copy_end;
-    const auto ba_copy_end = ba_copy_base + ba_reg.size;
+    const auto ba_copy_end  = ba_copy_base + ba_reg.size;
     printf("ba_copy_base: %p\n", (void *)ba_copy_base);
     memcpy((char *)ba_copy_base, ba_reg.base, ba_reg.size);
 
     const auto stub_copy_base = ba_copy_end;
-    const auto stub_size = (uintptr_t)&_xnu_jump_stub_end - (uintptr_t)xnu_jump_stub;
+    const auto stub_size      = (uintptr_t)&_xnu_jump_stub_end - (uintptr_t)xnu_jump_stub;
     memcpy((char *)stub_copy_base, (char *)xnu_jump_stub, stub_size);
     m1n1::flush_i_and_d_cache((void *)stub_copy_base, stub_size);
     printf("stub_copy_base: %p xnu_jump_stub: %p stub_size: %x\n", (void *)stub_copy_base,
@@ -164,7 +164,7 @@ void load_and_prep_xnu_kernelcache(const void *boot_args_base) {
         }
         FMT_PRINT("orig_kern_region[\"{:s}\"]: {}\n", orig_kern_region.name(),
                   orig_kern_region.as_reg());
-        auto &mod_kern_region = (DTProp &)orig_kern_region;
+        auto &mod_kern_region                               = (DTProp &)orig_kern_region;
         char new_name_buf[sizeof(mod_kern_region.name_buf)] = {};
         snprintf(new_name_buf, sizeof(new_name_buf), "MemoryMapReserved-%d", i);
         mod_kern_region.setName(new_name_buf);
@@ -175,11 +175,11 @@ void load_and_prep_xnu_kernelcache(const void *boot_args_base) {
     auto mmr_range = memory_map_node.propertiesNamedWithPrefix("MemoryMapReserved-");
     for (auto orig_kern_region = mmr_range.begin(); const auto &seg : kc.segments()) {
         printf("seg: name: %s\n", seg.name().data());
-        auto &mod_kern_region = (DTProp &)*orig_kern_region;
+        auto &mod_kern_region                               = (DTProp &)*orig_kern_region;
         char new_name_buf[sizeof(mod_kern_region.name_buf)] = {};
         snprintf(new_name_buf, sizeof(new_name_buf), "Kernel-%s", seg.name().data());
         mod_kern_region.setName(new_name_buf);
-        const auto seg_vm_range = seg.vmaddr_range();
+        const auto seg_vm_range   = seg.vmaddr_range();
         const auto seg_phys_range = seg_vm_range - virtOff;
         const auto seg_file_range = seg.file_range();
         assert(seg_vm_range.size() == seg_file_range.size());
@@ -195,7 +195,7 @@ void load_and_prep_xnu_kernelcache(const void *boot_args_base) {
     (DTRegister &)sepfw_reg = {(const void *)(sepfw_copy_base - payload_base + machoBase),
                                sepfw_reg.size};
     const auto ba_base_after_stub_copy = ba_copy_base - payload_base + machoBase;
-    (DTRegister &)ba_reg = {(const void *)ba_base_after_stub_copy, ba_reg.size};
+    (DTRegister &)ba_reg               = {(const void *)ba_base_after_stub_copy, ba_reg.size};
 
     for (const auto &mod_map_region : memory_map_node.properties_sized(sizeof(DTRegister))) {
         auto &r = mod_map_region.as_reg();
@@ -212,7 +212,7 @@ void load_and_prep_xnu_kernelcache(const void *boot_args_base) {
     }
 
     const auto cpuImplRegAddrs = DT::getCPUImplRegAddrs(dt);
-    const auto rvbar = entry_pc & ~0xfff;
+    const auto rvbar           = entry_pc & ~0xfff;
     for (std::size_t i = 1, e = cpuImplRegAddrs.size(); i < e; ++i) {
         printf("cpuImplRegAddr[%zu]: *%p = %p\n", i, (void *)cpuImplRegAddrs[i], (void *)rvbar);
 #if M1N1
@@ -232,12 +232,12 @@ void load_and_prep_xnu_kernelcache(const void *boot_args_base) {
            (void *)payload_base, (void *)machoBase, (void *)stub_size_to_copy, (void *)entry_pc);
     // stub_copy_fptr(ba_base_after_stub_copy, payload_base, machoBase, stub_size_to_copy,
     // entry_pc);
-    next_stage.entry = (decltype(next_stage.entry))stub_copy_fptr;
-    next_stage.args[0] = ba_base_after_stub_copy;
-    next_stage.args[1] = payload_base;
-    next_stage.args[2] = machoBase;
-    next_stage.args[3] = stub_size_to_copy;
-    next_stage.args[4] = entry_pc;
+    next_stage.entry        = (decltype(next_stage.entry))stub_copy_fptr;
+    next_stage.args[0]      = ba_base_after_stub_copy;
+    next_stage.args[1]      = payload_base;
+    next_stage.args[2]      = machoBase;
+    next_stage.args[3]      = stub_size_to_copy;
+    next_stage.args[4]      = entry_pc;
     next_stage.restore_logo = true;
     printf("returned from stub wtf\n");
 }

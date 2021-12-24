@@ -25,10 +25,10 @@ public:
     class Iterator {
     public:
         using iterator_category = std::forward_iterator_tag;
-        using difference_type = std::ptrdiff_t;
-        using value_type = const LoadCommand;
-        using pointer = const LoadCommand *;
-        using reference = const LoadCommand &;
+        using difference_type   = std::ptrdiff_t;
+        using value_type        = const LoadCommand;
+        using pointer           = const LoadCommand *;
+        using reference         = const LoadCommand &;
 
         Iterator() : m_ptr(nullptr) {}
         Iterator(pointer ptr) : m_ptr(ptr) {}

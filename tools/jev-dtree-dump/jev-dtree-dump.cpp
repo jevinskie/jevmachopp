@@ -27,7 +27,7 @@ int main(int argc, const char *argv[]) {
 
     uint8_t *dtbuf = Slurp::readfile(args["devicetree"].as<std::string>().data());
     const auto &dt = *(const DTNode *)dtbuf;
-    auto &dt_nc = (DTNode &)dt;
+    auto &dt_nc    = (DTNode &)dt;
     dump_dtree(dtbuf);
 
     printf("args.count(\"property\"): %zu\n", args.count("property"));

@@ -73,7 +73,7 @@ struct sv2pf {
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
-using int128_t = __int128;
+using int128_t  = __int128;
 using uint128_t = unsigned __int128;
 #pragma GCC diagnostic pop
 
@@ -82,15 +82,15 @@ using uint128_t = unsigned __int128;
 template <typename T> constexpr auto type_name() {
     std::string_view name, prefix, suffix;
 #ifdef __clang__
-    name = __PRETTY_FUNCTION__;
+    name   = __PRETTY_FUNCTION__;
     prefix = "auto type_name() [T = ";
     suffix = "]";
 #elif defined(__GNUC__)
-    name = __PRETTY_FUNCTION__;
+    name   = __PRETTY_FUNCTION__;
     prefix = "constexpr auto type_name() [with T = ";
     suffix = "]";
 #elif defined(_MSC_VER)
-    name = __FUNCSIG__;
+    name   = __FUNCSIG__;
     prefix = "auto __cdecl type_name<";
     suffix = ">(void)";
 #endif
@@ -160,21 +160,21 @@ template <typename E> constexpr auto to_underlying_int(E e) noexcept {
 template <typename T, bool is_enum = std::is_enum<T>::value> struct ArithmeticOrUnderlyingEnum;
 
 template <typename T> struct ArithmeticOrUnderlyingEnum<T, true> {
-    using type = typename std::underlying_type<T>::type;
+    using type              = typename std::underlying_type<T>::type;
     static const bool value = std::is_arithmetic<type>::value;
 };
 
 template <typename T> struct ArithmeticOrUnderlyingEnum<T, false> {
-    using type = T;
+    using type              = T;
     static const bool value = std::is_arithmetic<type>::value;
 };
 
 template <typename T> struct UnderlyingType {
-    using type = typename ArithmeticOrUnderlyingEnum<T>::type;
+    using type                   = typename ArithmeticOrUnderlyingEnum<T>::type;
     static const bool is_numeric = std::is_arithmetic<type>::value;
     static const bool is_checked = false;
     static const bool is_clamped = false;
-    static const bool is_strict = false;
+    static const bool is_strict  = false;
 };
 
 // https://chromium.googlesource.com/chromium/src/+/refs/heads/main/base/numerics/safe_conversions_impl.h
@@ -193,7 +193,7 @@ template <typename> struct remove_member_pointer;
 
 template <typename U, typename F> struct remove_member_pointer<U F::*> {
     using member_type = U;
-    using class_type = F;
+    using class_type  = F;
 };
 
 #pragma mark Spans
@@ -374,8 +374,8 @@ constexpr I gcd(I a, I b) {
     }
     while (b != 0) {
         tmpb = b;
-        b = a % b;
-        a = tmpb;
+        b    = a % b;
+        a    = tmpb;
     }
     return a;
 }

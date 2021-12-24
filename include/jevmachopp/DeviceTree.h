@@ -46,10 +46,10 @@ public:
     class Iterator {
     public:
         using iterator_category = std::forward_iterator_tag;
-        using difference_type = std::ptrdiff_t;
-        using value_type = const DTProp;
-        using pointer = const DTProp *;
-        using reference = const DTProp &;
+        using difference_type   = std::ptrdiff_t;
+        using value_type        = const DTProp;
+        using pointer           = const DTProp *;
+        using reference         = const DTProp &;
 
         Iterator() : m_ptr(nullptr), m_sz(0) {}
         Iterator(pointer ptr, std::uint32_t sz) : m_ptr(ptr), m_sz(sz) {
@@ -94,7 +94,7 @@ public:
     };
 
 public:
-    using prop_range = subrange<DTProp::Iterator>;
+    using prop_range                                         = subrange<DTProp::Iterator>;
     static constexpr std::uint32_t PROP_SIZE_REPLACEMENT_TAG = 0x80000000u;
 
 public:
@@ -146,10 +146,10 @@ class DTNode {
     class Iterator {
     public:
         using iterator_category = std::forward_iterator_tag;
-        using difference_type = std::ptrdiff_t;
-        using value_type = const DTNode;
-        using pointer = const DTNode *;
-        using reference = const DTNode &;
+        using difference_type   = std::ptrdiff_t;
+        using value_type        = const DTNode;
+        using pointer           = const DTNode *;
+        using reference         = const DTNode &;
 
         Iterator() : m_ptr(nullptr), m_sz(0) {}
         Iterator(pointer ptr, std::uint32_t sz) : m_ptr(ptr), m_sz(sz) {

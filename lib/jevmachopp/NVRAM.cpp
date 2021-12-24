@@ -145,7 +145,7 @@ const char *varValue(const char *varEqValStr) {
     if (!varEqValStr) {
         return nullptr;
     }
-    const auto len = std::strlen(varEqValStr);
+    const auto len         = std::strlen(varEqValStr);
     const char *eq_chr_ptr = (const char *)std::memchr(varEqValStr, '=', len);
     if (!eq_chr_ptr) {
         return nullptr;
@@ -154,10 +154,10 @@ const char *varValue(const char *varEqValStr) {
 }
 
 NVRAMProxyData extractProxyData(const void *nvram_proxy_data_buf) {
-    const auto apple_hdr_ptr = (const AppleNVRAMHeader *)nvram_proxy_data_buf;
-    const auto &apple_hdr = *apple_hdr_ptr;
+    const auto apple_hdr_ptr   = (const AppleNVRAMHeader *)nvram_proxy_data_buf;
+    const auto &apple_hdr      = *apple_hdr_ptr;
     const auto common_part_ptr = (const NVRAMPartition *)(apple_hdr_ptr + 1);
-    const auto &common_part = *common_part_ptr;
+    const auto &common_part    = *common_part_ptr;
     const auto system_part_ptr =
         (const NVRAMPartition *)((uintptr_t)common_part_ptr + common_part.size_bytes());
     const auto &system_part = *system_part_ptr;
@@ -172,7 +172,7 @@ uint32_t decodedDataLen(const std::span<const uint8_t> &escaped) {
     bool ok;
 
     // Calculate the actual length of the data.
-    ok = true;
+    ok          = true;
     totalLength = 0;
     for (offset = 0; offset < escaped.size_bytes();) {
         byte = escaped[offset++];
@@ -203,16 +203,16 @@ uint32_t unescapeBytesToData(const std::span<const uint8_t> &escaped,
     uint32_t offset, offset2;
     uint8_t byte;
     const auto length = decoded.size_bytes();
-    uint32_t outOff = 0;
+    uint32_t outOff   = 0;
 
     if (totalLength) {
         assert(totalLength <= length);
         for (offset = 0; offset < length;) {
             byte = escaped[offset++];
             if (byte == 0xFF) {
-                byte = escaped[offset++];
+                byte    = escaped[offset++];
                 offset2 = byte & 0x7F;
-                byte = (byte & 0x80) ? 0xFF : 0x00;
+                byte    = (byte & 0x80) ? 0xFF : 0x00;
             } else {
                 offset2 = 1;
             }
@@ -238,16 +238,16 @@ uint32_t escapeDataToData(const std::span<const uint8_t> &decoded, std::span<uin
     uint8_t byte;
 
     wherePtr = (const uint8_t *)decoded.data();
-    endPtr = wherePtr + decoded.size_bytes();
+    endPtr   = wherePtr + decoded.size_bytes();
 
     while (wherePtr < endPtr) {
         startPtr = wherePtr;
-        byte = *wherePtr++;
+        byte     = *wherePtr++;
         if ((byte == 0x00) || (byte == 0xFF)) {
             for (; ((wherePtr - startPtr) < 0x7F) && (wherePtr < endPtr) && (byte == *wherePtr);
                  wherePtr++) {}
             encoded[outOff++] = 0xff;
-            byte = (byte & 0x80) | ((uint8_t)(wherePtr - startPtr));
+            byte              = (byte & 0x80) | ((uint8_t)(wherePtr - startPtr));
         }
         encoded[outOff++] = byte;
     }

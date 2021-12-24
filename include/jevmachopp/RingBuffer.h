@@ -37,23 +37,23 @@ requires requires() {
 }
 class RingBufferBase {
 public:
-    static constexpr auto MMAP_MAX_TRIES = 16;
-    static constexpr auto min_buf_sz_raw = sizeof(T[MinNum]);
-    static constexpr auto min_buf_sz = lcm(min_buf_sz_raw, (std::size_t)2);
-    static constexpr auto buf_sz_phys = roundup_pow2_mul(min_buf_sz, JEV_PAGE_SZ);
+    static constexpr auto MMAP_MAX_TRIES  = 16;
+    static constexpr auto min_buf_sz_raw  = sizeof(T[MinNum]);
+    static constexpr auto min_buf_sz      = lcm(min_buf_sz_raw, (std::size_t)2);
+    static constexpr auto buf_sz_phys     = roundup_pow2_mul(min_buf_sz, JEV_PAGE_SZ);
     static constexpr auto static_size_raw = buf_sz_phys / sizeof(T);
-    static constexpr auto static_size = static_size_raw - 1;
+    static constexpr auto static_size     = static_size_raw - 1;
     static_assert_cond(is_pow2(static_size_raw));
-    static constexpr auto idx_mask = static_size_raw * 2 - 1;
+    static constexpr auto idx_mask       = static_size_raw * 2 - 1;
     static constexpr bool is_atomic_pair = MultiProd || MultiCons;
 
-    using nonatomic_idx_t = std::size_t;
+    using nonatomic_idx_t      = std::size_t;
     using nonatomic_idx_pair_t = con_pair<nonatomic_idx_t, nonatomic_idx_t>;
-    using atomic_idx_t = std::atomic<nonatomic_idx_t>;
-    using atomic_idx_pair_t = std::atomic<nonatomic_idx_pair_t>;
-    using value_type = T;
-    using pointer = T *;
-    using reference = T &;
+    using atomic_idx_t         = std::atomic<nonatomic_idx_t>;
+    using atomic_idx_pair_t    = std::atomic<nonatomic_idx_pair_t>;
+    using value_type           = T;
+    using pointer              = T *;
+    using reference            = T &;
 
     using rd_idx_t = typename std::conditional<MultiCons, atomic_idx_t, nonatomic_idx_t>::type;
     using wr_idx_t = typename std::conditional<MultiProd, atomic_idx_t, nonatomic_idx_t>::type;
@@ -74,18 +74,18 @@ public:
 
         while (true) {
             const nonatomic_idx_pair_t idx_pair_raw = ((atomic_idx_pair_t *)&rd_idx_raw)->load();
-            wr_raw = idx_pair_raw.second;
-            const auto rd_raw = idx_pair_raw.first;
-            const auto rd_full_val = wr_raw - static_size_raw + 1;
+            wr_raw                                  = idx_pair_raw.second;
+            const auto rd_raw                       = idx_pair_raw.first;
+            const auto rd_full_val                  = wr_raw - static_size_raw + 1;
             if (rd_raw == rd_full_val) {
                 // full, try again
                 continue;
             }
-            new_idx = wr_raw & idx_mask;
-            auto new_ptr = &m_buf[new_idx];
-            res_ptr = new (new_ptr) value_type{std::forward<Args>(args)...};
+            new_idx        = wr_raw & idx_mask;
+            auto new_ptr   = &m_buf[new_idx];
+            res_ptr        = new (new_ptr) value_type{std::forward<Args>(args)...};
             const auto res = *res_ptr;
-            wr_idx_raw = wr_raw + 1;
+            wr_idx_raw     = wr_raw + 1;
             return res;
         }
     }
@@ -100,18 +100,18 @@ public:
         do {
         get_pair:
             nonatomic_idx_pair_t idx_pair_raw = ((atomic_idx_pair_t *)&rd_idx_raw)->load();
-            wr_raw = idx_pair_raw.second;
-            auto rd_raw = idx_pair_raw.first;
+            wr_raw                            = idx_pair_raw.second;
+            auto rd_raw                       = idx_pair_raw.first;
             assert(rd_raw <= wr_raw);
             auto rd_full_val = wr_raw - static_size_raw + 1;
             if (rd_raw == rd_full_val) {
                 // full, try again
                 goto get_pair;
             }
-            new_idx = wr_raw & idx_mask;
+            new_idx      = wr_raw & idx_mask;
             auto new_ptr = &m_buf[new_idx];
-            res_ptr = new (new_ptr) value_type{std::forward<Args>(args)...};
-            new_wr_raw = wr_raw + 1;
+            res_ptr      = new (new_ptr) value_type{std::forward<Args>(args)...};
+            new_wr_raw   = wr_raw + 1;
         } while (!wr_idx_raw.compare_exchange_strong(wr_raw, new_wr_raw));
 
         return *res_ptr;
@@ -166,15 +166,15 @@ public:
 
         do {
             const nonatomic_idx_pair_t idx_pair_raw = ((atomic_idx_pair_t *)&rd_idx_raw)->load();
-            rd_raw = idx_pair_raw.first;
-            const auto wr_raw = idx_pair_raw.second;
+            rd_raw                                  = idx_pair_raw.first;
+            const auto wr_raw                       = idx_pair_raw.second;
             assert(rd_raw <= wr_raw);
             if (rd_raw == wr_raw) {
                 // empty condition
                 return {};
             }
-            idx = rd_raw & idx_mask;
-            res = m_buf[idx];
+            idx        = rd_raw & idx_mask;
+            res        = m_buf[idx];
             new_rd_raw = rd_raw + 1;
         } while (!rd_idx_raw.compare_exchange_strong(rd_raw, new_rd_raw));
 
@@ -234,7 +234,7 @@ public:
 
     constexpr bool full() const noexcept requires(!is_atomic_pair) {
         // read write pointer first since nobody else will be changing it
-        const std::size_t wr = wr_idx_raw;
+        const std::size_t wr   = wr_idx_raw;
         const auto rd_full_val = wr - static_size_raw + 1;
         // load read pointer that others may be updating last
         const std::size_t rd = rd_idx_raw;
@@ -244,8 +244,8 @@ public:
 
     constexpr bool full() const noexcept requires(is_atomic_pair) {
         const nonatomic_idx_pair_t idx_pair_raw = ((atomic_idx_pair_t *)&rd_idx_raw)->load();
-        const std::size_t rd = idx_pair_raw.first;
-        const std::size_t wr = idx_pair_raw.second;
+        const std::size_t rd                    = idx_pair_raw.first;
+        const std::size_t wr                    = idx_pair_raw.second;
         assert(rd <= wr);
         const auto rd_full_val = wr - static_size_raw + 1;
         return rd == rd_full_val;
@@ -291,7 +291,7 @@ public:
                 fprintf(stderr, "munmap_res: %d errno: %d err: %s\n", munmap_res, errno,
                         strerror(errno));
                 assert(!munmap(m_buf, buf_sz_phys * 2));
-                m_buf = nullptr;
+                m_buf        = nullptr;
                 m_buf_mirror = nullptr;
                 continue;
             }
@@ -308,7 +308,7 @@ public:
 
             if (vm_remap_res != KERN_SUCCESS) {
                 assert(!munmap(m_buf, buf_sz_phys));
-                m_buf = nullptr;
+                m_buf        = nullptr;
                 m_buf_mirror = nullptr;
             }
 #else
@@ -344,7 +344,7 @@ public:
                 continue;
             }
             ASAN_UNPOISON_MEMORY_REGION(m_buf, buf_sz_phys);
-            m_buf_mirror = m_buf + static_size_raw;
+            m_buf_mirror                = m_buf + static_size_raw;
             *(volatile uint32_t *)m_buf = 0xdeadbeef;
             if (*(volatile uint32_t *)m_buf != 0xdeadbeef) {
                 fprintf(stderr, "cant deadbeef m_buf!\n");
@@ -359,7 +359,7 @@ public:
                 m_buf_mirror = nullptr;
                 assert(!munmap(m_buf, buf_sz_phys));
                 ASAN_POISON_MEMORY_REGION(m_buf, buf_sz_phys);
-                m_buf = nullptr;
+                m_buf                = nullptr;
                 const auto close_res = close(m_memfd);
                 fprintf(stderr, "close res: %d errno: %d err: %s\n", close_res, errno,
                         strerror(errno));
@@ -388,7 +388,7 @@ public:
     ~RingBufferBase() noexcept {
 #ifdef __APPLE__
         assert(!munmap(m_buf, buf_sz_phys * 2));
-        m_buf = nullptr;
+        m_buf        = nullptr;
         m_buf_mirror = nullptr;
 #else
         assert(!munmap(m_buf, buf_sz_phys));
@@ -396,7 +396,7 @@ public:
         m_buf = nullptr;
         assert(!munmap(m_buf_mirror, buf_sz_phys));
         ASAN_POISON_MEMORY_REGION(m_buf_mirror, buf_sz_phys);
-        m_buf_mirror = nullptr;
+        m_buf_mirror         = nullptr;
         const auto close_res = close(m_memfd);
         fprintf(stderr, "close res: %d errno: %d err: %s\n", close_res, errno, strerror(errno));
         // assert(!close(m_memfd));

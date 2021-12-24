@@ -2,20 +2,20 @@
 
 namespace ARM64Disasm {
 
-constexpr uint32_t bl_opc_mask = 0xfc000000;
+constexpr uint32_t bl_opc_mask  = 0xfc000000;
 constexpr uint32_t bl_opc_match = 0x94000000;
 
 bool isBL(const inst_raw_t inst) {
     return (inst & bl_opc_mask) == bl_opc_match;
 }
 
-constexpr uint32_t mov_wide_imm_opc_mask = 0x1f800000;
+constexpr uint32_t mov_wide_imm_opc_mask  = 0x1f800000;
 constexpr uint32_t mov_wide_imm_opc_match = 0x12800000;
 constexpr uint32_t mov_wide_imm_is64_mask = 0x80000000;
-constexpr uint32_t mov_wide_imm_reg_mask = 0x0000001f;
-constexpr uint32_t mov_wide_imm_hw_mask = 0x3;
-constexpr uint32_t mov_wide_imm_hw_shift = 21;
-constexpr uint32_t mov_wide_imm_imm_mask = 0xffff;
+constexpr uint32_t mov_wide_imm_reg_mask  = 0x0000001f;
+constexpr uint32_t mov_wide_imm_hw_mask   = 0x3;
+constexpr uint32_t mov_wide_imm_hw_shift  = 21;
+constexpr uint32_t mov_wide_imm_imm_mask  = 0xffff;
 constexpr uint32_t mov_wide_imm_imm_shift = 5;
 
 bool isMovWideImm(const inst_raw_t inst) {
@@ -41,11 +41,11 @@ std::optional<MovImmInfo> decodeMovWideImm(const inst_raw_t inst) {
     if (!isMovWideImm(inst)) {
         return {};
     }
-    const bool is64 = inst & mov_wide_imm_is64_mask;
-    const uint8_t reg = decodeMovWideImm_reg(inst);
-    const uint8_t hw = (inst >> mov_wide_imm_hw_shift) & mov_wide_imm_hw_mask;
+    const bool is64        = inst & mov_wide_imm_is64_mask;
+    const uint8_t reg      = decodeMovWideImm_reg(inst);
+    const uint8_t hw       = (inst >> mov_wide_imm_hw_shift) & mov_wide_imm_hw_mask;
     const uint16_t raw_imm = (inst >> mov_wide_imm_imm_shift) & mov_wide_imm_imm_mask;
-    const uint64_t imm = raw_imm << (16 * hw);
+    const uint64_t imm     = raw_imm << (16 * hw);
     return MovImmInfo{imm, reg, is64};
 }
 

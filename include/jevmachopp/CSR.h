@@ -31,7 +31,7 @@ inline std::experimental::fixed_capacity_vector<std::string_view, sizeofbits(CSR
 to_strings(CSRConfig const &val) {
     decltype(to_strings(val)) res;
     constexpr auto dummy = decltype(val){};
-    constexpr auto sz = CSRConfig_traits::size;
+    constexpr auto sz    = CSRConfig_traits::size;
     constexpr auto bitsz = sizeofbits(dummy);
     static_assert(sz <= bitsz);
 

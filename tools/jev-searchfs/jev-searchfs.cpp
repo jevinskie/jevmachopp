@@ -38,11 +38,11 @@ __attribute__((noinline)) static std::string volume_arg(const cxxopts::ParseResu
 // __attribute__((used, visibility("default"))) extern "C" int real_main(int argc,
 //                                                                       const char *argv[]) {
 int main(int argc, const char **argv) {
-    const auto args = parse_opts(argc, argv);
+    const auto args        = parse_opts(argc, argv);
     const auto volume_path = volume_arg(args);
     // const auto volume_path = std::string{"/"};
     const char *volume_path_cstr = volume_path.data();
-    const auto search_res = SearchFS::files_larger_than(volume_path_cstr, min_macho_sz);
+    const auto search_res        = SearchFS::files_larger_than(volume_path_cstr, min_macho_sz);
     printf("SearchFS::files_larger_than(\"%s\", %zu) = %s\n", volume_path_cstr, min_macho_sz,
            YESNOCStr(search_res));
 

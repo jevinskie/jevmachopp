@@ -20,7 +20,7 @@ extern "C" int puts(const char *s) {
 namespace m1n1 {
 
 constexpr auto MMU_I_CLINE = 6;               // I-cache line size as 1<<MMU_I_CLINE (64)
-constexpr auto MMU_CLINE = 6;                 // D-cache line size as 1<<MMU_CLINE (64)
+constexpr auto MMU_CLINE   = 6;               // D-cache line size as 1<<MMU_CLINE (64)
 static_assert_cond(MMU_CLINE == MMU_I_CLINE); // lazy, won't handle other cases
 
 void flush_i_and_d_cache(const void *addr, ssize_t size) {

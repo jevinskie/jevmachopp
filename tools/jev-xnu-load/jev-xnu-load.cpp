@@ -67,17 +67,17 @@ int main(int argc, const char *argv[]) {
         Slurp::readfile(args["sepfw"].as<std::string>().data(), &sepfw_bin_sz, false, nullptr);
     memcpy((char *)sepfw_base, sepfw_bin, sepfw_bin_sz);
 
-    size_t bootargs_bin_sz = 0;
+    size_t bootargs_bin_sz   = 0;
     const auto *bootargs_bin = Slurp::readfile(args["boot-args"].as<std::string>().data(),
                                                &bootargs_bin_sz, false, nullptr);
     memcpy((char *)ba_base, bootargs_bin, bootargs_bin_sz);
 
-    size_t devicetree_bin_sz = 0;
+    size_t devicetree_bin_sz   = 0;
     const auto *devicetree_bin = Slurp::readfile(args["devicetree"].as<std::string>().data(),
                                                  &devicetree_bin_sz, false, nullptr);
     memcpy((char *)dt_base, devicetree_bin, devicetree_bin_sz);
 
-    size_t trustcache_bin_sz = 0;
+    size_t trustcache_bin_sz   = 0;
     const auto *trustcache_bin = Slurp::readfile(args["trustcache"].as<std::string>().data(),
                                                  &trustcache_bin_sz, false, nullptr);
     memcpy((char *)tc_base, trustcache_bin, trustcache_bin_sz);

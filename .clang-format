@@ -10,3 +10,4 @@ AllowShortEnumsOnASingleLine: false
 AllowShortIfStatementsOnASingleLine: Never
 AllowShortLambdasOnASingleLine: Empty
 AllowShortLoopsOnASingleLine: false
+AlignConsecutiveAssignments: Consecutive

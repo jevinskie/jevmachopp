@@ -7,10 +7,10 @@
 template <bool EmptyStringTerminated = false> class PackedCStrIteratorBase {
 public:
     using iterator_category = std::forward_iterator_tag;
-    using difference_type = std::ptrdiff_t;
-    using value_type = const char *;
-    using pointer = const char **;
-    using reference = const char *&;
+    using difference_type   = std::ptrdiff_t;
+    using value_type        = const char *;
+    using pointer           = const char **;
+    using reference         = const char *&;
 
     PackedCStrIteratorBase() : m_ptr(nullptr) {}
     PackedCStrIteratorBase(const char *packedCStr) : m_ptr(packedCStr) {}

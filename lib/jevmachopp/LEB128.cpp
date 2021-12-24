@@ -12,7 +12,7 @@ std::size_t DecodeUleb128Backwards(std::span<const uint8_t> prev_data, uint64_t 
         *val = prev_data[0];
         return 1;
     }
-    const uint8_t *buf_start = &prev_data.front();
+    const uint8_t *buf_start     = &prev_data.front();
     const uint8_t *enc_val_start = &prev_data.back();
     for (; enc_val_start >= buf_start + 1; --enc_val_start) {
         if (!(enc_val_start[-1] & 0x80)) {

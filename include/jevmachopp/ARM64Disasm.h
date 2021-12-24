@@ -11,7 +11,7 @@ struct MovImmInfo {
 };
 
 using inst_raw_t = uint32_t;
-using bl_off = int32_t;
+using bl_off     = int32_t;
 
 bool isBL(const inst_raw_t inst);
 bool isMovWideImm(const inst_raw_t inst);

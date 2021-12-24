@@ -135,7 +135,7 @@ TEST_CASE("triangular numbers", "[ringbuffer]") {
     const auto NUM_PUSH =
         (std::size_t)(GENERATE(NUM_ELEM * 0.3, NUM_ELEM, NUM_ELEM * 1.6, NUM_ELEM * 16.3));
     const auto EXPECTED_SUM = (std::size_t)((NUM_PUSH * (NUM_PUSH + 1)) / 2);
-    const auto nthread = std::thread::hardware_concurrency();
+    const auto nthread      = std::thread::hardware_concurrency();
 
     REQUIRE(nthread >= 3);
 
@@ -172,7 +172,7 @@ TEST_CASE("triangular numbers", "[ringbuffer]") {
     }
 
     std::size_t sz_sum = 0;
-    std::size_t sum = 0;
+    std::size_t sum    = 0;
     for (auto i = 0u; i < nthread - 1; ++i) {
         std::size_t res_sum = 0;
         for (const auto n : results[i]) {

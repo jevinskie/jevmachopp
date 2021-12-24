@@ -16,7 +16,7 @@ private:
 
     /* the iterator type */
     struct iterator_type : iterator_t<V> {
-        using base = iterator_t<V>;
+        using base      = iterator_t<V>;
         using reference = Val;
         Val psum;
 
@@ -54,21 +54,21 @@ private:
 
 public:
     /* member type definitions */
-    using reference = Val;
+    using reference       = Val;
     using const_reference = Val;
-    using value_type = Val;
+    using value_type      = Val;
 
-    using iterator = iterator_type;
+    using iterator       = iterator_type;
     using const_iterator = iterator_type;
 
     /* constructors and deconstructors */
     // TODO: why needed if defaulted? need2l2cpp
-    psum_view() = default;
+    psum_view()                               = default;
     constexpr psum_view(psum_view const &rhs) = default;
-    constexpr psum_view(psum_view &&rhs) = default;
+    constexpr psum_view(psum_view &&rhs)      = default;
     constexpr psum_view &operator=(psum_view const &rhs) = default;
     constexpr psum_view &operator=(psum_view &&rhs) = default;
-    ~psum_view() = default;
+    ~psum_view()                                    = default;
 
     psum_view(V &&uview, Val init = 0)
         : uview{std::forward<V>(uview)}, init{std::forward<Val>(init)} {}
