@@ -1,6 +1,8 @@
 # Boost
 add_subdirectory(callable_traits)
 
+add_subdirectory(apfs-fuse-embedded)
+
 add_subdirectory(arch-arm64/disassembler)
 
 set(BENCHMARK_ENABLE_TESTING false)

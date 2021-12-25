@@ -52,3 +52,6 @@
 [submodule "3rdparty/perf-macos"]
 	path = 3rdparty/perf-macos
 	url = git@git.je.vin:jevin/perf-macos.git
+[submodule "3rdparty/apfs-fuse-embedded"]
+	path = 3rdparty/apfs-fuse-embedded
+	url = git@git.je.vin:jevin/apfs-fuse.git
