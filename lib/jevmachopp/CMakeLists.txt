@@ -17,6 +17,7 @@ set(MACHOPP_SRC
     LoadCommand.cpp
     LoadSubCommand.cpp
     LinkeditDataCommand.cpp
+    m1n1.cpp
     MachO.cpp
     MachOHeaderEnums.cpp
     NList.cpp
@@ -30,12 +31,6 @@ set(MACHOPP_SRC
     UnknownCommand.cpp
     XNUBoot.cpp
 )
-
-if (M1N1 OR APPLE)
-    list(APPEND MACHOPP_SRC
-        m1n1.cpp
-    )
-endif()
 
 if (APPLE)
     list(APPEND MACHOPP_SRC
@@ -77,7 +72,7 @@ foreach(SRC ${MACHOPP_SRC})
     list(APPEND MACHOPP_HDR ${HDR})
 endforeach()
 
-if (M1N1 OR APPLE)
+if (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "aarch64")
     list(APPEND MACHOPP_SRC
         m1n1_asm.S
     )
