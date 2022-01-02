@@ -91,5 +91,8 @@ int main(int argc, const char **argv) {
 
     auto dev = Device::OpenDevice("nvme:0");
 
+    GptPartitionMap gpt;
+    assert(gpt.LoadAndVerify(*dev));
+
     return 0;
 }
