@@ -70,7 +70,7 @@ struct blk_desc *blk_get_by_device(struct udevice *dev) {
 
 unsigned long fake_block_read(struct blk_desc *block_dev, lbaint_t start, lbaint_t blkcnt,
                               void *buffer) {
-    if (start * block_dev->blksz + blkcnt * block_dev->blksz > block_dev->__nbytes) {
+    if (start + blkcnt > block_dev->lba) {
         return -1;
     }
     memcpy(buffer, block_dev->__buf + (start * block_dev->blksz), blkcnt * block_dev->blksz);
@@ -89,7 +89,8 @@ int main(int argc, const char **argv) {
     std::size_t disk_buf_len      = 0;
     fake_m1_nvme_blk_desc.__buf = Slurp::readfile(disk_img_path_cstr, &disk_buf_len, false /* rw */,
                                                   (const void *)0x400000000ull);
-    fake_m1_nvme_blk_desc.__nbytes = disk_buf_len;
+    assert(disk_buf_len % fake_m1_nvme_blk_desc.blksz == 0);
+    fake_m1_nvme_blk_desc.lba = disk_buf_len / fake_m1_nvme_blk_desc.blksz;
 
     return 0;
 }
