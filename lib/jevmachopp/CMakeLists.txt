@@ -72,7 +72,7 @@ foreach(SRC ${MACHOPP_SRC})
     list(APPEND MACHOPP_HDR ${HDR})
 endforeach()
 
-if (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "aarch64")
+if (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "aarch64" OR ${CMAKE_SYSTEM_PROCESSOR} STREQUAL "arm64")
     list(APPEND MACHOPP_SRC
         m1n1_asm.S
     )

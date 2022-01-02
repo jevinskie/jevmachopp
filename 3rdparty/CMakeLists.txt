@@ -14,8 +14,8 @@ add_subdirectory(enum.hpp)
 add_subdirectory(fmt)
 add_subdirectory(nanobench)
 
-option(BUILD_TESTING "Build testing." OFF)
-option(ENABLE_BENCHMARKS "Enable benchmarks." OFF)
+set(BUILD_TESTING OFF)
+set(ENABLE_BENCHMARKS OFF)
 add_subdirectory(nanorange)
 
 if (APPLE)

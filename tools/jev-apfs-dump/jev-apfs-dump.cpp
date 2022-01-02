@@ -1,6 +1,7 @@
 #include <cassert>
 #include <cstdint>
 #include <cstdio>
+#include <cstdlib>
 
 #include <jevmachopp/Slurp.h>
 
@@ -10,6 +11,30 @@
 #include <ApfsLib/BlockDumper.h>
 #include <ApfsLib/ApfsDir.h>
 #include <ApfsLib/GptPartitionMap.h>
+
+
+extern "C" {
+
+#include <linux/compiler_attributes.h>
+#include <blk.h>
+#include <dm/device.h>
+
+struct udevice fake_m1_nvme = {
+    .name = "nvme:0",
+};
+
+int blk_get_device(int if_type, int devnum, struct udevice **devp) {
+    return 0;
+}
+
+struct blk_desc *blk_get_by_device(struct udevice *dev) {
+    return nullptr;
+}
+
+
+} // extern "C"
+
+
 
 int main(int argc, const char **argv) {
     if (argc != 4) {
