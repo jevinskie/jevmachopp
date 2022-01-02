@@ -3,9 +3,11 @@
 #include <cstdio>
 #include <cstdlib>
 
+#include <jevmachopp/Common.h>
 #include <jevmachopp/Slurp.h>
 
 #include <ApfsLib/Device.h>
+#include <ApfsLib/DeviceUBoot.h>
 #include <ApfsLib/ApfsContainer.h>
 #include <ApfsLib/ApfsVolume.h>
 #include <ApfsLib/BlockDumper.h>
@@ -15,15 +17,21 @@
 
 extern "C" {
 
-#include <linux/compiler_attributes.h>
-#include <blk.h>
-#include <dm/device.h>
+struct udevice {
+    const char *name;
+};
 
 struct udevice fake_m1_nvme = {
     .name = "nvme:0",
 };
 
 int blk_get_device(int if_type, int devnum, struct udevice **devp) {
+    if (if_type != to_underlying_int(if_type::IF_TYPE_NVME)) {
+        return -ENODEV;
+    }
+    if (devp) {
+        *devp = &fake_m1_nvme;
+    }
     return 0;
 }
 
