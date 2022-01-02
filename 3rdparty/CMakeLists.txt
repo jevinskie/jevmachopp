@@ -1,6 +1,7 @@
 # Boost
 add_subdirectory(callable_traits)
 
+set(HAS_UBOOT_STUBS ON)
 add_subdirectory(apfs-fuse-embedded)
 
 add_subdirectory(arch-arm64/disassembler)

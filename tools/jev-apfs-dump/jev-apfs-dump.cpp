@@ -19,10 +19,6 @@ unsigned long fake_block_read(struct blk_desc *block_dev, lbaint_t start, lbaint
 
 extern "C" {
 
-struct udevice {
-    const char *name;
-};
-
 struct udevice fake_m1_nvme = {
     .name = "nvme:0",
 };
@@ -40,7 +36,8 @@ struct blk_desc fake_m1_nvme_blk_desc = {
 
 int blk_get_device(int if_type, int devnum, struct udevice **devp) {
     if (if_type != to_underlying_int(if_type::IF_TYPE_NVME) &&
-        if_type != to_underlying_int(if_type::IF_TYPE_HOST)) {
+        if_type != to_underlying_int(if_type::IF_TYPE_HOST) &&
+        devnum != 0) {
         return -ENODEV;
     }
     if (devp) {
@@ -91,6 +88,8 @@ int main(int argc, const char **argv) {
                                                   (const void *)0x400000000ull);
     assert(disk_buf_len % fake_m1_nvme_blk_desc.blksz == 0);
     fake_m1_nvme_blk_desc.lba = disk_buf_len / fake_m1_nvme_blk_desc.blksz;
+
+    auto dev = Device::OpenDevice("nvme:0");
 
     return 0;
 }
