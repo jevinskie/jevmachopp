@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
+#include <filesystem>
 
 #include <jevmachopp/Common.h>
 #include <jevmachopp/Slurp.h>
@@ -103,16 +104,29 @@ int main(int argc, const char **argv) {
 
     const auto nvol = container->GetVolumeCnt();
     fprintf(stderr, "# volumes in container: %u\n", nvol);
+
+    ApfsVolume *preboot_vol = nullptr;
     for (unsigned int volidx = 0; volidx < nvol; ++volidx) {
         apfs_superblock_t sb;
         assert(container->GetVolumeInfo(volidx, sb));
         fprintf(stderr, "role: 0x%04hx\n", sb.apfs_role);
         if (sb.apfs_role == APFS_VOL_ROLE_PREBOOT) {
-            auto preboot_vol = container->GetVolume(volidx);
-            fprintf(stderr, "preboot name: %s\n", preboot_vol->name());
+            preboot_vol = container->GetVolume(volidx);
             break;
         }
     }
+    assert(preboot_vol);
+    fprintf(stderr, "preboot name: %s\n", preboot_vol->name());
+
+    std::filesystem::path kc_path{"D8961206-5EAC-4D35-94A3-5412F17E6B3B/boot/CBE5168B59E7B0104701733E3A617B82BC6F895B88CACFCE327725CB5532929C19244CFCEF709E3D0F8337A4866F608C/System/Library/Caches/com.apple.kernelcaches/kernel cache"};
+
+    for (const auto &path_part : kc_path) {
+        fmt::print("path_part: {:s}\n", path_part.c_str());
+    }
+
+    ApfsDir dir(*preboot_vol);
+    ApfsDir::DirRec res;
+    assert(dir.LookupName(res, ROOT_DIR_INO_NUM, "D8961206-5EAC-4D35-94A3-5412F17E6B3B"));
 
     return 0;
 }
