@@ -36,8 +36,7 @@ struct blk_desc fake_m1_nvme_blk_desc = {
 
 int blk_get_device(int if_type, int devnum, struct udevice **devp) {
     if (if_type != to_underlying_int(if_type::IF_TYPE_NVME) &&
-        if_type != to_underlying_int(if_type::IF_TYPE_HOST) &&
-        devnum != 0) {
+        if_type != to_underlying_int(if_type::IF_TYPE_HOST) && devnum != 0) {
         return -ENODEV;
     }
     if (devp) {
@@ -93,6 +92,27 @@ int main(int argc, const char **argv) {
 
     GptPartitionMap gpt;
     assert(gpt.LoadAndVerify(*dev));
+    gpt.ListEntries();
+
+    const auto partition_id = gpt.FindFirstAPFSPartition();
+    uint64_t main_offset    = 0;
+    uint64_t main_size      = 0;
+    gpt.GetPartitionOffsetAndSize(partition_id, main_offset, main_size);
+    auto container = new ApfsContainer(dev, main_offset, main_size, nullptr, 0, 0);
+    assert(container->Init(0, false));
+
+    const auto nvol = container->GetVolumeCnt();
+    fprintf(stderr, "# volumes in container: %u\n", nvol);
+    for (unsigned int volidx = 0; volidx < nvol; ++volidx) {
+        apfs_superblock_t sb;
+        assert(container->GetVolumeInfo(volidx, sb));
+        fprintf(stderr, "role: 0x%04hx\n", sb.apfs_role);
+        if (sb.apfs_role == APFS_VOL_ROLE_PREBOOT) {
+            auto preboot_vol = container->GetVolume(volidx);
+            fprintf(stderr, "preboot name: %s\n", preboot_vol->name());
+            break;
+        }
+    }
 
     return 0;
 }
