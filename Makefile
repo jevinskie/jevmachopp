@@ -1,4 +1,4 @@
-TARGETS := build/jevmachopp/libjevmachopp.a
+TARGETS := build/jevmachopp/libjevmachopp.a build/jevmachopp/apfs/libapfs.a
 
 ROOT_DIR := $(patsubst %/,%,$(dir $(lastword $(MAKEFILE_LIST))))
 
@@ -19,6 +19,11 @@ LIBJEVMACHOPP_OBJS := $(filter-out SearchFS.o,$(LIBJEVMACHOPP_OBJS))
 LIBJEVMACHOPP_OBJS := $(filter-out PlatformizeHelper.o,$(LIBJEVMACHOPP_OBJS))
 LIBJEVMACHOPP_OBJS := $(addprefix build/jevmachopp/,$(LIBJEVMACHOPP_OBJS))
 
+LIBAPFSCXX_SRCS := $(wildcard $(ROOT_DIR)/3rdparty/apfs-fuse-embedded/ApfsLib/*.cpp)
+LIBAPFSCXX_OBJS := $(notdir $(LIBAPFSCXX_SRCS:.cpp=.o))
+LIBAPFSCXX_OBJS := $(filter-out DeviceVDI.o,$(LIBAPFSCXX_OBJS))
+LIBAPFSCXX_OBJS := $(addprefix build/jevmachopp/apfs/,$(LIBAPFSCXX_OBJS))
+
 JEV_AR ?= aarch64-none-elf-gcc-ar
 JEV_CC ?= aarch64-none-elf-gcc
 JEV_CXX ?= aarch64-none-elf-g++
@@ -30,6 +35,9 @@ FMT_DEFINE_FLAGS += -DUSE_FMT=0
 NANO_DEFINE_FLAGS += -DNANORANGE_NO_STD_FORWARD_DECLARATIONS
 DEFINE_FLAGS := -DM1N1=1 $(BOOST_DEFINE_FLAGS) $(FMT_DEFINE_FLAGS) $(NANO_DEFINE_FLAGS)
 INCLUDE_FLAGS := -I $(ROOT_DIR)/include -I $(ROOT_DIR)/3rdparty/fmt/include -I $(ROOT_DIR)/3rdparty/hedley -I $(ROOT_DIR)/3rdparty/callable_traits/include -I $(ROOT_DIR)/3rdparty/static_string/include -I $(ROOT_DIR)/3rdparty/static_vector/include -I $(ROOT_DIR)/3rdparty/enum.hpp/headers -I $(ROOT_DIR)/3rdparty/nanorange/include -I $(ROOT_DIR)/3rdparty/uleb128/include -I $(ROOT_DIR)/3rdparty/visit/include
+
+DEFINE_FLAGS += -DKZ_EXCEPTIONS=0
+INCLUDE_FLAGS += -I $(ROOT_DIR)/3rdparty/apfs-fuse-embedded/3rdparty/expected/src
 
 # C_CXX_FLAGS := -Os
 C_CXX_FLAGS := $(C_CXX_FLAGS) -fno-rtti -fno-exceptions -fno-unwind-tables -fno-asynchronous-unwind-tables
@@ -71,5 +79,13 @@ build/jevmachopp/%.o: $(ROOT_DIR)/lib/jevmachopp/%.S
 	$(JEV_CXX) $(JEV_CXXFLAGS) -c -o $@ $^
 
 build/jevmachopp/libjevmachopp.a: $(LIBJEVMACHOPP_OBJS)
+	@mkdir -p "$(dir $@)"
+	$(JEV_AR) rc $@ $^
+
+build/jevmachopp/apfs/%.o: $(ROOT_DIR)/3rdparty/apfs-fuse-embedded/ApfsLib/%.cpp
+	@mkdir -p "$(dir $@)"
+	$(JEV_CXX) $(JEV_CXXFLAGS) -D__LITTLE_ENDIAN__ -c -o $@ $^
+
+build/jevmachopp/apfs/libapfs.a: $(LIBAPFSCXX_OBJS)
 	@mkdir -p "$(dir $@)"
 	$(JEV_AR) rc $@ $^
