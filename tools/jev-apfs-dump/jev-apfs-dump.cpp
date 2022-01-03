@@ -2,10 +2,11 @@
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
-#include <filesystem>
 
 #include <jevmachopp/Common.h>
 #include <jevmachopp/Slurp.h>
+
+#include <nanorange/views/drop.hpp>
 
 #include <ApfsLib/ApfsContainer.h>
 #include <ApfsLib/ApfsDir.h>
@@ -74,8 +75,13 @@ unsigned long fake_block_read(struct blk_desc *block_dev, lbaint_t start, lbaint
     return blkcnt;
 }
 
-ApfsDir::DirRec *childDirNamed(ApfsDir *apfsDir, ApfsDir::DirRec *parentDir, std::string_view childDirName) {
-    return nullptr;
+std::unique_ptr<ApfsDir::DirRec> childDirNamed(ApfsDir *apfsDir, ApfsDir::DirRec *parentDir, std::string_view childDirName) {
+    assert(parentDir);
+    auto res = std::make_unique<ApfsDir::DirRec>();
+    if (!apfsDir->LookupName(*res, parentDir->file_id, std::string{childDirName}.c_str())) {
+        return nullptr;
+    }
+    return res;
 }
 
 std::unique_ptr<ApfsDir::DirRec> lookupDir(ApfsDir *apfsDir, std::string_view dirPath) {
@@ -84,7 +90,8 @@ std::unique_ptr<ApfsDir::DirRec> lookupDir(ApfsDir *apfsDir, std::string_view di
     }
     std::unique_ptr<ApfsDir::DirRec> res = std::make_unique<ApfsDir::DirRec>();
     assert(apfsDir->LookupName(*res, ROOT_DIR_PARENT, "root"));
-    for (const auto childName : stringSplitViewDelimitedBy(dirPath, '/')) {
+    for (const auto childName : stringSplitViewDelimitedBy(dirPath, '/') | views::drop(1)) {
+        fmt::print("looking up childName: \"{:s}\"\n", childName);
         res = std::unique_ptr<ApfsDir::DirRec>{childDirNamed(apfsDir, res.get(), childName)};
         if (!res) {
             return nullptr;
