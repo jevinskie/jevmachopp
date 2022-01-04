@@ -1,4 +1,8 @@
-TARGETS := build/jevmachopp/libjevmachopp.a build/jevmachopp/apfs/libapfs.a build/jevmachopp/apfs/miniz/libminiz.a
+TARGETS := \
+	build/jevmachopp/libjevmachopp.a \
+	build/jevmachopp/apfs/libapfs.a \
+	build/jevmachopp/apfs/miniz/libminiz.a \
+	build/jevmachopp/apfs/lzfse/liblzfse.a
 
 ROOT_DIR := $(patsubst %/,%,$(dir $(lastword $(MAKEFILE_LIST))))
 
@@ -28,6 +32,12 @@ LIBMINIZC_SRCS := $(wildcard $(ROOT_DIR)/3rdparty/apfs-fuse-embedded/3rdparty/mi
 LIBMINIZC_OBJS := $(notdir $(LIBMINIZC_SRCS:.c=.o))
 LIBMINIZC_OBJS := $(addprefix build/jevmachopp/apfs/miniz/,$(LIBMINIZC_OBJS))
 
+LIBLZFSEC_SRCS := $(wildcard $(ROOT_DIR)/3rdparty/apfs-fuse-embedded/3rdparty/lzfse/src/*.c)
+LIBLZFSEC_OBJS := $(notdir $(LIBLZFSEC_SRCS:.c=.o))
+LIBLZFSEC_OBJS := $(filter-out lzfse_main.o,$(LIBLZFSEC_OBJS))
+LIBLZFSEC_OBJS := $(addprefix build/jevmachopp/apfs/lzfse/,$(LIBLZFSEC_OBJS))
+
+
 JEV_AR ?= aarch64-none-elf-gcc-ar
 JEV_CC ?= aarch64-none-elf-gcc
 JEV_CXX ?= aarch64-none-elf-g++
@@ -41,10 +51,14 @@ DEFINE_FLAGS := -DM1N1=1 $(BOOST_DEFINE_FLAGS) $(FMT_DEFINE_FLAGS) $(NANO_DEFINE
 INCLUDE_FLAGS := -I $(ROOT_DIR)/include -I $(ROOT_DIR)/3rdparty/fmt/include -I $(ROOT_DIR)/3rdparty/hedley -I $(ROOT_DIR)/3rdparty/callable_traits/include -I $(ROOT_DIR)/3rdparty/static_string/include -I $(ROOT_DIR)/3rdparty/static_vector/include -I $(ROOT_DIR)/3rdparty/enum.hpp/headers -I $(ROOT_DIR)/3rdparty/nanorange/include -I $(ROOT_DIR)/3rdparty/uleb128/include -I $(ROOT_DIR)/3rdparty/visit/include
 
 DEFINE_FLAGS += -DKZ_EXCEPTIONS=0
-INCLUDE_FLAGS += -I $(ROOT_DIR)/3rdparty/apfs-fuse-embedded/3rdparty/expected/src
+INCLUDE_FLAGS += \
+	-I $(ROOT_DIR)/3rdparty/apfs-fuse-embedded/3rdparty/expected/src \
+ 	-I $(ROOT_DIR)/3rdparty/apfs-fuse-embedded/3rdparty/miniz \
+ 	-I build/jevmachopp/apfs/miniz \
+ 	-I $(ROOT_DIR)/3rdparty/apfs-fuse-embedded/3rdparty/lzfse/src
 
 # C_CXX_FLAGS := -Os
-C_CXX_FLAGS := $(C_CXX_FLAGS) -fno-rtti -fno-exceptions -fno-unwind-tables -fno-asynchronous-unwind-tables
+C_CXX_FLAGS := $(C_CXX_FLAGS) -fno-exceptions -fno-unwind-tables -fno-asynchronous-unwind-tables
 C_CXX_FLAGS += -Wno-unknown-pragmas
 # C_CXX_FLAGS += $(C_CXX_FLAGS) -flto -fuse-linker-plugin -ffat-lto-objects
 JEV_CFLAGS := $(CFLAGS)
@@ -52,15 +66,16 @@ JEV_CFLAGS := $(filter-out -ffreestanding,$(JEV_CFLAGS))
 JEV_CFLAGS := $(filter-out -nostdinc,$(JEV_CFLAGS))
 JEV_CFLAGS := $(filter-out -isystem $(shell $(CC) -print-file-name=include),$(JEV_CFLAGS))
 JEV_CFLAGS := $(filter-out -isystem sysinc,$(JEV_CFLAGS))
+JEV_CFLAGS := $(filter-out -Werror=strict-prototypes,$(JEV_CFLAGS))
 JEV_CFLAGS := $(JEV_CFLAGS) $(C_CXX_FLAGS) -std=gnu11 $(DEFINE_FLAGS) $(INCLUDE_FLAGS)
-JEV_CXXFLAGS := $(JEV_CFLAGS) $(CXXFLAGS) $(C_CXX_FLAGS) -std=gnu++2b $(DEFINE_FLAGS) $(INCLUDE_FLAGS)
+JEV_CXXFLAGS := $(JEV_CFLAGS) $(CXXFLAGS) $(C_CXX_FLAGS) -std=gnu++2b -fno-rtti $(DEFINE_FLAGS) $(INCLUDE_FLAGS)
 JEV_CXXFLAGS := $(filter-out -Werror=strict-prototypes,$(JEV_CXXFLAGS))
 JEV_CXXFLAGS := $(filter-out -Werror=implicit-function-declaration,$(JEV_CXXFLAGS))
 JEV_CXXFLAGS := $(filter-out -Werror=implicit-int,$(JEV_CXXFLAGS))
 JEV_CXXFLAGS := $(filter-out -std=gnu11,$(JEV_CXXFLAGS))
 JEV_CXXFLAGS += -fconcepts-diagnostics-depth=6
 
-JEV_MINIZ_CFLAGS := $(JEV_CFLAGS) -DMINIZ_NO_TIME -I build/jevmachopp/apfs/miniz
+JEV_MINIZ_CFLAGS := $(JEV_CFLAGS) -DMINIZ_NO_TIME
 
 # make print-LIBJEVMACHOPP_OBJS
 print-%:
@@ -107,3 +122,12 @@ build/jevmachopp/apfs/miniz/%.o: $(ROOT_DIR)/3rdparty/apfs-fuse-embedded/3rdpart
 build/jevmachopp/apfs/miniz/libminiz.a: $(LIBMINIZC_OBJS)
 	@mkdir -p "$(dir $@)"
 	$(JEV_AR) rc $@ $^
+
+build/jevmachopp/apfs/lzfse/%.o: $(ROOT_DIR)/3rdparty/apfs-fuse-embedded/3rdparty/lzfse/src/%.c
+	@mkdir -p "$(dir $@)"
+	$(JEV_CC) $(JEV_CFLAGS) -c -o $@ $<
+
+build/jevmachopp/apfs/lzfse/liblzfse.a: $(LIBLZFSEC_OBJS)
+	@mkdir -p "$(dir $@)"
+	$(JEV_AR) rc $@ $^
+
