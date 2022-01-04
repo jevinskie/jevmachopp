@@ -1,4 +1,4 @@
-TARGETS := build/jevmachopp/libjevmachopp.a build/jevmachopp/apfs/libapfs.a
+TARGETS := build/jevmachopp/libjevmachopp.a build/jevmachopp/apfs/libapfs.a build/jevmachopp/apfs/miniz/libminiz.a
 
 ROOT_DIR := $(patsubst %/,%,$(dir $(lastword $(MAKEFILE_LIST))))
 
@@ -23,6 +23,10 @@ LIBAPFSCXX_SRCS := $(wildcard $(ROOT_DIR)/3rdparty/apfs-fuse-embedded/ApfsLib/*.
 LIBAPFSCXX_OBJS := $(notdir $(LIBAPFSCXX_SRCS:.cpp=.o))
 LIBAPFSCXX_OBJS := $(filter-out DeviceVDI.o,$(LIBAPFSCXX_OBJS))
 LIBAPFSCXX_OBJS := $(addprefix build/jevmachopp/apfs/,$(LIBAPFSCXX_OBJS))
+
+LIBMINIZC_SRCS := $(wildcard $(ROOT_DIR)/3rdparty/apfs-fuse-embedded/3rdparty/miniz/*.c)
+LIBMINIZC_OBJS := $(notdir $(LIBMINIZC_SRCS:.c=.o))
+LIBMINIZC_OBJS := $(addprefix build/jevmachopp/apfs/miniz/,$(LIBMINIZC_OBJS))
 
 JEV_AR ?= aarch64-none-elf-gcc-ar
 JEV_CC ?= aarch64-none-elf-gcc
@@ -56,6 +60,8 @@ JEV_CXXFLAGS := $(filter-out -Werror=implicit-int,$(JEV_CXXFLAGS))
 JEV_CXXFLAGS := $(filter-out -std=gnu11,$(JEV_CXXFLAGS))
 JEV_CXXFLAGS += -fconcepts-diagnostics-depth=6
 
+JEV_MINIZ_CFLAGS := $(JEV_CFLAGS) -DMINIZ_NO_TIME -I build/jevmachopp/apfs/miniz
+
 # make print-LIBJEVMACHOPP_OBJS
 print-%:
 	@echo $* = $($*)
@@ -72,11 +78,11 @@ clean-default:
 
 build/jevmachopp/%.o: $(ROOT_DIR)/lib/jevmachopp/%.cpp
 	@mkdir -p "$(dir $@)"
-	$(JEV_CXX) $(JEV_CXXFLAGS) -c -o $@ $^
+	$(JEV_CXX) $(JEV_CXXFLAGS) -c -o $@ $<
 
 build/jevmachopp/%.o: $(ROOT_DIR)/lib/jevmachopp/%.S
 	@mkdir -p "$(dir $@)"
-	$(JEV_CXX) $(JEV_CXXFLAGS) -c -o $@ $^
+	$(JEV_CXX) $(JEV_CXXFLAGS) -c -o $@ $<
 
 build/jevmachopp/libjevmachopp.a: $(LIBJEVMACHOPP_OBJS)
 	@mkdir -p "$(dir $@)"
@@ -84,8 +90,20 @@ build/jevmachopp/libjevmachopp.a: $(LIBJEVMACHOPP_OBJS)
 
 build/jevmachopp/apfs/%.o: $(ROOT_DIR)/3rdparty/apfs-fuse-embedded/ApfsLib/%.cpp
 	@mkdir -p "$(dir $@)"
-	$(JEV_CXX) $(JEV_CXXFLAGS) -D__LITTLE_ENDIAN__ -c -o $@ $^
+	$(JEV_CXX) $(JEV_CXXFLAGS) -D__LITTLE_ENDIAN__ -c -o $@ $<
 
 build/jevmachopp/apfs/libapfs.a: $(LIBAPFSCXX_OBJS)
+	@mkdir -p "$(dir $@)"
+	$(JEV_AR) rc $@ $^
+
+build/jevmachopp/apfs/miniz/miniz_export.h:
+	@mkdir -p "$(dir $@)"
+	echo "#ifndef MINIZ_EXPORT\n#define MINIZ_EXPORT\n#endif" > $@
+
+build/jevmachopp/apfs/miniz/%.o: $(ROOT_DIR)/3rdparty/apfs-fuse-embedded/3rdparty/miniz/%.c build/jevmachopp/apfs/miniz/miniz_export.h
+	@mkdir -p "$(dir $@)"
+	$(JEV_CC) $(JEV_MINIZ_CFLAGS) -c -o $@ $<
+
+build/jevmachopp/apfs/miniz/libminiz.a: $(LIBMINIZC_OBJS)
 	@mkdir -p "$(dir $@)"
 	$(JEV_AR) rc $@ $^
