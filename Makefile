@@ -112,7 +112,7 @@ build/jevmachopp/libjevmachopp.a: $(LIBJEVMACHOPP_OBJS)
 	@mkdir -p "$(dir $@)"
 	$(JEV_AR) rc $@ $^
 
-build/jevmachopp/apfs/%.o: $(ROOT_DIR)/3rdparty/apfs-fuse-embedded/ApfsLib/%.cpp
+build/jevmachopp/apfs/%.o: $(ROOT_DIR)/3rdparty/apfs-fuse-embedded/ApfsLib/%.cpp build/jevmachopp/apfs/miniz/miniz_export.h build/jevmachopp/apfs/bzip2/bz_version.h
 	@mkdir -p "$(dir $@)"
 	$(JEV_CXX) $(JEV_CXXFLAGS) -D__LITTLE_ENDIAN__ -c -o $@ $<
 
