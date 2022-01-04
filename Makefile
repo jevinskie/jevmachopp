@@ -2,7 +2,8 @@ TARGETS := \
 	build/jevmachopp/libjevmachopp.a \
 	build/jevmachopp/apfs/libapfs.a \
 	build/jevmachopp/apfs/miniz/libminiz.a \
-	build/jevmachopp/apfs/lzfse/liblzfse.a
+	build/jevmachopp/apfs/lzfse/liblzfse.a \
+	build/jevmachopp/apfs/bzip2/libbz2.a
 
 ROOT_DIR := $(patsubst %/,%,$(dir $(lastword $(MAKEFILE_LIST))))
 
@@ -37,6 +38,11 @@ LIBLZFSEC_OBJS := $(notdir $(LIBLZFSEC_SRCS:.c=.o))
 LIBLZFSEC_OBJS := $(filter-out lzfse_main.o,$(LIBLZFSEC_OBJS))
 LIBLZFSEC_OBJS := $(addprefix build/jevmachopp/apfs/lzfse/,$(LIBLZFSEC_OBJS))
 
+LIBBZ2C_SRCS := blocksort.c huffman.c crctable.c randtable.c compress.c decompress.c bzlib.c
+LIBBZ2C_SRCS := $(addprefix $(ROOT_DIR)/3rdparty/apfs-fuse-embedded/3rdparty/bzip2/,$(LIBBZ2C_SRCS))
+LIBBZ2C_OBJS := $(notdir $(LIBBZ2C_SRCS:.c=.o))
+LIBBZ2C_OBJS := $(addprefix build/jevmachopp/apfs/bzip2/,$(LIBBZ2C_OBJS))
+
 
 JEV_AR ?= aarch64-none-elf-gcc-ar
 JEV_CC ?= aarch64-none-elf-gcc
@@ -55,7 +61,9 @@ INCLUDE_FLAGS += \
 	-I $(ROOT_DIR)/3rdparty/apfs-fuse-embedded/3rdparty/expected/src \
  	-I $(ROOT_DIR)/3rdparty/apfs-fuse-embedded/3rdparty/miniz \
  	-I build/jevmachopp/apfs/miniz \
- 	-I $(ROOT_DIR)/3rdparty/apfs-fuse-embedded/3rdparty/lzfse/src
+ 	-I $(ROOT_DIR)/3rdparty/apfs-fuse-embedded/3rdparty/lzfse/src \
+ 	-I $(ROOT_DIR)/3rdparty/apfs-fuse-embedded/3rdparty/bzip2 \
+ 	-I build/jevmachopp/apfs/bzip2
 
 # C_CXX_FLAGS := -Os
 C_CXX_FLAGS := $(C_CXX_FLAGS) -fno-exceptions -fno-unwind-tables -fno-asynchronous-unwind-tables
@@ -76,6 +84,7 @@ JEV_CXXFLAGS := $(filter-out -std=gnu11,$(JEV_CXXFLAGS))
 JEV_CXXFLAGS += -fconcepts-diagnostics-depth=6
 
 JEV_MINIZ_CFLAGS := $(JEV_CFLAGS) -DMINIZ_NO_TIME
+JEV_BZ2_CFLAGS := $(JEV_CFLAGS) -DBZ2_DISABLE_FP -DBZ_DEBUG=0
 
 # make print-LIBJEVMACHOPP_OBJS
 print-%:
@@ -131,3 +140,14 @@ build/jevmachopp/apfs/lzfse/liblzfse.a: $(LIBLZFSEC_OBJS)
 	@mkdir -p "$(dir $@)"
 	$(JEV_AR) rc $@ $^
 
+build/jevmachopp/apfs/bzip2/bz_version.h:
+	@mkdir -p "$(dir $@)"
+	echo "#define BZ_VERSION \"jev-embedded-no-fp\"" > $@
+
+build/jevmachopp/apfs/bzip2/%.o: $(ROOT_DIR)/3rdparty/apfs-fuse-embedded/3rdparty/bzip2/%.c build/jevmachopp/apfs/bzip2/bz_version.h
+	@mkdir -p "$(dir $@)"
+	$(JEV_CC) $(JEV_BZ2_CFLAGS) -c -o $@ $<
+
+build/jevmachopp/apfs/bzip2/libbz2.a: $(LIBBZ2C_OBJS)
+	@mkdir -p "$(dir $@)"
+	$(JEV_AR) rc $@ $^
