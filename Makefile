@@ -44,10 +44,17 @@ LIBBZ2C_OBJS := $(notdir $(LIBBZ2C_SRCS:.c=.o))
 LIBBZ2C_OBJS := $(addprefix build/jevmachopp/apfs/bzip2/,$(LIBBZ2C_OBJS))
 
 
+ifndef UBOOTRELEASE
 JEV_AR ?= aarch64-none-elf-gcc-ar
 JEV_CC ?= aarch64-none-elf-gcc
 JEV_CXX ?= aarch64-none-elf-g++
 JEV_LD ?= aarch64-none-elf-ld
+else
+JEV_AR := $(AR)
+JEV_CC := $(CC)
+JEV_CXX := $(CXX)
+JEV_LD := $(LD)
+endif
 
 BOOST_DEFINE_FLAGS := -DBOOST_STATIC_STRING_STANDALONE=1 -DBOOST_NO_EXCEPTIONS=1
 FMT_DEFINE_FLAGS := -DFMT_EXCEPTIONS=0 -DFMT_LOCALE -DFMT_USE_DOUBLE=0 -DFMT_USE_FLOAT=0 -DFMT_USE_INT128=0 -DFMT_USE_LONG_DOUBLE=0 -DFMT_USE_NONTYPE_TEMPLATE_PARAMETERS=1 -DFMT_USE_USER_DEFINED_LITERALS=1
@@ -57,6 +64,11 @@ DEFINE_FLAGS := -DM1N1=1 $(BOOST_DEFINE_FLAGS) $(FMT_DEFINE_FLAGS) $(NANO_DEFINE
 INCLUDE_FLAGS := -I $(ROOT_DIR)/include -I $(ROOT_DIR)/3rdparty/fmt/include -I $(ROOT_DIR)/3rdparty/hedley -I $(ROOT_DIR)/3rdparty/callable_traits/include -I $(ROOT_DIR)/3rdparty/static_string/include -I $(ROOT_DIR)/3rdparty/static_vector/include -I $(ROOT_DIR)/3rdparty/enum.hpp/headers -I $(ROOT_DIR)/3rdparty/nanorange/include -I $(ROOT_DIR)/3rdparty/uleb128/include -I $(ROOT_DIR)/3rdparty/visit/include
 
 DEFINE_FLAGS += -DKZ_EXCEPTIONS=0
+
+ifdef UBOOTRELEASE
+DEFINE_FLAGS += -D__UBOOT__
+endif
+
 INCLUDE_FLAGS += \
 	-I $(ROOT_DIR)/3rdparty/apfs-fuse-embedded/3rdparty/expected/src \
  	-I $(ROOT_DIR)/3rdparty/apfs-fuse-embedded/3rdparty/miniz \
@@ -81,7 +93,11 @@ JEV_CXXFLAGS := $(filter-out -Werror=strict-prototypes,$(JEV_CXXFLAGS))
 JEV_CXXFLAGS := $(filter-out -Werror=implicit-function-declaration,$(JEV_CXXFLAGS))
 JEV_CXXFLAGS := $(filter-out -Werror=implicit-int,$(JEV_CXXFLAGS))
 JEV_CXXFLAGS := $(filter-out -std=gnu11,$(JEV_CXXFLAGS))
+ifndef UBOOTRELEASE
 JEV_CXXFLAGS += -fconcepts-diagnostics-depth=6
+else ifeq ($(cc-name),gcc)
+JEV_CXXFLAGS += -fconcepts-diagnostics-depth=6
+endif
 
 JEV_MINIZ_CFLAGS := $(JEV_CFLAGS) -DMINIZ_NO_TIME
 JEV_BZ2_CFLAGS := $(JEV_CFLAGS) -DBZ2_DISABLE_FP -DBZ_DEBUG=0

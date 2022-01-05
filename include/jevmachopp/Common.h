@@ -21,7 +21,7 @@
 #include <boost/callable_traits/function_type.hpp>
 #include <boost/callable_traits/remove_member_cv.hpp>
 
-#if !M1N1
+#if !M1N1 || __UBOOT__
 #define BOOST_STATIC_STRING_THROW(ex)                                                              \
     do {                                                                                           \
         fprintf(stderr, "Exception: %s\n", ex);                                                    \
