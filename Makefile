@@ -61,7 +61,17 @@ FMT_DEFINE_FLAGS := -DFMT_EXCEPTIONS=0 -DFMT_LOCALE -DFMT_USE_DOUBLE=0 -DFMT_USE
 FMT_DEFINE_FLAGS += -DUSE_FMT=0
 NANO_DEFINE_FLAGS += -DNANORANGE_NO_STD_FORWARD_DECLARATIONS
 DEFINE_FLAGS := -DM1N1=1 $(BOOST_DEFINE_FLAGS) $(FMT_DEFINE_FLAGS) $(NANO_DEFINE_FLAGS)
-INCLUDE_FLAGS := -I $(ROOT_DIR)/include -I $(ROOT_DIR)/3rdparty/fmt/include -I $(ROOT_DIR)/3rdparty/hedley -I $(ROOT_DIR)/3rdparty/callable_traits/include -I $(ROOT_DIR)/3rdparty/static_string/include -I $(ROOT_DIR)/3rdparty/static_vector/include -I $(ROOT_DIR)/3rdparty/enum.hpp/headers -I $(ROOT_DIR)/3rdparty/nanorange/include -I $(ROOT_DIR)/3rdparty/uleb128/include -I $(ROOT_DIR)/3rdparty/visit/include
+INCLUDE_FLAGS := \
+	-I $(ROOT_DIR)/include \
+	-I $(ROOT_DIR)/3rdparty/fmt/include \
+	-I $(ROOT_DIR)/3rdparty/hedley \
+	-I $(ROOT_DIR)/3rdparty/callable_traits/include \
+	-I $(ROOT_DIR)/3rdparty/static_string/include \
+	-I $(ROOT_DIR)/3rdparty/static_vector/include \
+	-I $(ROOT_DIR)/3rdparty/enum.hpp/headers \
+	-I $(ROOT_DIR)/3rdparty/nanorange/include \
+	-I $(ROOT_DIR)/3rdparty/uleb128/include \
+	-I $(ROOT_DIR)/3rdparty/visit/include
 
 DEFINE_FLAGS += -DKZ_EXCEPTIONS=0
 
@@ -71,11 +81,11 @@ endif
 
 INCLUDE_FLAGS += \
 	-I $(ROOT_DIR)/3rdparty/apfs-fuse-embedded/3rdparty/expected/src \
- 	-I $(ROOT_DIR)/3rdparty/apfs-fuse-embedded/3rdparty/miniz \
- 	-I build/jevmachopp/apfs/miniz \
- 	-I $(ROOT_DIR)/3rdparty/apfs-fuse-embedded/3rdparty/lzfse/src \
- 	-I $(ROOT_DIR)/3rdparty/apfs-fuse-embedded/3rdparty/bzip2 \
- 	-I build/jevmachopp/apfs/bzip2
+	-I $(ROOT_DIR)/3rdparty/apfs-fuse-embedded/3rdparty/miniz \
+	-I build/jevmachopp/apfs/miniz \
+	-I $(ROOT_DIR)/3rdparty/apfs-fuse-embedded/3rdparty/lzfse/src \
+	-I $(ROOT_DIR)/3rdparty/apfs-fuse-embedded/3rdparty/bzip2 \
+	-I build/jevmachopp/apfs/bzip2
 
 # C_CXX_FLAGS := -Os
 C_CXX_FLAGS := $(C_CXX_FLAGS) -fno-exceptions -fno-unwind-tables -fno-asynchronous-unwind-tables
