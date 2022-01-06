@@ -74,9 +74,9 @@ INCLUDE_FLAGS := \
 
 DEFINE_FLAGS += -DKZ_EXCEPTIONS=0
 
-ifdef UBOOTRELEASE
-DEFINE_FLAGS += -D__UBOOT__
-endif
+# ifdef UBOOTRELEASE
+# DEFINE_FLAGS += -D__UBOOT__
+# endif
 
 INCLUDE_FLAGS += \
 	-I $(ROOT_DIR)/3rdparty/apfs-fuse-embedded \
