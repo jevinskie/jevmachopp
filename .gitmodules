@@ -1,9 +1,6 @@
 [submodule "3rdparty/fmt"]
 	path = 3rdparty/fmt
 	url = https://github.com/fmtlib/fmt
-[submodule "3rdparty/hedley"]
-	path = 3rdparty/hedley
-	url = https://github.com/nemequ/hedley
 [submodule "3rdparty/enum.hpp"]
 	path = 3rdparty/enum.hpp
 	url = https://github.com/BlackMATov/enum.hpp

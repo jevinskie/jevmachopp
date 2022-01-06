@@ -64,7 +64,6 @@ DEFINE_FLAGS := -DM1N1=1 $(BOOST_DEFINE_FLAGS) $(FMT_DEFINE_FLAGS) $(NANO_DEFINE
 INCLUDE_FLAGS := \
 	-I $(ROOT_DIR)/include \
 	-I $(ROOT_DIR)/3rdparty/fmt/include \
-	-I $(ROOT_DIR)/3rdparty/hedley \
 	-I $(ROOT_DIR)/3rdparty/callable_traits/include \
 	-I $(ROOT_DIR)/3rdparty/static_string/include \
 	-I $(ROOT_DIR)/3rdparty/static_vector/include \
@@ -80,6 +79,7 @@ DEFINE_FLAGS += -D__UBOOT__
 endif
 
 INCLUDE_FLAGS += \
+	-I $(ROOT_DIR)/3rdparty/apfs-fuse-embedded \
 	-I $(ROOT_DIR)/3rdparty/apfs-fuse-embedded/3rdparty/expected/src \
 	-I $(ROOT_DIR)/3rdparty/apfs-fuse-embedded/3rdparty/miniz \
 	-I build/jevmachopp/apfs/miniz \
