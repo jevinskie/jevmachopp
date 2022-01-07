@@ -12,7 +12,7 @@ typedef __uintmax_t uintmax_t;
 #include "stdint.h"
 #include "stdio.h"
 #include "stdlib.h"
-#include "string.h"
+// #include "string.h"
 #include "time.h"
 
 
@@ -43,13 +43,8 @@ extern "C" {
 
 #undef inline
 
-#define __REAL_ASSERT assert
-#undef assert
-#include <log.h>
-#undef assert
-#define assert __REAL_ASSERT
-#undef __REAL_ASSERT
 
+#include <log.h>
 
 
 #include <linux/kernel.h>
@@ -77,5 +72,21 @@ extern "C" {
 #undef fputs
 #undef fgetc
 
+#include <string.h>
 
+}
+
+extern "C" __weak inline char *strerror(int errn) {
+	assert(!"strerror called");
+	return nullptr;
+}
+
+extern "C" __weak inline int strcoll(const char *a, const char *b) {
+	assert(!"strcoll called");
+	return 0;
+}
+
+extern "C" __weak inline size_t strxfrm(char *dst, const char *src, size_t num) {
+	assert(!"strcoll called");
+	return 0;
 }
