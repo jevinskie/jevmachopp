@@ -5,9 +5,15 @@
 #define __THROW
 
 #include "assert.h"
+#include "ctype.h"
+typedef __intmax_t intmax_t;
+typedef __uintmax_t uintmax_t;
+#include "inttypes.h"
 #include "stdint.h"
 #include "stdio.h"
 #include "stdlib.h"
+#include "string.h"
+#include "time.h"
 
 
 extern "C" {
@@ -32,6 +38,10 @@ extern "C" {
 #undef INT64_MAX
 #undef LONG_MAX
 #undef LONG_LONG_MAX
+
+#include <linux/compiler_types.h>
+
+#undef inline
 
 #define __REAL_ASSERT assert
 #undef assert
