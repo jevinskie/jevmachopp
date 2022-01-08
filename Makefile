@@ -87,9 +87,11 @@ INCLUDE_FLAGS += \
 	-I $(ROOT_DIR)/3rdparty/apfs-fuse-embedded/3rdparty/bzip2 \
 	-I build/jevmachopp/apfs/bzip2
 
-# C_CXX_FLAGS := -Os
-C_CXX_FLAGS := $(C_CXX_FLAGS) -fno-exceptions -fno-unwind-tables -fno-asynchronous-unwind-tables
+C_CXX_FLAGS := -g -O0
+# C_CXX_FLAGS += -Os
+C_CXX_FLAGS += $(C_CXX_FLAGS) -fno-exceptions -fno-unwind-tables -fno-asynchronous-unwind-tables
 C_CXX_FLAGS += -Wno-unknown-pragmas
+
 # C_CXX_FLAGS += $(C_CXX_FLAGS) -flto -fuse-linker-plugin -ffat-lto-objects
 JEV_CFLAGS := $(CFLAGS)
 JEV_CFLAGS := $(filter-out -ffreestanding,$(JEV_CFLAGS))
