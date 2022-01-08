@@ -72,8 +72,12 @@ extern "C" {
 #undef fprintf
 #undef fputs
 #undef fgetc
-#undef printf
-#define printf(fmt, ...) fprintf(stdout, fmt, __VA_ARGS__)
+// #undef printf
+// #define printf(fmt, ...) fprintf(stdout, fmt, __VA_ARGS__)
+// #define PRINT(fmt, args...) printf(fmt, args);
+// #define LOG(args...) ExtendLog(__FILE_NAME__, __LINE__, __PRETTY_FUNCTION__, args);
+// extern void ExtendLog(const char *file, int lineNumber, const char *functionName, NSString *format, ...) NS_FORMAT_FUNCTION(4,5);
+#define printf fprintf(1, fmt, args...) __attribute__((format(2,3)))
 
 #include <string.h>
 
