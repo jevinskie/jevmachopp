@@ -37,16 +37,16 @@ struct blk_desc fake_m1_nvme_blk_desc = {
 };
 
 int blk_get_device(int if_type, int devnum, struct udevice **devp) {
-    if (if_type != to_underlying_int(if_type::IF_TYPE_NVME) &&
-        if_type != to_underlying_int(if_type::IF_TYPE_HOST) && devnum != 0) {
+    if (if_type != to_underlying_int(intf_type::IF_TYPE_NVME) &&
+        if_type != to_underlying_int(intf_type::IF_TYPE_HOST) && devnum != 0) {
         return -ENODEV;
     }
     if (devp) {
         switch (if_type) {
-        case to_underlying_int(if_type::IF_TYPE_NVME):
+        case to_underlying_int(intf_type::IF_TYPE_NVME):
             *devp = &fake_m1_nvme;
             break;
-        case to_underlying_int(if_type::IF_TYPE_HOST):
+        case to_underlying_int(intf_type::IF_TYPE_HOST):
             *devp = &fake_m1_host;
             break;
         default:
@@ -63,6 +63,14 @@ struct blk_desc *blk_get_by_device(struct udevice *dev) {
     }
     return &fake_m1_nvme_blk_desc;
 }
+
+void *dev_get_uclass_plat(const struct udevice *dev) {
+    if (dev != &fake_m1_nvme && dev != &fake_m1_host) {
+        return nullptr;
+    }
+    return &fake_m1_nvme_blk_desc;
+}
+
 
 } // extern "C"
 
