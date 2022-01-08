@@ -24,6 +24,7 @@ extern "C" {
 #define fprintf __uboot_fprintf
 #define fputs __uboot_fputs
 #define fgetc __uboot_fgetc
+#define printf __uboot_printf
 
 #undef stdin
 #undef stdout
@@ -71,6 +72,8 @@ extern "C" {
 #undef fprintf
 #undef fputs
 #undef fgetc
+#undef printf
+#define printf(fmt, ...) fprintf(stdout, fmt, __VA_ARGS__)
 
 #include <string.h>
 
