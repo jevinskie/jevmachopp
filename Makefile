@@ -87,6 +87,11 @@ INCLUDE_FLAGS += \
 	-I $(ROOT_DIR)/3rdparty/apfs-fuse-embedded/3rdparty/bzip2 \
 	-I build/jevmachopp/apfs/bzip2
 
+ifdef UBOOTRELEASE
+# INCLUDE_FLAGS += \
+# 	-I $(ROOT_DIR)/../../include
+endif
+
 C_CXX_FLAGS := -g -O0
 # C_CXX_FLAGS += -Os
 C_CXX_FLAGS += $(C_CXX_FLAGS) -fno-exceptions -fno-unwind-tables -fno-asynchronous-unwind-tables
