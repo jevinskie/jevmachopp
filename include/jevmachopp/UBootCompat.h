@@ -8,13 +8,19 @@
 #include "ctype.h"
 typedef __intmax_t intmax_t;
 typedef __uintmax_t uintmax_t;
+// typedef unsigned long ulong;
 #include "inttypes.h"
+#include "stddef.h"
 #include "stdint.h"
+// typedef unsigned long uint64_t;
 #include "stdio.h"
 #include "stdlib.h"
 // #include "string.h"
 #include "time.h"
+#include "malloc.h"
 
+
+typedef unsigned long ulong;
 
 extern "C" {
 
