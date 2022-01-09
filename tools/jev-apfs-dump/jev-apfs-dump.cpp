@@ -71,6 +71,12 @@ void *dev_get_uclass_plat(const struct udevice *dev) {
     return &fake_m1_nvme_blk_desc;
 }
 
+unsigned long blk_dread(struct blk_desc *block_dev, lbaint_t start,
+            lbaint_t blkcnt, void *buffer) {
+
+    return block_dev->block_read(block_dev, start, blkcnt, buffer);
+}
+
 
 } // extern "C"
 
