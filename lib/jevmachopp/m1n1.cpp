@@ -15,6 +15,11 @@ extern "C" int puts(const char *s) {
     return res;
 }
 
+
+extern "C" __attribute__((__noreturn__,__weak__)) void _ZSt24__throw_out_of_range_fmtPKcz(void) {
+    assert(!"__throw_out_of_range_fmt stub called");
+}
+
 #endif
 
 namespace m1n1 {
