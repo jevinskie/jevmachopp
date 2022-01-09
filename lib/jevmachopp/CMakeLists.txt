@@ -28,6 +28,7 @@ set(MACHOPP_SRC
     SourceVersionCommand.cpp
     SymtabCommand.cpp
     Version.cpp
+    UBootAPFS.cpp
     UnknownCommand.cpp
     XNUBoot.cpp
 )
