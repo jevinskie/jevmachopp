@@ -95,7 +95,7 @@ void uboot_apfs_doit(void) {
         printf("failed to find dir\n");
     }
 
-    return 0;
+    return;
 }
 
 } // namespace UBootAPFS

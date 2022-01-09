@@ -83,7 +83,7 @@ endif()
 add_library(jevmachopp ${MACHOPP_SRC} ${MACHOPP_HDR})
 
 
-target_link_libraries(jevmachopp PUBLIC Boost::callable_traits enum.hpp fmt nanorange uleb128 visit)
+target_link_libraries(jevmachopp PUBLIC apfs_static Boost::callable_traits enum.hpp fmt nanorange uleb128 visit)
 target_compile_definitions(jevmachopp PUBLIC USE_FMT=1)
 target_compile_options(jevmachopp PRIVATE -Wall -Wextra -Wpedantic)
 target_compile_options(jevmachopp PRIVATE -fno-rtti -fno-exceptions -fno-unwind-tables -fno-asynchronous-unwind-tables)
