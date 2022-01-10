@@ -1,5 +1,7 @@
 TARGETS := \
 	build/jevmachopp/libjevmachopp.a \
+	build/jevmachopp/libjevmachopp.o \
+	build/jevmachopp/uleb128/libuleb128.a \
 	build/jevmachopp/apfs/libapfs.a \
 	build/jevmachopp/apfs/miniz/libminiz.a \
 	build/jevmachopp/apfs/lzfse/liblzfse.a \
@@ -43,6 +45,10 @@ LIBBZ2C_SRCS := $(addprefix $(ROOT_DIR)/3rdparty/apfs-fuse-embedded/3rdparty/bzi
 LIBBZ2C_OBJS := $(notdir $(LIBBZ2C_SRCS:.c=.o))
 LIBBZ2C_OBJS := $(addprefix build/jevmachopp/apfs/bzip2/,$(LIBBZ2C_OBJS))
 
+LIBULEB128CXX_SRCS := uleb128.cc
+LIBULEB128CXX_SRCS := $(addprefix $(ROOT_DIR)/3rdparty/uleb128/src/uleb128/,$(LIBULEB128CXX_SRCS))
+LIBULEB128CXX_OBJS := $(notdir $(LIBULEB128CXX_SRCS:.cc=.o))
+LIBULEB128CXX_OBJS := $(addprefix build/jevmachopp/uleb128/,$(LIBULEB128CXX_OBJS))
 
 ifndef UBOOTRELEASE
 JEV_AR ?= aarch64-none-elf-gcc-ar
@@ -105,6 +111,10 @@ C_CXX_FLAGS := -g -O0
 C_CXX_FLAGS += $(C_CXX_FLAGS) -fno-exceptions -fno-unwind-tables -fno-asynchronous-unwind-tables
 C_CXX_FLAGS += -Wno-unknown-pragmas
 
+ifdef UBOOTRELEASE
+C_CXX_FLAGS += -fPIC
+endif
+
 # C_CXX_FLAGS += $(C_CXX_FLAGS) -flto -fuse-linker-plugin -ffat-lto-objects
 JEV_CFLAGS := $(CFLAGS)
 JEV_CFLAGS := $(filter-out -ffreestanding,$(JEV_CFLAGS))
@@ -152,6 +162,19 @@ build/jevmachopp/%.o: $(ROOT_DIR)/lib/jevmachopp/%.S
 build/jevmachopp/libjevmachopp.a: $(LIBJEVMACHOPP_OBJS)
 	@mkdir -p "$(dir $@)"
 	$(JEV_AR) rc $@ $^
+
+build/jevmachopp/libjevmachopp.o: build/jevmachopp/libjevmachopp.a build/jevmachopp/uleb128/libuleb128.a build/jevmachopp/apfs/libapfs.a build/jevmachopp/apfs/miniz/libminiz.a build/jevmachopp/apfs/lzfse/liblzfse.a build/jevmachopp/apfs/bzip2/libbz2.a
+	@mkdir -p "$(dir $@)"
+	$(JEV_CXX) -o $@ -nostdlib -Wl,--whole-archive build/jevmachopp/apfs/miniz/libminiz.a build/jevmachopp/apfs/lzfse/liblzfse.a build/jevmachopp/apfs/bzip2/libbz2.a build/jevmachopp/apfs/libapfs.a build/jevmachopp/uleb128/libuleb128.a build/jevmachopp/libjevmachopp.a -Wl,-r -lc++ -lc++abi -lc -Wl,-u,fprintf,-u,printf,-u,__assert_func
+
+build/jevmachopp/uleb128/%.o: $(ROOT_DIR)/3rdparty/uleb128/src/uleb128/%.cc
+	@mkdir -p "$(dir $@)"
+	$(JEV_CXX) $(JEV_CXXFLAGS) -c -o $@ $<
+
+build/jevmachopp/uleb128/libuleb128.a: $(LIBULEB128CXX_OBJS)
+	@mkdir -p "$(dir $@)"
+	$(JEV_AR) rc $@ $^
+
 
 build/jevmachopp/apfs/%.o: $(ROOT_DIR)/3rdparty/apfs-fuse-embedded/ApfsLib/%.cpp build/jevmachopp/apfs/miniz/miniz_export.h build/jevmachopp/apfs/bzip2/bz_version.h
 	@mkdir -p "$(dir $@)"
