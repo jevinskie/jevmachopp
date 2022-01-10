@@ -109,9 +109,10 @@ if (NOT APPLE)
     target_link_libraries(jevmachopp PUBLIC atomic pthread)
 endif()
 
+if (NOT CMAKE_CROSSCOMPILING)
 add_library(jevplatformize STATIC Platformize.cpp ../../include/jevmachopp/Platformize.h)
 set_target_properties(jevplatformize PROPERTIES OSX_ARCHITECTURES arm64e)
 
 add_library(jevplatformize-helper SHARED PlatformizeHelper.cpp)
 set_target_properties(jevplatformize-helper PROPERTIES OSX_ARCHITECTURES arm64e)
-
+endif()

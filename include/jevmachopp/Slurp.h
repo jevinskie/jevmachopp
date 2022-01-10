@@ -1,8 +1,7 @@
 #pragma once
 
-#include <iosfwd>
-#include <stdint.h>
-#include <string>
+#include <cstddef>
+#include <cstdint>
 
 #include "jevmachopp/Common.h"
 

@@ -16,7 +16,10 @@ endif()
 add_subdirectory(cxxopts)
 add_subdirectory(enum.hpp)
 add_subdirectory(fmt)
+
+if (NOT CMAKE_CROSSCOMPILING)
 add_subdirectory(nanobench)
+endif()
 
 set(BUILD_TESTING OFF)
 set(ENABLE_BENCHMARKS OFF)

@@ -1,5 +1,7 @@
 #include "jevmachopp/Slurp.h"
 
+#ifndef JEV_BAREMETAL
+
 #include <cassert>
 #include <stdio.h>
 #include <string>
@@ -52,3 +54,5 @@ uint8_t *Slurp::mapMemory(std::size_t size, const void *preferred_addr) {
     }
     return buf;
 }
+
+#endif

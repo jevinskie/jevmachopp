@@ -17,6 +17,8 @@ endif ()
 
 if (CMAKE_CROSSCOMPILING)
 add_compile_definitions(JEV_BAREMETAL)
+# newlib locale hell
+add_compile_definitions(_POSIX_C_SOURCE=200809 _XOPEN_SOURCE=700 _BSD_SOURCE _DEFAULT_SOURCE _GNU_SOURCE)
 endif()
 
 # add_compile_options(-Os -fvisibility=hidden -fvisibility-inlines-hidden -ffunction-sections -fdata-sections)
