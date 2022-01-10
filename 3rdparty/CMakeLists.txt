@@ -6,10 +6,13 @@ add_subdirectory(apfs-fuse-embedded)
 
 add_subdirectory(arch-arm64/disassembler)
 
+if (NOT CMAKE_CROSSCOMPILING)
 set(BENCHMARK_ENABLE_TESTING false)
 add_subdirectory(benchmark)
 
 add_subdirectory(Catch2)
+endif()
+
 add_subdirectory(cxxopts)
 add_subdirectory(enum.hpp)
 add_subdirectory(fmt)
@@ -25,5 +28,5 @@ endif()
 
 add_subdirectory(uleb128)
 
-option(BENCHMARK_ENABLE_TESTING "Enable google benchmark testing." OFF)
+set(ENABLE_BENCHMARKS OFF)
 add_subdirectory(visit)

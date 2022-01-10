@@ -15,6 +15,10 @@ if (${FORCE_COLORED_OUTPUT})
     endif ()
 endif ()
 
+if (CMAKE_CROSSCOMPILING)
+add_compile_definitions(JEV_BAREMETAL)
+endif()
+
 # add_compile_options(-Os -fvisibility=hidden -fvisibility-inlines-hidden -ffunction-sections -fdata-sections)
 # add_link_options(-Os -Wl,-dead_strip)
 
@@ -50,6 +54,8 @@ option(FMT_TEST OFF)
 add_subdirectory(3rdparty)
 
 add_subdirectory(lib)
+if (NOT CMAKE_CROSSCOMPILING)
 add_subdirectory(tools)
 add_subdirectory(test)
+endif()
 

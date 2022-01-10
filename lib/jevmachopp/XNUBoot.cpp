@@ -6,13 +6,13 @@
 #include "jevmachopp/UnixThreadCommand.h"
 #include "jevmachopp/m1n1.h"
 
-#if !M1N1
+#ifndef JEV_BAREMETAL
 #include <sys/mman.h>
 #endif
 
 namespace XNUBoot {
 
-#if !M1N1
+#ifndef M1N1
 struct vector_args next_stage;
 #endif
 
@@ -215,13 +215,13 @@ void load_and_prep_xnu_kernelcache(const void *boot_args_base) {
     const auto rvbar           = entry_pc & ~0xfff;
     for (std::size_t i = 1, e = cpuImplRegAddrs.size(); i < e; ++i) {
         printf("cpuImplRegAddr[%zu]: *%p = %p\n", i, (void *)cpuImplRegAddrs[i], (void *)rvbar);
-#if M1N1
+#ifdef M1N1
         *(uint64_t *)cpuImplRegAddrs[i] = rvbar;
 #endif
     }
 
     const auto stub_copy_fptr = (decltype(&xnu_jump_stub))stub_copy_base;
-#if !M1N1
+#ifndef JEV_BAREMETAL
     const auto mprot_res = mprotect((void *)stub_copy_fptr, stub_size, PROT_READ | PROT_EXEC);
     printf("mprot_res: %d of %p\n", mprot_res, (void *)stub_copy_fptr);
 #endif

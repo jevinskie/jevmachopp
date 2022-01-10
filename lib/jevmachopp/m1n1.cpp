@@ -1,6 +1,6 @@
 #include "jevmachopp/m1n1.h"
 
-#if M1N1
+#ifdef M1N1
 
 extern "C" __attribute__((noreturn)) void
 __assert_func(const char *file, int line, const char *function, const char *assertion) {
