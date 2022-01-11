@@ -49,7 +49,11 @@ std::unique_ptr<ApfsDir::DirRec> lookupDir(ApfsDir *apfsDir, std::string_view di
 }
 
 void uboot_apfs_doit(void) {
+#ifdef JEV_BAREMETAL
+    auto dev = Device::OpenDevice("virtio:0");
+#else
     auto dev = Device::OpenDevice("host:0");
+#endif
     assert(dev);
 
     GptPartitionMap gpt;

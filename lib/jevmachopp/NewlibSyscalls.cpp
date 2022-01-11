@@ -1,6 +1,7 @@
 #if __has_include(<_newlib_version.h>)
 
 #include <cassert>
+#include <cerrno>
 #include <cstdlib>
 #include <cstdio>
 
@@ -10,8 +11,10 @@
 
 extern "C" {
 
+// huh?
 void *__dso_handle[32];
 
+// huh?
 int *__errno(void) {
     return &errno;
 }
@@ -63,9 +66,10 @@ void _close_r(struct _reent *r, int fd) {
 }
 
 ssize_t _write_r(struct _reent *r, int fd, const void *buf, size_t sz) {
-    printf("_write_r(%p, %d, %p, %p)\n", r, fd, buf, (void*)sz);
-    assert(!"_write_r()");
-    return -1;
+    // printf("_write_r(%p, %d, %p, %p)\n", r, fd, buf, (void*)sz);
+    // assert(!"_write_r()");
+    // return -1;
+    return write(fd, buf, sz);
 }
 
 ssize_t _read_r(struct _reent *r, int fd, void *buf, size_t sz) {

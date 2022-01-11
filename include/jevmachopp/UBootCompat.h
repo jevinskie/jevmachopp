@@ -1,5 +1,7 @@
 #pragma once
 
+#error Don't includ me
+
 #include "sys/cdefs.h"
 #undef __THROW
 #define __THROW
