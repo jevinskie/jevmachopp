@@ -21,6 +21,7 @@ set(MACHOPP_SRC
     m1n1.cpp
     MachO.cpp
     MachOHeaderEnums.cpp
+    NewlibSyscalls.cpp
     NList.cpp
     NVRAM.cpp
     Section.cpp

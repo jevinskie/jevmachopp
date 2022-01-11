@@ -23,6 +23,7 @@ LIBJEVMACHOPP_OBJS := $(LIBJEVMACHOPP_CXX_OBJS) $(LIBJEVMACHOPP_ASM_OBJS)
 # no slurp/mmap on baremetal
 LIBJEVMACHOPP_OBJS := $(filter-out Slurp.o,$(LIBJEVMACHOPP_OBJS))
 LIBJEVMACHOPP_OBJS := $(filter-out SearchFS.o,$(LIBJEVMACHOPP_OBJS))
+LIBJEVMACHOPP_OBJS := $(filter-out Platformize.o,$(LIBJEVMACHOPP_OBJS))
 LIBJEVMACHOPP_OBJS := $(filter-out PlatformizeHelper.o,$(LIBJEVMACHOPP_OBJS))
 LIBJEVMACHOPP_OBJS := $(addprefix build/jevmachopp/,$(LIBJEVMACHOPP_OBJS))
 
@@ -109,6 +110,8 @@ endif
 C_CXX_FLAGS := -g -O0
 # C_CXX_FLAGS += -Os
 C_CXX_FLAGS += $(C_CXX_FLAGS) -fno-exceptions -fno-unwind-tables -fno-asynchronous-unwind-tables
+C_CXX_FLAGS += -fvisibility=hidden -fvisibility-inlines-hidden
+C_CXX_FLAGS += -ffunction-sections -fdata-sections
 C_CXX_FLAGS += -Wno-unknown-pragmas
 
 ifdef UBOOTRELEASE
@@ -136,6 +139,39 @@ endif
 
 JEV_MINIZ_CFLAGS := $(JEV_CFLAGS) -DMINIZ_NO_TIME
 JEV_BZ2_CFLAGS := $(JEV_CFLAGS) -DBZ2_DISABLE_FP -DBZ_DEBUG=0
+
+JEV_LIBC_PATH := $(shell $(JEV_CXX) $(JEV_CXXFLAGS) -print-file-name=libc.a)
+ifeq ($(JEV_LIBC_PATH),libc.a)
+# assume 
+JEV_LIBC_PATH := -lc-missing
+endif
+
+JEV_LIBCXX_PATH := $(shell $(JEV_CXX) $(JEV_CXXFLAGS) -print-file-name=libc++.a)
+ifeq ($(JEV_LIBCXX_PATH),libc++.a)
+JEV_LIBCXX_PATH := $(shell $(JEV_CXX) $(JEV_CXXFLAGS) -print-file-name=libstdc++.a)
+ifeq ($(JEV_LIBCXX_PATH),libstdc++.a)
+# assume 
+JEV_LIBCXX_PATH := -lcxx-missing
+endif
+endif
+
+JEV_LIBCXXABI_PATH := $(shell $(JEV_CXX) $(JEV_CXXFLAGS) -print-file-name=libc++abi.a)
+ifeq ($(JEV_LIBCXX_PATH),libc++.a)
+JEV_LIBCXXABI_PATH := $(shell $(JEV_CXX) $(JEV_CXXFLAGS) -print-file-name=libstdc++abi.a)
+ifeq ($(JEV_LIBCXX_PATH),libstdc++abi.a)
+# assume 
+JEV_LIBCXXABI_PATH := -lcxxabi-missing
+endif
+endif
+
+JEV_LIBGCC_PATH := $(shell $(JEV_CXX) $(JEV_CXXFLAGS) -print-file-name=libclang_rt.builtins-aarch64.a)
+ifeq ($(JEV_LIBGCC_PATH),libclang_rt.builtins-aarch64.a)
+JEV_LIBGCC_PATH := $(shell $(JEV_CXX) $(JEV_CXXFLAGS) -print-file-name=libgcc.a)
+ifeq ($(JEV_LIBGCC_PATH),libgcc.a)
+# assume 
+JEV_LIBGCC_PATH := -lgcc-missing
+endif
+endif
 
 # make print-LIBJEVMACHOPP_OBJS
 print-%:
@@ -165,7 +201,7 @@ build/jevmachopp/libjevmachopp.a: $(LIBJEVMACHOPP_OBJS)
 
 build/jevmachopp/libjevmachopp.o: build/jevmachopp/libjevmachopp.a build/jevmachopp/uleb128/libuleb128.a build/jevmachopp/apfs/libapfs.a build/jevmachopp/apfs/miniz/libminiz.a build/jevmachopp/apfs/lzfse/liblzfse.a build/jevmachopp/apfs/bzip2/libbz2.a
 	@mkdir -p "$(dir $@)"
-	$(JEV_CXX) -o $@ -nostdlib -Wl,--whole-archive build/jevmachopp/apfs/miniz/libminiz.a build/jevmachopp/apfs/lzfse/liblzfse.a build/jevmachopp/apfs/bzip2/libbz2.a build/jevmachopp/apfs/libapfs.a build/jevmachopp/uleb128/libuleb128.a build/jevmachopp/libjevmachopp.a -Wl,-r -lc++ -lc++abi -lc -Wl,-u,fprintf,-u,printf,-u,__assert_func
+	$(JEV_CXX) -o $@ -nostdlib -Wl,-r -Wl,--whole-archive build/jevmachopp/apfs/miniz/libminiz.a build/jevmachopp/apfs/lzfse/liblzfse.a build/jevmachopp/apfs/bzip2/libbz2.a build/jevmachopp/apfs/libapfs.a build/jevmachopp/uleb128/libuleb128.a build/jevmachopp/libjevmachopp.a -Wl,--no-whole-archive -Wl,--start-group $(JEV_LIBCXX_PATH) $(JEV_LIBCXXABI_PATH) -Wl,--end-group -Wl,-u,fprintf,-u,printf,-u,__assert_func
 
 build/jevmachopp/uleb128/%.o: $(ROOT_DIR)/3rdparty/uleb128/src/uleb128/%.cc
 	@mkdir -p "$(dir $@)"
