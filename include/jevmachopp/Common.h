@@ -27,9 +27,13 @@
         abort();                                                                                   \
     } while (0)
 #else
+#if defined(M1N1) || defined(__UBOOT__)
 extern "C" __attribute__((noreturn)) void __assert_fail(const char *assertion, const char *file,
                                                         unsigned int line, const char *function);
 #define BOOST_STATIC_STRING_THROW(ex) __assert_fail(ex, __FILE__, __LINE__, __func__)
+#else
+#error unhandled
+#endif
 #endif
 #define BOOST_NORETURN [[noreturn]]
 

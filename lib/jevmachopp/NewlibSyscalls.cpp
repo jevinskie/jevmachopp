@@ -57,7 +57,8 @@ int _isatty(int fd) {
 
 __attribute__((noreturn))
 void abort(void) {
-    assert(!"abort()");
+    // assert(!"abort()");
+    printf("abort()!\n");
 }
 
 void _close_r(struct _reent *r, int fd) {
@@ -69,6 +70,9 @@ ssize_t _write_r(struct _reent *r, int fd, const void *buf, size_t sz) {
     // printf("_write_r(%p, %d, %p, %p)\n", r, fd, buf, (void*)sz);
     // assert(!"_write_r()");
     // return -1;
+    if (fd == 2) {
+        fd = 1;
+    }
     return write(fd, buf, sz);
 }
 

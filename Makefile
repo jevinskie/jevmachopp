@@ -90,7 +90,7 @@ endif
 endif
 
 ifeq ($(NAME),m1n1)
-DEFINE_FLAGS += -DM1N1
+DEFINE_FLAGS += -DM1N1 -UJEV_BAREMETAL
 endif
 
 INCLUDE_FLAGS += \
@@ -109,7 +109,7 @@ endif
 
 C_CXX_FLAGS := -g -O0
 # C_CXX_FLAGS += -Os
-C_CXX_FLAGS += $(C_CXX_FLAGS) -fno-exceptions -fno-unwind-tables -fno-asynchronous-unwind-tables
+C_CXX_FLAGS += -fno-exceptions -fno-unwind-tables -fno-asynchronous-unwind-tables
 C_CXX_FLAGS += -fvisibility=hidden -fvisibility-inlines-hidden
 C_CXX_FLAGS += -ffunction-sections -fdata-sections
 C_CXX_FLAGS += -Wno-unknown-pragmas
