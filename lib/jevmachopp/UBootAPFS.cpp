@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
+#include <unistd.h>
 
 
 
@@ -49,6 +50,10 @@ std::unique_ptr<ApfsDir::DirRec> lookupDir(ApfsDir *apfsDir, std::string_view di
 }
 
 void uboot_apfs_doit(void) {
+    write(2, __FUNCTION__, strlen( __FUNCTION__));
+    write(2, "\n", 1);
+    printf("entering uboot_apfs_doit()\n");
+    fflush(stdout);
 #ifdef JEV_BAREMETAL
     auto dev = Device::OpenDevice("virtio:0");
 #else

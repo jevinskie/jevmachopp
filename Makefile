@@ -58,6 +58,7 @@ JEV_CXX ?= aarch64-none-elf-g++
 JEV_LD ?= aarch64-none-elf-ld
 JEV_STRIP ?= aarch64-none-elf-strip
 JEV_NM ?= aarch64-none-elf-nm
+JEV_OBJCOPY ?= aarch64-none-elf-objcopy
 else
 JEV_AR := $(AR)
 JEV_CC := $(CC)
@@ -65,6 +66,7 @@ JEV_CXX := $(CXX)
 JEV_LD := $(LD)
 JEV_STRIP := $(STRIP)
 JEV_NM := $(NM)
+JEV_OBJCOPY := $(OBJCOPY)
 endif
 
 BOOST_DEFINE_FLAGS := -DBOOST_STATIC_STRING_STANDALONE=1 -DBOOST_NO_EXCEPTIONS=1
@@ -213,11 +215,9 @@ build/jevmachopp/libjevmachopp-extern-syms.txt: build/jevmachopp/libjevmachopp-r
 
 build/jevmachopp/libjevmachopp-internalize-syms.txt: build/jevmachopp/libjevmachopp-extern-syms.txt $(ROOT_DIR)/jevmachopp-u-boot-apfs-exported-syms.txt
 	grep -v -f $(ROOT_DIR)/jevmachopp-u-boot-apfs-exported-syms.txt build/jevmachopp/libjevmachopp-extern-syms.txt > $@
-	
 
-build/jevmachopp/libjevmachopp.o: build/jevmachopp/libjevmachopp-raw.o $(ROOT_DIR)/jevmachopp-u-boot-apfs-exported-syms.txt
-	jev-elf-vis-patch $(ROOT_DIR)/jevmachopp-u-boot-apfs-exported-syms.txt build/jevmachopp/libjevmachopp-raw.o $@
-# 	$(JEV_STRIP) -o $@ $^ $(patsubst %,-K %,$(shell $(JEV_NM) -u build/jevmachopp/libjevmachopp-raw.o | gawk "{ if (\"$$1\" == U) { print \$$2 } }")) -K uboot_apfs_doit -K board_fit_image_post_process -K board_fit_config_name_match
+build/jevmachopp/libjevmachopp.o: build/jevmachopp/libjevmachopp-raw.o build/jevmachopp/libjevmachopp-internalize-syms.txt
+	$(JEV_OBJCOPY) --localize-symbols=build/jevmachopp/libjevmachopp-internalize-syms.txt $< $@
 
 build/jevmachopp/uleb128/%.o: $(ROOT_DIR)/3rdparty/uleb128/src/uleb128/%.cc
 	@mkdir -p "$(dir $@)"
