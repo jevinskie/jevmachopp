@@ -19,6 +19,30 @@ int *__errno(void) {
     return &errno;
 }
 
+__attribute__((noreturn))
+void _exit(int status) {
+    printf("_exit(%d)\n", status);
+    assert(!"exit()");
+}
+
+int _stat(const char *__restrict path, struct stat *__restrict st) {
+    printf("_stat(\"%s\", %p) called\n", path, (void*)st);
+    assert(!"_stat()");
+    return -ENOSYS;
+}
+
+int _unlink(const char *path) {
+    printf("_unlink(\"%s\") called\n", path);
+    assert(!"_unlink()");
+    return -ENOSYS;
+}
+
+int _open(const char *path, int flag, int m) {
+    printf("_open(\"%s\", %d, %d) called\n", path, flag, m);
+    assert(!"_open()");
+    return -ENOSYS;
+}
+
 int board_fit_config_name_match(const char *name) {
     printf("board_fit_config_name_match(\"%s\") called\n", name);
     assert(!"board_fit_config_name_match()");
