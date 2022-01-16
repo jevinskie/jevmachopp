@@ -12,6 +12,11 @@
 
 extern "C" {
 
+int newlib2uboot_printf(const char * __restrict fmt, ...) \
+    __attribute__((__format__(__printf__, 1, 2)));
+#define printf newlib2uboot_printf
+
+
 // huh?
 void *__dso_handle[32];
 
@@ -113,10 +118,10 @@ void abort(void) {
 }
 
 void _close_r(struct _reent *r, int fd) {
-    write(2, __FUNCTION__, strlen( __FUNCTION__));
-    write(2, "\n", 1);
+    // write(2, __FUNCTION__, strlen( __FUNCTION__));
+    // write(2, "\n", 1);
     printf("_close_r(%p, %d)\n", r, fd);
-    assert(!"_close_r()");
+    // assert(!"_close_r()");
 }
 
 ssize_t newlib2uboot_write(int fd, const void *buf, size_t count);

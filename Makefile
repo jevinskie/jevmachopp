@@ -207,7 +207,7 @@ build/jevmachopp/libjevmachopp.a: $(LIBJEVMACHOPP_OBJS)
 
 build/jevmachopp/libjevmachopp-raw.o: build/jevmachopp/libjevmachopp.a build/jevmachopp/uleb128/libuleb128.a build/jevmachopp/apfs/libapfs.a build/jevmachopp/apfs/miniz/libminiz.a build/jevmachopp/apfs/lzfse/liblzfse.a build/jevmachopp/apfs/bzip2/libbz2.a
 	@mkdir -p "$(dir $@)"
-	$(JEV_CXX) -o $@ -nostdlib -Wl,-r -Wl,--whole-archive build/jevmachopp/apfs/miniz/libminiz.a build/jevmachopp/apfs/lzfse/liblzfse.a build/jevmachopp/apfs/bzip2/libbz2.a build/jevmachopp/apfs/libapfs.a build/jevmachopp/uleb128/libuleb128.a build/jevmachopp/libjevmachopp.a -Wl,--no-whole-archive -Wl,--start-group $(JEV_LIBCXX_PATH) $(JEV_LIBCXXABI_PATH) $(JEV_LIBC_PATH) $(JEV_LIBGCC_PATH) -Wl,--end-group
+	$(JEV_CXX) -o $@ -nostdlib -g -Wl,-r -Wl,--whole-archive build/jevmachopp/apfs/miniz/libminiz.a build/jevmachopp/apfs/lzfse/liblzfse.a build/jevmachopp/apfs/bzip2/libbz2.a build/jevmachopp/apfs/libapfs.a build/jevmachopp/uleb128/libuleb128.a build/jevmachopp/libjevmachopp.a -Wl,--no-whole-archive -Wl,--start-group $(JEV_LIBCXX_PATH) $(JEV_LIBCXXABI_PATH) $(JEV_LIBC_PATH) $(JEV_LIBGCC_PATH) -Wl,--end-group
 
 
 build/jevmachopp/libjevmachopp-extern-syms.txt: build/jevmachopp/libjevmachopp-raw.o

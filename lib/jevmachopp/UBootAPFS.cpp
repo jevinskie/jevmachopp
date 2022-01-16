@@ -88,7 +88,7 @@ void uboot_apfs_doit(void) {
     assert(preboot_vol);
     printf("preboot name: %s\n", preboot_vol->name());
 
-    fprintf((FILE*)2, "fprintf test\n");
+    fprintf(stderr, "fprintf test\n");
     // fiprintf(stderr, "fiprintf test\n");
 
     printf("pre fart\n");
