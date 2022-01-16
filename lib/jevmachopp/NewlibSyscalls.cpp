@@ -12,9 +12,14 @@
 
 extern "C" {
 
-int newlib2uboot_printf(const char * __restrict fmt, ...) \
-    __attribute__((__format__(__printf__, 1, 2)));
+ssize_t newlib2uboot_write(int fd, const void *buf, size_t count);
+
+int newlib2uboot_printf(const char * __restrict fmt, ...)
+        __attribute__((__format__(__printf__, 1, 2)));
 #define printf newlib2uboot_printf
+
+void newlib2uboot_panic(const char *fmt, ...)
+        __attribute__((__format__(__printf__, 1, 2), noreturn));
 
 
 // huh?
@@ -113,18 +118,16 @@ __attribute__((noreturn))
 void abort(void) {
     write(2, __FUNCTION__, strlen( __FUNCTION__));
     write(2, "\n", 1);
-    // assert(!"abort()");
-    printf("abort()!\n");
+    newlib2uboot_panic("abort()! caller: %p\n", __builtin_return_address(0));
 }
 
-void _close_r(struct _reent *r, int fd) {
+int _close_r(struct _reent *r, int fd) {
     // write(2, __FUNCTION__, strlen( __FUNCTION__));
     // write(2, "\n", 1);
     printf("_close_r(%p, %d)\n", r, fd);
     // assert(!"_close_r()");
+    return 0;
 }
-
-ssize_t newlib2uboot_write(int fd, const void *buf, size_t count);
 
 ssize_t _write_r(struct _reent *r, int fd, const void *buf, size_t sz) {
     return newlib2uboot_write(fd, buf, sz);
