@@ -9,7 +9,6 @@ set(MACHOPP_SRC
     DeviceTree.cpp
     DylibCommand.cpp
     DySymtabCommand.cpp
-    EmptyObjSentinel.cpp
     FatMachO.cpp
     FilesetEntryCommand.cpp
     FunctionStartsCommand.cpp
@@ -21,7 +20,6 @@ set(MACHOPP_SRC
     m1n1.cpp
     MachO.cpp
     MachOHeaderEnums.cpp
-    NewlibSyscalls.cpp
     NList.cpp
     NVRAM.cpp
     Section.cpp
@@ -74,6 +72,12 @@ foreach(SRC ${MACHOPP_SRC})
     set(HDR "${CMAKE_CURRENT_SOURCE_DIR}/../../include/jevmachopp/${HDR}")
     list(APPEND MACHOPP_HDR ${HDR})
 endforeach()
+
+# headerless
+list(APPEND MACHOPP_SRC
+    EmptyObjSentinel.cpp
+    NewlibSyscalls.cpp
+)
 
 if (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "aarch64" OR ${CMAKE_SYSTEM_PROCESSOR} STREQUAL "arm64")
     list(APPEND MACHOPP_SRC
