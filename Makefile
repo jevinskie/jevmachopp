@@ -121,7 +121,7 @@ C_CXX_FLAGS += -ffunction-sections -fdata-sections
 C_CXX_FLAGS += -Wno-unknown-pragmas
 
 ifdef UBOOTRELEASE
-C_CXX_FLAGS += -fPIC
+C_CXX_FLAGS += -fPIC -ffixed-x18 -flto=full
 endif
 
 # C_CXX_FLAGS += $(C_CXX_FLAGS) -flto -fuse-linker-plugin -ffat-lto-objects
@@ -132,7 +132,7 @@ JEV_CFLAGS := $(filter-out -isystem $(shell $(CC) -print-file-name=include),$(JE
 JEV_CFLAGS := $(filter-out -isystem sysinc,$(JEV_CFLAGS))
 JEV_CFLAGS := $(filter-out -Werror=strict-prototypes,$(JEV_CFLAGS))
 JEV_CFLAGS := $(JEV_CFLAGS) $(C_CXX_FLAGS) -std=gnu11 $(DEFINE_FLAGS) $(INCLUDE_FLAGS)
-JEV_CXXFLAGS := $(JEV_CFLAGS) $(CXXFLAGS) $(C_CXX_FLAGS) -std=gnu++2b -fno-rtti $(DEFINE_FLAGS) $(INCLUDE_FLAGS)
+JEV_CXXFLAGS := $(JEV_CFLAGS) $(CXXFLAGS) -std=gnu++2b -fno-rtti $(DEFINE_FLAGS) $(INCLUDE_FLAGS)
 JEV_CXXFLAGS := $(filter-out -Werror=strict-prototypes,$(JEV_CXXFLAGS))
 JEV_CXXFLAGS := $(filter-out -Werror=implicit-function-declaration,$(JEV_CXXFLAGS))
 JEV_CXXFLAGS := $(filter-out -Werror=implicit-int,$(JEV_CXXFLAGS))
@@ -205,19 +205,9 @@ build/jevmachopp/libjevmachopp.a: $(LIBJEVMACHOPP_OBJS)
 	@mkdir -p "$(dir $@)"
 	$(JEV_AR) rc $@ $^
 
-build/jevmachopp/libjevmachopp-raw.o: build/jevmachopp/libjevmachopp.a build/jevmachopp/uleb128/libuleb128.a build/jevmachopp/apfs/libapfs.a build/jevmachopp/apfs/miniz/libminiz.a build/jevmachopp/apfs/lzfse/liblzfse.a build/jevmachopp/apfs/bzip2/libbz2.a
+build/jevmachopp/libjevmachopp.o: build/jevmachopp/libjevmachopp.a build/jevmachopp/uleb128/libuleb128.a build/jevmachopp/apfs/libapfs.a build/jevmachopp/apfs/miniz/libminiz.a build/jevmachopp/apfs/lzfse/liblzfse.a build/jevmachopp/apfs/bzip2/libbz2.a $(ROOT_DIR)/jevmachopp-u-boot-apfs-exported-syms.txt
 	@mkdir -p "$(dir $@)"
-	$(JEV_CXX) -o $@ -nostdlib -g -Wl,-r -Wl,--whole-archive build/jevmachopp/apfs/miniz/libminiz.a build/jevmachopp/apfs/lzfse/liblzfse.a build/jevmachopp/apfs/bzip2/libbz2.a build/jevmachopp/apfs/libapfs.a build/jevmachopp/uleb128/libuleb128.a build/jevmachopp/libjevmachopp.a -Wl,--no-whole-archive -Wl,--start-group $(JEV_LIBCXX_PATH) $(JEV_LIBCXXABI_PATH) $(JEV_LIBC_PATH) $(JEV_LIBGCC_PATH) -Wl,--end-group
-
-
-build/jevmachopp/libjevmachopp-extern-syms.txt: build/jevmachopp/libjevmachopp-raw.o
-	$(JEV_NM) --format posix -g $< | gawk "{ if (\$$2 != \"U\") print \$$1 }" > $@
-
-build/jevmachopp/libjevmachopp-internalize-syms.txt: build/jevmachopp/libjevmachopp-extern-syms.txt $(ROOT_DIR)/jevmachopp-u-boot-apfs-exported-syms.txt
-	grep -v -f $(ROOT_DIR)/jevmachopp-u-boot-apfs-exported-syms.txt build/jevmachopp/libjevmachopp-extern-syms.txt > $@
-
-build/jevmachopp/libjevmachopp.o: build/jevmachopp/libjevmachopp-raw.o build/jevmachopp/libjevmachopp-internalize-syms.txt
-	$(JEV_OBJCOPY) --localize-symbols=build/jevmachopp/libjevmachopp-internalize-syms.txt $< $@
+	$(JEV_CXX) -o $@ -g -Wl,-r build/jevmachopp/apfs/miniz/libminiz.a build/jevmachopp/apfs/lzfse/liblzfse.a build/jevmachopp/apfs/bzip2/libbz2.a build/jevmachopp/apfs/libapfs.a build/jevmachopp/uleb128/libuleb128.a -Wl,--whole-archive build/jevmachopp/libjevmachopp.a -Wl,--no-whole-archive -Wl,--lto-load-pass-plugin=$(JEVEMBCUSTOMS_LIB) -Xlinker --lto-newpm-passes='embcust,default<Os>' -Wl,-mllvm-plugin,-exported-syms=$(ROOT_DIR)/jevmachopp-u-boot-apfs-exported-syms.txt
 
 build/jevmachopp/uleb128/%.o: $(ROOT_DIR)/3rdparty/uleb128/src/uleb128/%.cc
 	@mkdir -p "$(dir $@)"

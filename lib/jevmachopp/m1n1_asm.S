@@ -10,6 +10,8 @@ printf:
     .size   printf, .-printf
 #endif
 
+#if 0
+
 #if defined(__ELF__) && __ELF__
 #define JMP_STUB_NAME xnu_jump_stub
 #define JMP_STUB_END_NAME _xnu_jump_stub_end
@@ -49,3 +51,4 @@ JMP_STUB_NAME:
     .global JMP_STUB_END_NAME
 JMP_STUB_END_NAME:
     nop
+#endif
