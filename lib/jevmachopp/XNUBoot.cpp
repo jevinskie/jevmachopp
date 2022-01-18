@@ -16,6 +16,12 @@ namespace XNUBoot {
 struct vector_args next_stage;
 #endif
 
+uintptr_t _xnu_jump_stub_end(void) {
+    auto p = (const uint32_t *)&xnu_jump_stub;
+    for (; *p != 0xdeadbeef; ++p);
+    return (uintptr_t)p;
+}
+
 void load_and_prep_xnu_kernelcache(const void *boot_args_base) {
     if (!boot_args_base) {
         printf("boot_args_base is NULL\n");
@@ -145,7 +151,7 @@ void load_and_prep_xnu_kernelcache(const void *boot_args_base) {
     memcpy((char *)ba_copy_base, ba_reg.base, ba_reg.size);
 
     const auto stub_copy_base = ba_copy_end;
-    const auto stub_size      = (uintptr_t)&_xnu_jump_stub_end - (uintptr_t)xnu_jump_stub;
+    const auto stub_size      = _xnu_jump_stub_end() - (uintptr_t)xnu_jump_stub;
     memcpy((char *)stub_copy_base, (char *)xnu_jump_stub, stub_size);
     m1n1::flush_i_and_d_cache((void *)stub_copy_base, stub_size);
     printf("stub_copy_base: %p xnu_jump_stub: %p stub_size: %x\n", (void *)stub_copy_base,

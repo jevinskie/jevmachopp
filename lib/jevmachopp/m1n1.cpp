@@ -62,49 +62,6 @@ void flush_i_and_d_cache(const void *addr, ssize_t size) {
 } // namespace m1n1
 
 
-#if 0
-
-#if defined(__ELF__) && __ELF__
-#define JMP_STUB_NAME xnu_jump_stub
-#define JMP_STUB_END_NAME _xnu_jump_stub_end
-#else
-#define JMP_STUB_NAME _xnu_jump_stub
-#define JMP_STUB_END_NAME __xnu_jump_stub_end
-#endif
-
-// x0: new_bootargs_addr
-// x1: image_addr
-// x2: new_base
-// x3: image_size
-// x4: image_entry
-    .global JMP_STUB_NAME
-    .align  2
-#if defined(__ELF__) && __ELF__
-    .type   JMP_STUB_NAME, %function
-#endif
-JMP_STUB_NAME:
-    ldp x5, x6, [x1], #16
-    stp x5, x6, [x2]
-    dc cvau, x2
-    ic ivau, x2
-    add x2, x2, #16
-    sub x3, x3, #16
-    cbnz x3, JMP_STUB_NAME
-
-    mov x1, x4
-#if defined(__ELF__) && __ELF__
-    br x1
-#else
-    ret
-#endif
-#if defined(__ELF__) && __ELF__
-    .size   JMP_STUB_NAME, .-JMP_STUB_NAME
-#endif
-    .global JMP_STUB_END_NAME
-JMP_STUB_END_NAME:
-    nop
-#endif
-
 __attribute__((naked))
 #ifdef JEV_BAREMETAL
 __attribute__((noreturn))
@@ -114,22 +71,33 @@ extern "C" void xnu_jump_stub(uint64_t new_bootargs_addr,
                               uint64_t new_base,
                               uint64_t image_size,
                               uint64_t image_entry) {
-// clang-format off
+#ifndef __aarch64__
+#error unsupported arch, only aarc64 supported right now. should stub out or something
+#endif
+    // clang-format off
     asm volatile(
+                // x0: new_bootargs_addr
+                // x1: image_addr
+                // x2: new_base
+                // x3: image_size
+                // x4: image_entry
+                "1:\n\t"
                 "ldp x5, x6, [x1], #16\n\t"
                 "stp x5, x6, [x2]\n\t"
                 "dc cvau, x2\n\t"
                 "ic ivau, x2\n\t"
                 "add x2, x2, #16\n\t"
                 "sub x3, x3, #16\n\t"
-                "cbnz x3, JMP_STUB_NAME\n\t"
+                "cbnz x3, 1b\n\t"
 
                 "mov x1, x4\n\t"
 #ifdef JEV_BAREMETAL
+                // call entry point with x0 (boot args addr) as only arg
                 "br x1\n\t"
 #else
                 "ret\n\t"
 #endif
+                ".word 0xdeadbeef"
     );
-// clang-format on
+    // clang-format on
 }
