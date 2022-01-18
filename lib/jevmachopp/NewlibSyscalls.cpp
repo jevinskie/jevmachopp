@@ -158,6 +158,23 @@ off_t _lseek_r(struct _reent *r, int fd, off_t off, int whence) {
     return -1;
 }
 
+pid_t _getpid() {
+    // write(2, __FUNCTION__, strlen( __FUNCTION__));
+    // write(2, "\n", 1);
+    // printf("_getpid()\n");
+    // assert(!"_getpid()");
+    return 1;
+}
+
+int _kill(pid_t pid, int signal) {
+    // write(2, __FUNCTION__, strlen( __FUNCTION__));
+    // write(2, "\n", 1);
+    // printf("_kill(%d, %d)\n", (int)pid_t, signal);
+    // assert(!"_kill()");
+    return 0; // yeah sure you killed 'em, tiger
+}
+
+
 } // extern "C"
 
 #endif
