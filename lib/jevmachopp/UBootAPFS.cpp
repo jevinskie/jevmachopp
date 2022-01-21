@@ -5,7 +5,9 @@
 #include <cstdio>
 #include <cstdlib>
 #include <unistd.h>
+#include <cfloat>
 
+#include <iostream>
 
 
 #include <ApfsLib/ApfsContainer.h>
@@ -51,12 +53,17 @@ std::unique_ptr<ApfsDir::DirRec> lookupDir(ApfsDir *apfsDir, std::string_view di
 
 } // namespace UBootAPFS
 
+using namespace UBootAPFS;
 
 void uboot_apfs_doit(void) {
-    write(2, __FUNCTION__, strlen( __FUNCTION__));
-    write(2, "\n", 1);
+    setvbuf(stdout, nullptr, _IONBF, 0);
+
     printf("entering uboot_apfs_doit()\n");
-    fflush(stdout);
+
+    std::cout << "fart!\n";
+
+    // g_debug = 0xff;
+
 #ifdef JEV_BAREMETAL
     auto dev = Device::OpenDevice("virtio:0");
 #else
@@ -91,13 +98,6 @@ void uboot_apfs_doit(void) {
     assert(preboot_vol);
     printf("preboot name: %s\n", preboot_vol->name());
 
-    fprintf(stderr, "fprintf test\n");
-    // fiprintf(stderr, "fiprintf test\n");
-
-    printf("pre fart\n");
-
-    // assert(!"fart");
-
     std::string_view kc_dir{"/D8961206-5EAC-4D35-94A3-5412F17E6B3B/boot/CBE5168B59E7B0104701733E3A617B82BC6F895B88CACFCE327725CB5532929C19244CFCEF709E3D0F8337A4866F608C/System/Library/Caches/com.apple.kernelcaches"};
     std::string_view kc_path{"/D8961206-5EAC-4D35-94A3-5412F17E6B3B/boot/CBE5168B59E7B0104701733E3A617B82BC6F895B88CACFCE327725CB5532929C19244CFCEF709E3D0F8337A4866F608C/System/Library/Caches/com.apple.kernelcaches/kernelcache"};
 
@@ -112,10 +112,18 @@ void uboot_apfs_doit(void) {
     // assert(apfsDir.LookupName(res, ROOT_DIR_INO_NUM, "D8961206-5EAC-4D35-94A3-5412F17E6B3B"));
     // printf("lookup of root dir D8961206-5EAC-4D35-94A3-5412F17E6B3B worked\n");
 
-    assert(apfsDir.LookupName(res, ROOT_DIR_PARENT, "root"));
+    std::vector<ApfsDir::DirRec> list_res;
+    const bool list_root_res = apfsDir.ListDirectory(list_res, ROOT_DIR_PARENT);
+    printf("list_root_res: %d len: %d\n", list_root_res, (int)list_res.size());
+    for (const auto &dir : list_res) {
+        printf("dir: %s parent_id: 0x%lx file_id: 0x%lx\n", dir.name.c_str(), dir.parent_id, dir.file_id);
+    }
+
+    const bool lookup_root_res = apfsDir.LookupName(res, ROOT_DIR_PARENT, "root");
+    assert(lookup_root_res);
     printf("lookup of superroot dir root worked\n");
 
-    const auto kc_dir_res = UBootAPFS::lookupDir(&apfsDir, kc_dir);
+    const auto kc_dir_res = lookupDir(&apfsDir, kc_dir);
     if (kc_dir_res) {
         printf("found dir named: %s\n", kc_dir_res->name.c_str());
     } else {

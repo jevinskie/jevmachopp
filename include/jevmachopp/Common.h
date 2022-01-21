@@ -28,8 +28,15 @@
     } while (0)
 #else
 #if defined(M1N1) || defined(__UBOOT__)
+#if __has_include(<_newlib_version.h>)
 extern "C" __attribute__((noreturn)) void __assert_fail(const char *assertion, const char *file,
                                                         unsigned int line, const char *function);
+#elif __has_include(<_musl_version.h>)
+extern "C" __attribute__((noreturn)) void __assert_fail(const char *assertion, const char *file,
+                                                        int line, const char *function);
+#else
+#error unsupported libc for __assert_fail
+#endif
 #define BOOST_STATIC_STRING_THROW(ex) __assert_fail(ex, __FILE__, __LINE__, __func__)
 #else
 #error unhandled

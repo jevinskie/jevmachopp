@@ -52,6 +52,7 @@ set(MACHOPP_HDR_STANDALONE
     DelimitedCStr.h
     EncryptionInfoCommand.h
     LoadCommandType.h
+    OtherLibCSupplement.h
     PackedCStr.h
     Ranges.h
     RingBuffer.h
@@ -77,6 +78,7 @@ endforeach()
 list(APPEND MACHOPP_SRC
     EmptyObjSentinel.cpp
     NewlibSyscalls.cpp
+    MuslSyscalls.cpp
 )
 
 if (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "aarch64" OR ${CMAKE_SYSTEM_PROCESSOR} STREQUAL "arm64")

@@ -1,3 +1,4 @@
 uboot_apfs_doit
 board_fit_image_post_process
 board_fit_config_name_match
+__libc_start_embcust
