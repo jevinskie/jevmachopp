@@ -24,8 +24,21 @@ const char *__embcust_argv[] = {
 };
 
 const char *__embcust_environ[] = {
+    "SHELL=embcust",
     nullptr,
 };
+
+typedef struct {
+  size_t type;
+  size_t val;
+} auxv_t;
+
+const auxv_t __embcust_auxv[] = {
+    { .type = 0, .val = 0},
+};
+
+extern void __libc_start_embcust(void);
+void (*__libc_start_embcust_dummy_import)(void) = __libc_start_embcust;
 
 int SYS_IMP_writev(int fd, const struct iovec *iov, int iovcnt) {
     int res = 0;
