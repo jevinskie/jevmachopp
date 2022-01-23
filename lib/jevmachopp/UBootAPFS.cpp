@@ -136,16 +136,48 @@ void uboot_apfs_doit(void) {
     return;
 }
 
-struct blk_desc;
-struct disk_partition;
 struct fs_dirent;
 struct fs_dir_stream;
 typedef long long int loff_t;
+typedef unsigned long int ulong;
+typedef unsigned char uchar;
+
+#define UUID_STR_LEN 36
+#define PART_NAME_LEN 32
+#define PART_TYPE_LEN 32
+
+#define CONFIG_PARTITION_UUIDS
+#define CONFIG_PARTITION_TYPE_GUID
+
+struct disk_partition {
+    lbaint_t start;            /* # of first block in partition    */
+    lbaint_t size;             /* number of blocks in partition    */
+    ulong blksz;               /* block size in bytes          */
+    uchar name[PART_NAME_LEN]; /* partition name           */
+    uchar type[PART_TYPE_LEN]; /* string type description      */
+    /*
+     * The bootable is a bitmask with the following fields:
+     *
+     * PART_BOOTABLE        the MBR bootable flag is set
+     * PART_EFI_SYSTEM_PARTITION    the partition is an EFI system partition
+     */
+    int bootable;
+#ifdef CONFIG_PARTITION_UUIDS
+    char uuid[UUID_STR_LEN + 1]; /* filesystem UUID as string, if exists */
+#endif
+#ifdef CONFIG_PARTITION_TYPE_GUID
+    char type_guid[UUID_STR_LEN + 1]; /* type GUID as string, if exists   */
+#endif
+};
 
 extern "C" {
 
 int apfs_probe(struct blk_desc *fs_dev_desc, struct disk_partition *fs_partition) {
-    assert(!"apfs_probe");
+    // assert(!"apfs_probe");
+    struct disk_partition *p = fs_partition;
+    printf("apfs_probe() part start: 0x%lx sz: 0x%lx blksz: %ld name: %s type: %s bootable: %d "
+           "uuid: %s guid: %s\n",
+           p->start, p->size, p->blksz, p->name, p->type, p->bootable, p->uuid, p->type_guid);
     return -1;
 }
 
