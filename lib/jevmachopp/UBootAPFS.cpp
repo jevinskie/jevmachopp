@@ -1,14 +1,13 @@
 #include "jevmachopp/UBootAPFS.h"
 
 #include <cassert>
+#include <cfloat>
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 #include <unistd.h>
-#include <cfloat>
 
 #include <iostream>
-
 
 #include <ApfsLib/ApfsContainer.h>
 #include <ApfsLib/ApfsDir.h>
@@ -18,15 +17,14 @@
 #include <ApfsLib/DeviceUBoot.h>
 #include <ApfsLib/GptPartitionMap.h>
 
-
 #include <jevmachopp/Common.h>
 
 #include <nanorange/views/drop.hpp>
 
 namespace UBootAPFS {
 
-
-std::unique_ptr<ApfsDir::DirRec> childDirNamed(ApfsDir *apfsDir, ApfsDir::DirRec *parentDir, std::string_view childDirName) {
+std::unique_ptr<ApfsDir::DirRec> childDirNamed(ApfsDir *apfsDir, ApfsDir::DirRec *parentDir,
+                                               std::string_view childDirName) {
     assert(parentDir);
     auto res = std::make_unique<ApfsDir::DirRec>();
     if (!apfsDir->LookupName(*res, parentDir->file_id, std::string{childDirName}.c_str())) {
@@ -98,17 +96,23 @@ void uboot_apfs_doit(void) {
     assert(preboot_vol);
     printf("preboot name: %s\n", preboot_vol->name());
 
-    std::string_view kc_dir{"/D8961206-5EAC-4D35-94A3-5412F17E6B3B/boot/CBE5168B59E7B0104701733E3A617B82BC6F895B88CACFCE327725CB5532929C19244CFCEF709E3D0F8337A4866F608C/System/Library/Caches/com.apple.kernelcaches"};
-    std::string_view kc_path{"/D8961206-5EAC-4D35-94A3-5412F17E6B3B/boot/CBE5168B59E7B0104701733E3A617B82BC6F895B88CACFCE327725CB5532929C19244CFCEF709E3D0F8337A4866F608C/System/Library/Caches/com.apple.kernelcaches/kernelcache"};
+    std::string_view kc_dir{
+        "/D8961206-5EAC-4D35-94A3-5412F17E6B3B/boot/"
+        "CBE5168B59E7B0104701733E3A617B82BC6F895B88CACFCE327725CB5532929C19244CFCEF709E3D0F8337A486"
+        "6F608C/System/Library/Caches/com.apple.kernelcaches"};
+    std::string_view kc_path{
+        "/D8961206-5EAC-4D35-94A3-5412F17E6B3B/boot/"
+        "CBE5168B59E7B0104701733E3A617B82BC6F895B88CACFCE327725CB5532929C19244CFCEF709E3D0F8337A486"
+        "6F608C/System/Library/Caches/com.apple.kernelcaches/kernelcache"};
 
     // for (const auto sv : stringSplitViewDelimitedBy(kc_path, '/')) {
-        // printf("path part for show: %.*s\n", SV2PF(sv));
+    // printf("path part for show: %.*s\n", SV2PF(sv));
     // }
 
     ApfsDir apfsDir(*preboot_vol);
     // printf("apfsDir: %p\n", (void*)&apfsDir);
     ApfsDir::DirRec res;
-    printf("res: %p\n", (void*)&res);
+    printf("res: %p\n", (void *)&res);
     // assert(apfsDir.LookupName(res, ROOT_DIR_INO_NUM, "D8961206-5EAC-4D35-94A3-5412F17E6B3B"));
     // printf("lookup of root dir D8961206-5EAC-4D35-94A3-5412F17E6B3B worked\n");
 
@@ -116,7 +120,8 @@ void uboot_apfs_doit(void) {
     const bool list_root_res = apfsDir.ListDirectory(list_res, ROOT_DIR_PARENT);
     printf("list_root_res: %d len: %d\n", list_root_res, (int)list_res.size());
     for (const auto &dir : list_res) {
-        printf("dir: %s parent_id: 0x%lx file_id: 0x%lx\n", dir.name.c_str(), dir.parent_id, dir.file_id);
+        printf("dir: %s parent_id: 0x%lx file_id: 0x%lx\n", dir.name.c_str(), dir.parent_id,
+               dir.file_id);
     }
 
     const bool lookup_root_res = apfsDir.LookupName(res, ROOT_DIR_PARENT, "root");
@@ -132,4 +137,3 @@ void uboot_apfs_doit(void) {
 
     return;
 }
-

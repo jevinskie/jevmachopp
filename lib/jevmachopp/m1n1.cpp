@@ -15,8 +15,7 @@ extern "C" int puts(const char *s) {
     return res;
 }
 
-
-extern "C" __attribute__((__noreturn__,__weak__)) void _ZSt24__throw_out_of_range_fmtPKcz(void) {
+extern "C" __attribute__((__noreturn__, __weak__)) void _ZSt24__throw_out_of_range_fmtPKcz(void) {
     assert(!"__throw_out_of_range_fmt stub called");
 }
 
@@ -61,16 +60,13 @@ void flush_i_and_d_cache(const void *addr, ssize_t size) {
 
 } // namespace m1n1
 
-
 __attribute__((naked))
 #ifdef JEV_BAREMETAL
 __attribute__((noreturn))
 #endif
-extern "C" void xnu_jump_stub(uint64_t new_bootargs_addr,
-                              uint64_t image_addr,
-                              uint64_t new_base,
-                              uint64_t image_size,
-                              uint64_t image_entry) {
+extern "C" void
+xnu_jump_stub(uint64_t new_bootargs_addr, uint64_t image_addr, uint64_t new_base,
+              uint64_t image_size, uint64_t image_entry) {
 #ifndef __aarch64__
 #error unsupported arch, only aarc64 supported right now. should stub out or something
 #endif

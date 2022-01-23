@@ -79,8 +79,8 @@ struct sv2pf {
 // #define SV2PF(sv) sv2pf((sv)).sz, sv2pf((sv)).str
 #define SV2PF(sv) (int)((sv).size()), (sv).data()
 
-#define JEV_CONCAT_X(a,b) a##b
-#define JEV_CONCAT(a,b) JEV_CONCAT_X(a,b)
+#define JEV_CONCAT_X(a, b) a##b
+#define JEV_CONCAT(a, b) JEV_CONCAT_X(a, b)
 
 #pragma mark Simple Types
 
@@ -151,15 +151,15 @@ constexpr bool check_size_minus_header_equal() {
 #define static_assert_cond(cond) static_assert((cond), #cond)
 
 #define static_assert_size_is(obj, sz)                                                             \
-    __attribute__((unused)) static constexpr bool JEV_CONCAT(                                   \
+    __attribute__((unused)) static constexpr bool JEV_CONCAT(                                      \
         static_assert_size_is_, __COUNTER__) = check_size_is<obj, (sz)>()
 
 #define static_assert_size_same(obj_a, obj_b)                                                      \
-    __attribute__((unused)) static constexpr bool JEV_CONCAT(                                   \
+    __attribute__((unused)) static constexpr bool JEV_CONCAT(                                      \
         static_assert_size_same_, __COUNTER__) = check_size_equal<obj_a, obj_b>()
 
 #define static_assert_size_same_minus_header(obj_a, obj_b, obj_b_hdr)                              \
-    __attribute__((unused)) static constexpr bool JEV_CONCAT(                                   \
+    __attribute__((unused)) static constexpr bool JEV_CONCAT(                                      \
         static_assert_size_same_minus_header_, __COUNTER__) =                                      \
         check_size_minus_header_equal<obj_a, obj_b, obj_b_hdr>()
 

@@ -18,9 +18,8 @@ typedef __uintmax_t uintmax_t;
 #include "stdio.h"
 #include "stdlib.h"
 // #include "string.h"
-#include "time.h"
 #include "malloc.h"
-
+#include "time.h"
 
 typedef unsigned long ulong;
 
@@ -52,9 +51,7 @@ extern "C" {
 
 #undef inline
 
-
 #include <log.h>
-
 
 #include <linux/kernel.h>
 #undef swap
@@ -84,24 +81,24 @@ extern "C" {
 // #define printf(fmt, ...) fprintf(stdout, fmt, __VA_ARGS__)
 // #define PRINT(fmt, args...) printf(fmt, args);
 // #define LOG(args...) ExtendLog(__FILE_NAME__, __LINE__, __PRETTY_FUNCTION__, args);
-// extern void ExtendLog(const char *file, int lineNumber, const char *functionName, NSString *format, ...) NS_FORMAT_FUNCTION(4,5);
-#define printf fprintf(1, fmt, args...) __attribute__((format(2,3)))
+// extern void ExtendLog(const char *file, int lineNumber, const char *functionName, NSString
+// *format, ...) NS_FORMAT_FUNCTION(4,5);
+#define printf fprintf(1, fmt, args...) __attribute__((format(2, 3)))
 
 #include <string.h>
-
 }
 
 extern "C" __weak inline char *strerror(int errn) {
-	assert(!"strerror called");
-	return nullptr;
+    assert(!"strerror called");
+    return nullptr;
 }
 
 extern "C" __weak inline int strcoll(const char *a, const char *b) {
-	assert(!"strcoll called");
-	return 0;
+    assert(!"strcoll called");
+    return 0;
 }
 
 extern "C" __weak inline size_t strxfrm(char *dst, const char *src, size_t num) {
-	assert(!"strcoll called");
-	return 0;
+    assert(!"strcoll called");
+    return 0;
 }

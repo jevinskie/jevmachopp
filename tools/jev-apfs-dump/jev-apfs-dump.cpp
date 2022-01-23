@@ -71,12 +71,10 @@ void *dev_get_uclass_plat(const struct udevice *dev) {
     return &fake_m1_nvme_blk_desc;
 }
 
-unsigned long blk_dread(struct blk_desc *block_dev, lbaint_t start,
-            lbaint_t blkcnt, void *buffer) {
+unsigned long blk_dread(struct blk_desc *block_dev, lbaint_t start, lbaint_t blkcnt, void *buffer) {
 
     return block_dev->block_read(block_dev, start, blkcnt, buffer);
 }
-
 
 } // extern "C"
 
@@ -89,7 +87,8 @@ unsigned long fake_block_read(struct blk_desc *block_dev, lbaint_t start, lbaint
     return blkcnt;
 }
 
-std::unique_ptr<ApfsDir::DirRec> childDirNamed(ApfsDir *apfsDir, ApfsDir::DirRec *parentDir, std::string_view childDirName) {
+std::unique_ptr<ApfsDir::DirRec> childDirNamed(ApfsDir *apfsDir, ApfsDir::DirRec *parentDir,
+                                               std::string_view childDirName) {
     assert(parentDir);
     auto res = std::make_unique<ApfsDir::DirRec>();
     if (!apfsDir->LookupName(*res, parentDir->file_id, std::string{childDirName}.c_str())) {
@@ -158,8 +157,14 @@ int main(int argc, const char **argv) {
     assert(preboot_vol);
     fprintf(stderr, "preboot name: %s\n", preboot_vol->name());
 
-    std::string_view kc_dir{"/D8961206-5EAC-4D35-94A3-5412F17E6B3B/boot/CBE5168B59E7B0104701733E3A617B82BC6F895B88CACFCE327725CB5532929C19244CFCEF709E3D0F8337A4866F608C/System/Library/Caches/com.apple.kernelcaches"};
-    std::string_view kc_path{"/D8961206-5EAC-4D35-94A3-5412F17E6B3B/boot/CBE5168B59E7B0104701733E3A617B82BC6F895B88CACFCE327725CB5532929C19244CFCEF709E3D0F8337A4866F608C/System/Library/Caches/com.apple.kernelcaches/kernelcache"};
+    std::string_view kc_dir{
+        "/D8961206-5EAC-4D35-94A3-5412F17E6B3B/boot/"
+        "CBE5168B59E7B0104701733E3A617B82BC6F895B88CACFCE327725CB5532929C19244CFCEF709E3D0F8337A486"
+        "6F608C/System/Library/Caches/com.apple.kernelcaches"};
+    std::string_view kc_path{
+        "/D8961206-5EAC-4D35-94A3-5412F17E6B3B/boot/"
+        "CBE5168B59E7B0104701733E3A617B82BC6F895B88CACFCE327725CB5532929C19244CFCEF709E3D0F8337A486"
+        "6F608C/System/Library/Caches/com.apple.kernelcaches/kernelcache"};
 
     ApfsDir apfsDir(*preboot_vol);
     ApfsDir::DirRec res;

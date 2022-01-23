@@ -2,9 +2,9 @@
 
 #include <cassert>
 #include <cerrno>
-#include <cstdlib>
-#include <cstdio>
 #include <cstdint>
+#include <cstdio>
+#include <cstdlib>
 #include <cstring>
 
 #include <signal.h>
@@ -14,27 +14,33 @@
 #include "jevmachopp/OtherLibCSupplement.h"
 
 #define printf olibc2uboot_printf
-
+#undef assert
+#define assert(expr)                                                                               \
+    ((void)((expr) || (olibc2uboot_assert(#expr, __FILE__, __LINE__, __PRETTY_FUNCTION__), 0)))
 
 extern "C" {
 
+void *__dso_handle;
+
+__attribute__((used))
 const char *__embcust_argv[] = {
     "embcust",
     nullptr,
 };
 
+__attribute__((used))
 const char *__embcust_environ[] = {
-    "SHELL=embcust",
+    // "SHELL=embcust",
     nullptr,
 };
 
 typedef struct {
-  size_t type;
-  size_t val;
+    size_t type;
+    size_t val;
 } auxv_t;
 
-const auxv_t __embcust_auxv[] = {
-    { .type = 0, .val = 0},
+auxv_t __embcust_auxv[] = {
+    { .type = 0, .val = 0 },
 };
 
 extern void __libc_start_embcust(void);
@@ -57,9 +63,9 @@ int SYS_IMP_writev(int fd, const struct iovec *iov, int iovcnt) {
 }
 
 int posix_memalign(void **memptr, size_t alignment, size_t size) {
+    assert(!"posix_memalign() unimp");
     return -1;
 }
-
 
 int SYS_IMP_close(int fd) {
     assert(!"close() unimp");
@@ -76,7 +82,8 @@ int SYS_IMP_exit_group(int ec) {
     return -ENOSYS;
 }
 
-int SYS_IMP_futex(uint32_t *uaddr, int futex_op, uint32_t val, const struct timespec *timeout, uint32_t *uaddr2, uint32_t val3) {
+int SYS_IMP_futex(uint32_t *uaddr, int futex_op, uint32_t val, const struct timespec *timeout,
+                  uint32_t *uaddr2, uint32_t val3) {
     assert(!"futex() unimp");
     return -ENOSYS;
 }
@@ -91,7 +98,8 @@ int SYS_IMP_lseek(int fd, off_t offset, int whence) {
     return -ENOSYS;
 }
 
-int SYS_IMP_rt_sigaction(int signum, const struct sigaction *act, struct sigaction *oldact, size_t sigsetsize) {
+int SYS_IMP_rt_sigaction(int signum, const struct sigaction *act, struct sigaction *oldact,
+                         size_t sigsetsize) {
     assert(!"rt_sigaction() unimp");
     return -ENOSYS;
 }
@@ -103,7 +111,7 @@ int SYS_IMP_rt_sigprocmask(int how, const sigset_t *set, sigset_t *oldset, size_
 
 int SYS_IMP_tkill(pid_t tid, int sig) {
     assert(!"rt_sigprocmask() unimp");
-    return -ENOSYS;   
+    return -ENOSYS;
 }
 
 // void _fini(void) {

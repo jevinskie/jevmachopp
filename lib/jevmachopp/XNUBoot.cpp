@@ -18,7 +18,8 @@ struct vector_args next_stage;
 
 uintptr_t _xnu_jump_stub_end(void) {
     auto p = (const uint32_t *)&xnu_jump_stub;
-    for (; *p != 0xdeadbeef; ++p);
+    for (; *p != 0xdeadbeef; ++p)
+        ;
     return (uintptr_t)p;
 }
 
