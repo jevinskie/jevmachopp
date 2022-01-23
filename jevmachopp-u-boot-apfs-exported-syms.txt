@@ -1,4 +1,21 @@
+# u-boot apfs driver
+apfs_probe
+apfs_ls
+apfs_exists
+apfs_size
+apfs_read
+apfs_close
+apfs_uuid
+apfs_opendir
+apfs_readdir
+apfs_closedir
+
+# silly test
 uboot_apfs_doit
+
+# FIXME hack to get building
 board_fit_image_post_process
 board_fit_config_name_match
+
+# musl entrypoint
 __libc_start_embcust

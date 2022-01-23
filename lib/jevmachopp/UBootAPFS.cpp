@@ -135,3 +135,61 @@ void uboot_apfs_doit(void) {
 
     return;
 }
+
+struct blk_desc;
+struct disk_partition;
+struct fs_dirent;
+struct fs_dir_stream;
+typedef long long int loff_t;
+
+extern "C" {
+
+int apfs_probe(struct blk_desc *fs_dev_desc, struct disk_partition *fs_partition) {
+    assert(!"apfs_probe");
+    return -1;
+}
+
+int apfs_ls(const char *dirname) {
+    assert(!"apfs_ls");
+    return -1;
+}
+
+int apfs_exists(const char *filename) {
+    assert(!"apfs_exists");
+    return -1;
+}
+
+int apfs_size(const char *filename, loff_t *size) {
+    assert(!"apfs_size");
+    return -1;
+}
+
+int apfs_read(const char *filename, void *buf, loff_t offset, loff_t len, loff_t *actread) {
+    assert(!"apfs_read");
+    return -1;
+}
+
+void apfs_close(void) {
+    assert(!"apfs_close");
+}
+
+int apfs_uuid(char *uuid_str) {
+    assert(!"apfs_uuid");
+    return -1;
+}
+
+int apfs_opendir(const char *filename, struct fs_dir_stream **dirsp) {
+    assert(!"apfs_opendir");
+    return -1;
+}
+
+int apfs_readdir(struct fs_dir_stream *dirs, struct fs_dirent **dentp) {
+    assert(!"apfs_readdir");
+    return -1;
+}
+
+void apfs_closedir(struct fs_dir_stream *dirs) {
+    assert(!"apfs_closedir");
+}
+
+} // extern "C"

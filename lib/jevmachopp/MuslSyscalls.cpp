@@ -97,12 +97,14 @@ int SYS_IMP_close(int fd) {
 }
 
 int SYS_IMP_exit(int ec) {
-    assert(!"exit() unimp");
+    assert(!"exit() called");
+    // on assert() path
     return -ENOSYS;
 }
 
 int SYS_IMP_exit_group(int ec) {
-    assert(!"exit_group() unimp");
+    // assert(!"exit_group() unimp");
+    // on assert() path
     return -ENOSYS;
 }
 
@@ -165,17 +167,20 @@ int SYS_IMP_lseek(int fd, off_t offset, int whence) {
 
 int SYS_IMP_rt_sigaction(int signum, const struct sigaction *act, struct sigaction *oldact,
                          size_t sigsetsize) {
-    assert(!"rt_sigaction() unimp");
+    // assert(!"rt_sigaction() unimp");
+    // on assert() path
     return -ENOSYS;
 }
 
 int SYS_IMP_rt_sigprocmask(int how, const sigset_t *set, sigset_t *oldset, size_t sigsetsize) {
     // assert(!"rt_sigprocmask() unimp");
+    // on assert() path
     return -ENOSYS;
 }
 
 int SYS_IMP_tkill(pid_t tid, int sig) {
-    assert(!"rt_sigprocmask() unimp");
+    // assert(!"tkill() unimp");
+    // on assert() path
     return -ENOSYS;
 }
 
