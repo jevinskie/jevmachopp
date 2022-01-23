@@ -58,8 +58,6 @@ void uboot_apfs_doit(void) {
 
     printf("entering uboot_apfs_doit()\n");
 
-    std::cout << "fart!\n";
-
     // g_debug = 0xff;
 
 #ifdef JEV_BAREMETAL

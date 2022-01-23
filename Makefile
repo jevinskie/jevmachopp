@@ -113,7 +113,7 @@ ifdef UBOOTRELEASE
 # 	-I $(ROOT_DIR)/../../include
 endif
 
-C_CXX_FLAGS := -g -O0
+C_CXX_FLAGS := -ggdb3 -O0
 # C_CXX_FLAGS += -Os
 C_CXX_FLAGS += -fno-discard-value-names
 C_CXX_FLAGS += -fno-exceptions -fno-unwind-tables -fno-asynchronous-unwind-tables

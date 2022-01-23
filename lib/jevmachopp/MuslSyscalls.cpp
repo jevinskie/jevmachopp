@@ -83,6 +83,14 @@ int posix_memalign(void **memptr, size_t alignment, size_t size) {
     return -1;
 }
 
+pid_t SYS_IMP_getpid(void) {
+    return 1; // we be init, yo
+}
+
+pid_t SYS_IMP_set_tid_address(int *tidptr) {
+    return SYS_IMP_getpid();
+}
+
 int SYS_IMP_close(int fd) {
     assert(!"close() unimp");
     return -ENOSYS;
