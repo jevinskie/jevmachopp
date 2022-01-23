@@ -7,7 +7,10 @@
 #include <cstdlib>
 #include <cstring>
 
+#include <fcntl.h>
+#include <poll.h>
 #include <signal.h>
+#include <sys/auxv.h>
 #include <sys/uio.h>
 #include <unistd.h>
 
@@ -22,13 +25,11 @@ extern "C" {
 
 void *__dso_handle;
 
-__attribute__((used))
 const char *__embcust_argv[] = {
     "embcust",
     nullptr,
 };
 
-__attribute__((used))
 const char *__embcust_environ[] = {
     // "SHELL=embcust",
     nullptr,
@@ -40,14 +41,17 @@ typedef struct {
 } auxv_t;
 
 auxv_t __embcust_auxv[] = {
-    { .type = 0, .val = 0 },
+    {.type = 0, .val = 0},
 };
 
 extern void __libc_start_embcust(void);
 void (*__libc_start_embcust_dummy_import)(void) = __libc_start_embcust;
 
-int SYS_IMP_writev(int fd, const struct iovec *iov, int iovcnt) {
-    int res = 0;
+// for compiler-rt __aarch64_have_lse_atomics really
+unsigned long (*__getauxval_dummy_import)(unsigned long) = getauxval;
+
+ssize_t SYS_IMP_writev(int fd, const struct iovec *iov, int iovcnt) {
+    ssize_t res = 0;
     for (int i = 0; i < iovcnt; ++i) {
         int sub_res = olibc2uboot_write(fd, iov[i].iov_base, iov[i].iov_len);
         res += iov[i].iov_len;
@@ -60,6 +64,18 @@ int SYS_IMP_writev(int fd, const struct iovec *iov, int iovcnt) {
         }
     }
     return res;
+}
+
+void *__libc_calloc(size_t num, size_t size) {
+    return calloc(num, size);
+}
+
+void __libc_free(void *ptr) {
+    free(ptr);
+}
+
+void *__libc_malloc(size_t size) {
+    return malloc(size);
 }
 
 int posix_memalign(void **memptr, size_t alignment, size_t size) {
@@ -79,6 +95,47 @@ int SYS_IMP_exit(int ec) {
 
 int SYS_IMP_exit_group(int ec) {
     assert(!"exit_group() unimp");
+    return -ENOSYS;
+}
+
+int SYS_IMP_fcntl(int fd, int cmd, long arg) {
+    assert(!"fcntl() unimp");
+    return -ENOSYS;
+}
+
+int SYS_IMP_fstat(int fd, struct stat *statbuf) {
+    assert(!"fstat() unimp");
+    return -ENOSYS;
+}
+
+void *SYS_IMP_mmap(void *addr, size_t length, int prot, int flags, int fd, off_t offset) {
+    assert(!"mmap() unimp");
+    return nullptr;
+}
+
+int SYS_IMP_munmap(void *addr, size_t length) {
+    assert(!"munmap() unimp");
+    return -ENOSYS;
+}
+
+int SYS_IMP_openat(int dirfd, const char *pathname, int flags, mode_t mode) {
+    assert(!"openat() unimp");
+    return -ENOSYS;
+}
+
+int SYS_IMP_ppoll(struct pollfd *fds, nfds_t nfds, const struct timespec *tmo_p,
+                  const sigset_t *sigmask) {
+    assert(!"ppoll() unimp");
+    return -ENOSYS;
+}
+
+ssize_t SYS_IMP_read(int fd, void *buf, size_t count) {
+    assert(!"read() unimp");
+    return -ENOSYS;
+}
+
+ssize_t SYS_IMP_readv(int fd, const struct iovec *iov, int iovcnt) {
+    assert(!"readv() unimp");
     return -ENOSYS;
 }
 
