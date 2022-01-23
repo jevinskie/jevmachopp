@@ -8,6 +8,8 @@
 #include <unistd.h>
 
 #include <iostream>
+#include <memory>
+#include <type_traits>
 
 #include <ApfsLib/ApfsContainer.h>
 #include <ApfsLib/ApfsDir.h>
@@ -20,6 +22,40 @@
 #include <jevmachopp/Common.h>
 
 #include <nanorange/views/drop.hpp>
+
+struct fs_dirent;
+struct fs_dir_stream;
+typedef long long int loff_t;
+typedef unsigned long int ulong;
+typedef unsigned char uchar;
+
+#define UUID_STR_LEN 36
+#define PART_NAME_LEN 32
+#define PART_TYPE_LEN 32
+
+#define CONFIG_PARTITION_UUIDS
+#define CONFIG_PARTITION_TYPE_GUID
+
+struct disk_partition {
+    lbaint_t start;            /* # of first block in partition    */
+    lbaint_t size;             /* number of blocks in partition    */
+    ulong blksz;               /* block size in bytes          */
+    uchar name[PART_NAME_LEN]; /* partition name           */
+    uchar type[PART_TYPE_LEN]; /* string type description      */
+    /*
+     * The bootable is a bitmask with the following fields:
+     *
+     * PART_BOOTABLE        the MBR bootable flag is set
+     * PART_EFI_SYSTEM_PARTITION    the partition is an EFI system partition
+     */
+    int bootable;
+#ifdef CONFIG_PARTITION_UUIDS
+    char uuid[UUID_STR_LEN + 1]; /* filesystem UUID as string, if exists */
+#endif
+#ifdef CONFIG_PARTITION_TYPE_GUID
+    char type_guid[UUID_STR_LEN + 1]; /* type GUID as string, if exists   */
+#endif
+};
 
 namespace UBootAPFS {
 
@@ -49,9 +85,110 @@ std::unique_ptr<ApfsDir::DirRec> lookupDir(ApfsDir *apfsDir, std::string_view di
     return res;
 }
 
+class APFSCtx {
+public:
+    APFSCtx() = default;
+    ~APFSCtx() {
+        if (m_opened)
+            close();
+    }
+    bool open(struct blk_desc *fs_dev_desc, struct disk_partition *fs_partition) {
+        if (!m_dev.Open(fs_dev_desc))
+            return false;
+        m_container = new (&m_dev) T ApfsContainer(m_dev, fs_partition->start, fs_partition->size);
+        m_container = new (&reinterpret_cast<ApfsContainer *>(m_container_storage))
+            T ApfsContainer(m_dev, fs_partition->start, fs_partition->size);
+        m_container = std::construct_at(&reinterpret_cast<ApfsContainer *>(
+            m_container_storage, m_dev, fs_partition->start, fs_partition->size));
+        return true;
+    }
+    void close() {
+        m_volume.reset();
+        std::destroy_at(std::launder(reinterpret_cast<ApfsContainer *>(&m_container_storage)));
+        m_container = nullptr;
+        m_dev.Close()
+    }
+    // const ApfsContainer *container() const {
+    //     if (!m_opened)
+    //         return nullptr;
+    //     return reinterpret_cast<const ApfsContainer *>(&m_container_storage);
+    // }
+    // ApfsContainer *container() {
+    //     const_cast<ApfsContainer *>(static_cast<const APFSCtx &>(*this).container());
+    // }
+
+private:
+    Device::UBoot m_dev;
+    std::aligned_storage_t<sizeof(ApfsContainer), alignof(ApfsContainer)> m_container_storage;
+    ApfsContainer *m_container;
+    std::unique_ptr<ApfsVolume> m_volume;
+    bool m_opened;
+};
+
 } // namespace UBootAPFS
 
 using namespace UBootAPFS;
+
+extern "C" {
+
+// do_ls()
+//     fs_set_blk_dev()
+//         probe()
+//     fs_ls()
+//         ls()
+//         fs_close()
+
+int apfs_probe(struct blk_desc *fs_dev_desc, struct disk_partition *fs_partition) {
+    // assert(!"apfs_probe");
+    struct disk_partition *p = fs_partition;
+    printf("apfs_probe() part start: 0x%lx sz: 0x%lx blksz: %ld name: %s type: %s bootable: %d "
+           "uuid: %s guid: %s\n",
+           p->start, p->size, p->blksz, p->name, p->type, p->bootable, p->uuid, p->type_guid);
+    return -1;
+}
+
+int apfs_ls(const char *dirname) {
+    assert(!"apfs_ls");
+    return -1;
+}
+
+int apfs_exists(const char *filename) {
+    assert(!"apfs_exists");
+    return -1;
+}
+
+int apfs_size(const char *filename, loff_t *size) {
+    assert(!"apfs_size");
+    return -1;
+}
+
+int apfs_read(const char *filename, void *buf, loff_t offset, loff_t len, loff_t *actread) {
+    assert(!"apfs_read");
+    return -1;
+}
+
+void apfs_close(void) {
+    assert(!"apfs_close");
+}
+
+int apfs_uuid(char *uuid_str) {
+    assert(!"apfs_uuid");
+    return -1;
+}
+
+int apfs_opendir(const char *filename, struct fs_dir_stream **dirsp) {
+    assert(!"apfs_opendir");
+    return -1;
+}
+
+int apfs_readdir(struct fs_dir_stream *dirs, struct fs_dirent **dentp) {
+    assert(!"apfs_readdir");
+    return -1;
+}
+
+void apfs_closedir(struct fs_dir_stream *dirs) {
+    assert(!"apfs_closedir");
+}
 
 void uboot_apfs_doit(void) {
     setvbuf(stdout, nullptr, _IONBF, 0);
@@ -134,94 +271,6 @@ void uboot_apfs_doit(void) {
     }
 
     return;
-}
-
-struct fs_dirent;
-struct fs_dir_stream;
-typedef long long int loff_t;
-typedef unsigned long int ulong;
-typedef unsigned char uchar;
-
-#define UUID_STR_LEN 36
-#define PART_NAME_LEN 32
-#define PART_TYPE_LEN 32
-
-#define CONFIG_PARTITION_UUIDS
-#define CONFIG_PARTITION_TYPE_GUID
-
-struct disk_partition {
-    lbaint_t start;            /* # of first block in partition    */
-    lbaint_t size;             /* number of blocks in partition    */
-    ulong blksz;               /* block size in bytes          */
-    uchar name[PART_NAME_LEN]; /* partition name           */
-    uchar type[PART_TYPE_LEN]; /* string type description      */
-    /*
-     * The bootable is a bitmask with the following fields:
-     *
-     * PART_BOOTABLE        the MBR bootable flag is set
-     * PART_EFI_SYSTEM_PARTITION    the partition is an EFI system partition
-     */
-    int bootable;
-#ifdef CONFIG_PARTITION_UUIDS
-    char uuid[UUID_STR_LEN + 1]; /* filesystem UUID as string, if exists */
-#endif
-#ifdef CONFIG_PARTITION_TYPE_GUID
-    char type_guid[UUID_STR_LEN + 1]; /* type GUID as string, if exists   */
-#endif
-};
-
-extern "C" {
-
-int apfs_probe(struct blk_desc *fs_dev_desc, struct disk_partition *fs_partition) {
-    // assert(!"apfs_probe");
-    struct disk_partition *p = fs_partition;
-    printf("apfs_probe() part start: 0x%lx sz: 0x%lx blksz: %ld name: %s type: %s bootable: %d "
-           "uuid: %s guid: %s\n",
-           p->start, p->size, p->blksz, p->name, p->type, p->bootable, p->uuid, p->type_guid);
-    return -1;
-}
-
-int apfs_ls(const char *dirname) {
-    assert(!"apfs_ls");
-    return -1;
-}
-
-int apfs_exists(const char *filename) {
-    assert(!"apfs_exists");
-    return -1;
-}
-
-int apfs_size(const char *filename, loff_t *size) {
-    assert(!"apfs_size");
-    return -1;
-}
-
-int apfs_read(const char *filename, void *buf, loff_t offset, loff_t len, loff_t *actread) {
-    assert(!"apfs_read");
-    return -1;
-}
-
-void apfs_close(void) {
-    assert(!"apfs_close");
-}
-
-int apfs_uuid(char *uuid_str) {
-    assert(!"apfs_uuid");
-    return -1;
-}
-
-int apfs_opendir(const char *filename, struct fs_dir_stream **dirsp) {
-    assert(!"apfs_opendir");
-    return -1;
-}
-
-int apfs_readdir(struct fs_dir_stream *dirs, struct fs_dirent **dentp) {
-    assert(!"apfs_readdir");
-    return -1;
-}
-
-void apfs_closedir(struct fs_dir_stream *dirs) {
-    assert(!"apfs_closedir");
 }
 
 } // extern "C"
