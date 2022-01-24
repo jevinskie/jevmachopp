@@ -14,6 +14,7 @@
 #include <sys/uio.h>
 #include <unistd.h>
 
+#include "jevmachopp/Common.h"
 #include "jevmachopp/OtherLibCSupplement.h"
 
 #define printf olibc2uboot_printf
@@ -31,7 +32,9 @@ const char *__embcust_argv[] = {
 };
 
 const char *__embcust_environ[] = {
-    // "SHELL=embcust",
+    // "LIBUNWIND_PRINT_APIS=1",
+    // "LIBUNWIND_PRINT_UNWINDING=1",
+    // "LIBUNWIND_PRINT_DWARF=1",
     nullptr,
 };
 
@@ -79,8 +82,15 @@ void *__libc_malloc(size_t size) {
 }
 
 int posix_memalign(void **memptr, size_t alignment, size_t size) {
-    assert(!"posix_memalign() unimp");
-    return -1;
+    if (alignment < sizeof(void *) ||
+        alignment % sizeof(void *) ||
+        !is_pow2(alignment))
+        return EINVAL;
+    auto res = memalign(alignment, size);
+    if (!res)
+        return ENOMEM;
+    *memptr = res;
+    return 0;
 }
 
 pid_t SYS_IMP_getpid(void) {

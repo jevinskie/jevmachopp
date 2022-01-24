@@ -202,6 +202,8 @@ clean-default:
 %: %-default
 	@true
 
+build/jevmachopp/UBootAPFS.o: JEV_CXXFLAGS += -fexceptions -funwind-tables -fasynchronous-unwind-tables
+
 build/jevmachopp/%.o: $(ROOT_DIR)/lib/jevmachopp/%.cpp $(LIBJEVMACHOPP_HDRS)
 	@mkdir -p "$(dir $@)"
 	$(JEV_CXX) $(JEV_CXXFLAGS) -c -o $@ $<

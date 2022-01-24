@@ -220,6 +220,15 @@ void uboot_apfs_doit(void) {
 
     printf("entering uboot_apfs_doit()\n");
 
+    std::cerr << "std::cout test\n";
+
+    try {
+        std::cerr << "in try\n";
+        throw "i'm throwin";
+    } catch (const char *msg) {
+        std::cerr << "caught: " << msg << "\n";
+    }
+
     // g_debug = 0xff;
 
 #ifdef JEV_BAREMETAL
