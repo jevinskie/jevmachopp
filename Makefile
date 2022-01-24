@@ -19,6 +19,8 @@ LIBJEVMACHOPP_CXX_OBJS := $(notdir $(LIBJEVMACHOPP_CXX_SRCS:.cpp=.o))
 LIBJEVMACHOPP_ASM_SRCS := $(wildcard $(ROOT_DIR)/lib/jevmachopp/*.S)
 LIBJEVMACHOPP_ASM_OBJS := $(notdir $(LIBJEVMACHOPP_ASM_SRCS:.S=.o))
 
+LIBJEVMACHOPP_HDRS := $(wildcard $(ROOT_DIR)/include/jevmachopp/*.h $(ROOT_DIR)/include/jevmachopp/c/*.h)
+
 LIBJEVMACHOPP_OBJS := $(LIBJEVMACHOPP_CXX_OBJS) $(LIBJEVMACHOPP_ASM_OBJS)
 # no slurp/mmap on baremetal
 LIBJEVMACHOPP_OBJS := $(filter-out Slurp.o,$(LIBJEVMACHOPP_OBJS))
@@ -194,11 +196,11 @@ clean-default:
 %: %-default
 	@true
 
-build/jevmachopp/%.o: $(ROOT_DIR)/lib/jevmachopp/%.cpp
+build/jevmachopp/%.o: $(ROOT_DIR)/lib/jevmachopp/%.cpp $(LIBJEVMACHOPP_HDRS)
 	@mkdir -p "$(dir $@)"
 	$(JEV_CXX) $(JEV_CXXFLAGS) -c -o $@ $<
 
-build/jevmachopp/%.o: $(ROOT_DIR)/lib/jevmachopp/%.S
+build/jevmachopp/%.o: $(ROOT_DIR)/lib/jevmachopp/%.S $(LIBJEVMACHOPP_HDRS)
 	@mkdir -p "$(dir $@)"
 	$(JEV_CXX) $(JEV_CXXFLAGS) -c -o $@ $<
 

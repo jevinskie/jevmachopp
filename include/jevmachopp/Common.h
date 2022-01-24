@@ -275,6 +275,19 @@ template <typename Rng, typename F> std::optional<ssize_t> get_index_in(Rng &&rn
     return {};
 }
 
+namespace nano {
+inline namespace ranges {
+template <typename Rng> std::optional<range_value_t<Rng>> get(Rng &&rng, size_t idx) {
+    const auto len = ranges::distance(rng);
+    if (idx >= len)
+        return {};
+    auto it = rng.begin();
+    std::advance(it, idx);
+    return {*it};
+}
+} // namespace ranges
+} // namespace nano
+
 template <typename Rng> bool rangeContainsStr(Rng &&rng, std::string_view strToFind) {
     return ranges::any_of(rng, [strToFind](const auto &str) {
         return str == strToFind;

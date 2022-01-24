@@ -9,6 +9,9 @@
 
 #include <iostream>
 #include <memory>
+#include <optional>
+#include <string>
+#include <string_view>
 #include <type_traits>
 
 #include <ApfsLib/ApfsContainer.h>
@@ -58,6 +61,22 @@ struct disk_partition {
 };
 
 namespace UBootAPFS {
+
+struct APFSPath {
+    APFSPath(const std::string &full_path) : valid(false) {
+        if (full_path.empty() || full_path[0] != '/')
+            return;
+        auto sv = stringSplitViewDelimitedBy(full_path, '/') | views::drop(1);
+        if (const auto vol = ranges::get(sv, 0))
+            volume = *vol;
+        if (const auto pth = ranges::get(sv, 1))
+            path = *pth;
+        valid = true;
+    }
+    std::string volume;
+    std::string path;
+    bool valid;
+};
 
 std::unique_ptr<ApfsDir::DirRec> childDirNamed(ApfsDir *apfsDir, ApfsDir::DirRec *parentDir,
                                                std::string_view childDirName) {
@@ -152,7 +171,7 @@ int apfs_probe(struct blk_desc *fs_dev_desc, struct disk_partition *fs_partition
 
 int apfs_exists(const char *filename) {
     printf("apfs_exists(\"%s\")\n", filename);
-    // assert(!"apfs_exists");
+    APFSPath p{filename};
     return 0;
 }
 
@@ -178,7 +197,6 @@ int apfs_uuid(char *uuid_str) {
 
 int apfs_opendir(const char *filename, struct fs_dir_stream **dirsp) {
     printf("apfs_opendir(\"%s\", %p)\n", filename, dirsp);
-    // assert(!"apfs_opendir");
     return -1;
 }
 
