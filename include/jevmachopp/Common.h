@@ -277,14 +277,52 @@ template <typename Rng, typename F> std::optional<ssize_t> get_index_in(Rng &&rn
 
 namespace nano {
 inline namespace ranges {
+
 template <typename Rng> std::optional<range_value_t<Rng>> get(Rng &&rng, size_t idx) {
-    const auto len = ranges::distance(rng);
+    const auto len = distance(rng);
     if (idx >= len)
         return {};
     auto it = rng.begin();
     std::advance(it, idx);
     return {*it};
 }
+
+template <typename Rng, typename TDel>
+requires requires(range_value_t<Rng> rng_el, TDel del) {
+    rng_el += del;
+    rng_el += rng_el;
+}
+auto join(Rng &&rng, TDel del) {
+    range_value_t<Rng> res;
+    const size_t last_idx = distance(rng) - 1;
+    size_t i              = 0;
+    for (const auto &el : rng) {
+        res += el;
+        if (i != last_idx)
+            res += del;
+        ++i;
+    }
+    return res;
+}
+
+template <typename Rng, typename TDel>
+requires requires(range_value_t<Rng> rng_el, TDel del) {
+    del += rng_el;
+    del += del;
+}
+auto join(Rng &&rng, TDel del) {
+    TDel res;
+    const size_t last_idx = distance(rng) - 1;
+    size_t i              = 0;
+    for (const auto &el : rng) {
+        res += el;
+        if (i != last_idx)
+            res += del;
+        ++i;
+    }
+    return res;
+}
+
 } // namespace ranges
 } // namespace nano
 

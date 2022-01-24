@@ -25,6 +25,7 @@
 #include <jevmachopp/Common.h>
 
 #include <nanorange/views/drop.hpp>
+#include <nanorange/views/join.hpp>
 
 struct fs_dirent;
 struct fs_dir_stream;
@@ -62,6 +63,10 @@ struct disk_partition {
 
 namespace UBootAPFS {
 
+// /foo
+// /foo/bar
+// /foo/bar/
+
 struct APFSPath {
     APFSPath(const std::string &full_path) : valid(false) {
         if (full_path.empty() || full_path[0] != '/')
@@ -69,8 +74,8 @@ struct APFSPath {
         auto sv = stringSplitViewDelimitedBy(full_path, '/') | views::drop(1);
         if (const auto vol = ranges::get(sv, 0))
             volume = *vol;
-        if (const auto pth = ranges::get(sv, 1))
-            path = *pth;
+        path = ranges::join(sv | views::drop(1), std::string{"/"});
+        std::cout << "APFSPath(\"" << full_path << "\") path: " << path << "\n";
         valid = true;
     }
     std::string volume;
