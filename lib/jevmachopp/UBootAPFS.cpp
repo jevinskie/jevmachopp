@@ -95,35 +95,37 @@ public:
     bool open(struct blk_desc *fs_dev_desc, struct disk_partition *fs_partition) {
         if (!m_dev.Open(fs_dev_desc))
             return false;
-        m_container = new (&m_dev) T ApfsContainer(m_dev, fs_partition->start, fs_partition->size);
-        m_container = new (&reinterpret_cast<ApfsContainer *>(m_container_storage))
-            T ApfsContainer(m_dev, fs_partition->start, fs_partition->size);
-        m_container = std::construct_at(&reinterpret_cast<ApfsContainer *>(
-            m_container_storage, m_dev, fs_partition->start, fs_partition->size));
+        m_container = new (reinterpret_cast<ApfsContainer *>(&m_container_storage))
+            ApfsContainer(&m_dev, fs_partition->start, fs_partition->size);
+        m_opened = true;
         return true;
     }
     void close() {
-        m_volume.reset();
-        std::destroy_at(std::launder(reinterpret_cast<ApfsContainer *>(&m_container_storage)));
+        m_opened = false;
+        std::destroy_at(std::launder(m_container));
         m_container = nullptr;
-        m_dev.Close()
+        m_dev.Close();
     }
-    // const ApfsContainer *container() const {
-    //     if (!m_opened)
-    //         return nullptr;
-    //     return reinterpret_cast<const ApfsContainer *>(&m_container_storage);
-    // }
-    // ApfsContainer *container() {
-    //     const_cast<ApfsContainer *>(static_cast<const APFSCtx &>(*this).container());
-    // }
+    const ApfsContainer *container() const {
+        if (!m_opened)
+            return nullptr;
+        return const_cast<const ApfsContainer *>(m_container);
+    }
+    ApfsContainer *container() {
+        return const_cast<ApfsContainer *>(static_cast<const APFSCtx &>(*this).container());
+    }
+    bool opened() const {
+        return m_opened;
+    }
 
 private:
-    Device::UBoot m_dev;
+    DeviceUBoot m_dev;
     std::aligned_storage_t<sizeof(ApfsContainer), alignof(ApfsContainer)> m_container_storage;
     ApfsContainer *m_container;
-    std::unique_ptr<ApfsVolume> m_volume;
     bool m_opened;
 };
+
+APFSCtx apfs_ctx;
 
 } // namespace UBootAPFS
 
@@ -144,17 +146,14 @@ int apfs_probe(struct blk_desc *fs_dev_desc, struct disk_partition *fs_partition
     printf("apfs_probe() part start: 0x%lx sz: 0x%lx blksz: %ld name: %s type: %s bootable: %d "
            "uuid: %s guid: %s\n",
            p->start, p->size, p->blksz, p->name, p->type, p->bootable, p->uuid, p->type_guid);
-    return -1;
-}
-
-int apfs_ls(const char *dirname) {
-    assert(!"apfs_ls");
-    return -1;
+    bool good = apfs_ctx.open(fs_dev_desc, fs_partition);
+    return good ? 0 : -1;
 }
 
 int apfs_exists(const char *filename) {
-    assert(!"apfs_exists");
-    return -1;
+    printf("apfs_exists(\"%s\")\n", filename);
+    // assert(!"apfs_exists");
+    return 0;
 }
 
 int apfs_size(const char *filename, loff_t *size) {
@@ -168,7 +167,8 @@ int apfs_read(const char *filename, void *buf, loff_t offset, loff_t len, loff_t
 }
 
 void apfs_close(void) {
-    assert(!"apfs_close");
+    assert(apfs_ctx.opened());
+    apfs_ctx.close();
 }
 
 int apfs_uuid(char *uuid_str) {
@@ -177,7 +177,8 @@ int apfs_uuid(char *uuid_str) {
 }
 
 int apfs_opendir(const char *filename, struct fs_dir_stream **dirsp) {
-    assert(!"apfs_opendir");
+    printf("apfs_opendir(\"%s\", %p)\n", filename, dirsp);
+    // assert(!"apfs_opendir");
     return -1;
 }
 
