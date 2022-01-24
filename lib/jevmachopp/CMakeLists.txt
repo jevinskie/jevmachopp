@@ -77,6 +77,7 @@ endforeach()
 # headerless
 list(APPEND MACHOPP_SRC
     EmptyObjSentinel.cpp
+    LibunwindSupport.cpp
     NewlibSyscalls.cpp
     MuslSyscalls.cpp
 )

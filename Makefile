@@ -173,6 +173,12 @@ JEV_LIBCXXABI_PATH := -lcxxabi-missing
 endif
 endif
 
+JEV_LIBUNWIND_PATH := $(shell $(JEV_CXX) $(JEV_CXXFLAGS) -print-file-name=libunwind.a)
+ifeq ($(JEV_LIBUNWIND_PATH),libunwind.a)
+# assume 
+JEV_LIBUNWIND_PATH := -libunwind-missing
+endif
+
 JEV_LIBGCC_PATH := $(shell $(JEV_CXX) $(JEV_CXXFLAGS) -print-file-name=libclang_rt.builtins-aarch64.a)
 ifeq ($(JEV_LIBGCC_PATH),libclang_rt.builtins-aarch64.a)
 JEV_LIBGCC_PATH := $(shell $(JEV_CXX) $(JEV_CXXFLAGS) -print-file-name=libgcc.a)
@@ -210,7 +216,7 @@ build/jevmachopp/libjevmachopp.a: $(LIBJEVMACHOPP_OBJS)
 
 build/jevmachopp/libjevmachopp.o: build/jevmachopp/libjevmachopp.a build/jevmachopp/uleb128/libuleb128.a build/jevmachopp/apfs/libapfs.a build/jevmachopp/apfs/miniz/libminiz.a build/jevmachopp/apfs/lzfse/liblzfse.a build/jevmachopp/apfs/bzip2/libbz2.a $(ROOT_DIR)/jevmachopp-u-boot-apfs-exported-syms.txt
 	@mkdir -p "$(dir $@)"
-	$(JEV_CXX) -o $@ -g -Wl,-r -nostdlib build/jevmachopp/apfs/miniz/libminiz.a build/jevmachopp/apfs/lzfse/liblzfse.a build/jevmachopp/apfs/bzip2/libbz2.a build/jevmachopp/apfs/libapfs.a build/jevmachopp/uleb128/libuleb128.a -Wl,--whole-archive build/jevmachopp/libjevmachopp.a -Wl,--no-whole-archive -Wl,--start-group $(JEV_LIBCXX_PATH) $(JEV_LIBCXXABI_PATH) $(JEV_LIBC_PATH) $(JEV_LIBGCC_PATH) -Wl,--end-group -Wl,--lto-load-pass-plugin=$(JEVEMBCUSTOMS_LIB) -Wl,-mllvm-plugin,-embcust-libgcc=$(JEV_LIBGCC_PATH) -Wl,-mllvm-plugin,-embcust-exported-syms=$(ROOT_DIR)/jevmachopp-u-boot-apfs-exported-syms.txt -Xlinker --lto-newpm-passes='write-bitcode<mod.bc>,embcust<pre&ep_wrapper=__libc_start_embcust>,write-bitcode<mod-p1.bc>,default<O0>,write-bitcode<mod-opt.bc>,embcust<post&rename_ctors_array>,write-bitcode<mod-linked.bc>'
+	$(JEV_CXX) -o $@ -g -Wl,-r -nostdlib build/jevmachopp/apfs/miniz/libminiz.a build/jevmachopp/apfs/lzfse/liblzfse.a build/jevmachopp/apfs/bzip2/libbz2.a build/jevmachopp/apfs/libapfs.a build/jevmachopp/uleb128/libuleb128.a -Wl,--whole-archive build/jevmachopp/libjevmachopp.a -Wl,--no-whole-archive -Wl,--start-group $(JEV_LIBCXX_PATH) $(JEV_LIBCXXABI_PATH) $(JEV_LIBUNWIND_PATH) $(JEV_LIBC_PATH) $(JEV_LIBGCC_PATH) -Wl,--end-group -Wl,--lto-load-pass-plugin=$(JEVEMBCUSTOMS_LIB) -Wl,-mllvm-plugin,-embcust-libgcc=$(JEV_LIBGCC_PATH) -Wl,-mllvm-plugin,-embcust-exported-syms=$(ROOT_DIR)/jevmachopp-u-boot-apfs-exported-syms.txt -Xlinker --lto-newpm-passes='write-bitcode<mod.bc>,embcust<pre&ep_wrapper=__libc_start_embcust>,write-bitcode<mod-p1.bc>,default<O0>,write-bitcode<mod-opt.bc>,embcust<post&rename_ctors_array>,write-bitcode<mod-linked.bc>'
 # --lto-newpm-passes='embcust,default<Os>,embcust<rename_ctors_array>'
 
 build/jevmachopp/uleb128/%.o: $(ROOT_DIR)/3rdparty/uleb128/src/uleb128/%.cc

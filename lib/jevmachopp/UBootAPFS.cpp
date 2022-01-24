@@ -75,7 +75,8 @@ struct APFSPath {
         if (const auto vol = ranges::get(sv, 0))
             volume = *vol;
         path = ranges::join(sv | views::drop(1), std::string{"/"});
-        std::cout << "APFSPath(\"" << full_path << "\") path: " << path << "\n";
+        std::cout << "APFSPath(\"" << full_path << "\") vol: " << volume << " path: " << path
+                  << "\n";
         valid = true;
     }
     std::string volume;
