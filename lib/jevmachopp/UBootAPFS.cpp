@@ -103,8 +103,25 @@ std::unique_ptr<ApfsVolume> lookupVolume(const std::string &volName, ApfsContain
     return vol;
 }
 
+std::unique_ptr<ApfsVolume> lookupPath(const std::string &full_path, ApfsVolume *volume) {
+    return {};
+}
+
 APFSNode lookup(const APFSPath &path, ApfsContainer *container) {
     assert(path.valid);
+    const bool vempty = path.volume.empty();
+    const bool pempty = path.path.empty();
+    if (vempty && pempty)
+        return container;
+    if (!vempty && pempty)
+        return lookupVolume(path.volume, container);
+    if (!vempty && !pempty)
+        return lookupPath(path.path, lookupVolume(path.volume, container).get());
+    assert(!"lookup() unhandled case");
+}
+
+std::vector<APFSNode> list(const APFSPath &path, ApfsContainer *container) {
+    return {};
 }
 
 std::unique_ptr<ApfsDir::DirRec> childDirNamed(ApfsDir *apfsDir, ApfsDir::DirRec *parentDir,
