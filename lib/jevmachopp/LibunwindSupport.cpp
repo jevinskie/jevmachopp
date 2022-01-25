@@ -50,8 +50,7 @@ __attribute__((naked)) int __unw_getcontext(void *ucp) {
     // clang-format on
 }
 
-__attribute__((naked))
-void __libunwind_Registers_arm64_jumpto(void *regs) {
+__attribute__((naked)) void __libunwind_Registers_arm64_jumpto(void *regs) {
     // clang-format off
     asm volatile(
         // skip restore of x0,x1 for now

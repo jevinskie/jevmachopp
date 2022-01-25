@@ -13,6 +13,7 @@
 #include <string>
 #include <string_view>
 #include <type_traits>
+#include <variant>
 
 #include <ApfsLib/ApfsContainer.h>
 #include <ApfsLib/ApfsDir.h>
@@ -67,6 +68,9 @@ namespace UBootAPFS {
 // /foo/bar
 // /foo/bar/
 
+using APFSNode =
+    std::variant<ApfsContainer *, std::unique_ptr<ApfsVolume>, std::unique_ptr<ApfsDir::DirRec>>;
+
 struct APFSPath {
     APFSPath(const std::string &full_path) : valid(false) {
         if (full_path.empty() || full_path[0] != '/')
@@ -83,6 +87,25 @@ struct APFSPath {
     std::string path;
     bool valid;
 };
+
+std::unique_ptr<ApfsVolume> lookupVolume(const std::string &volName, ApfsContainer *container) {
+    const auto nvol = container->GetVolumeCnt();
+    std::unique_ptr<ApfsVolume> vol;
+    for (unsigned int volidx = 0; volidx < nvol; ++volidx) {
+        apfs_superblock_t sb;
+        assert(container->GetVolumeInfo(volidx, sb));
+        if (volName == (const char *)sb.apfs_volname) {
+            vol = std::unique_ptr<ApfsVolume>{container->GetVolume(volidx)};
+            assert(vol);
+            break;
+        }
+    }
+    return vol;
+}
+
+APFSNode lookup(const APFSPath &path, ApfsContainer *container) {
+    assert(path.valid);
+}
 
 std::unique_ptr<ApfsDir::DirRec> childDirNamed(ApfsDir *apfsDir, ApfsDir::DirRec *parentDir,
                                                std::string_view childDirName) {
@@ -219,15 +242,6 @@ void uboot_apfs_doit(void) {
     setvbuf(stdout, nullptr, _IONBF, 0);
 
     printf("entering uboot_apfs_doit()\n");
-
-    std::cerr << "std::cout test\n";
-
-    try {
-        std::cerr << "in try\n";
-        throw "i'm throwin";
-    } catch (const char *msg) {
-        std::cerr << "caught: " << msg << "\n";
-    }
 
     // g_debug = 0xff;
 

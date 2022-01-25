@@ -82,9 +82,7 @@ void *__libc_malloc(size_t size) {
 }
 
 int posix_memalign(void **memptr, size_t alignment, size_t size) {
-    if (alignment < sizeof(void *) ||
-        alignment % sizeof(void *) ||
-        !is_pow2(alignment))
+    if (alignment < sizeof(void *) || alignment % sizeof(void *) || !is_pow2(alignment))
         return EINVAL;
     auto res = memalign(alignment, size);
     if (!res)
