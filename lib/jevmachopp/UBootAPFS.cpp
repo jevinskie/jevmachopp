@@ -69,6 +69,23 @@ namespace UBootAPFS {
 // /foo/bar
 // /foo/bar/
 
+struct APFSPath {
+    APFSPath(const std::string &full_path) : valid(false) {
+        if (full_path.empty() || full_path[0] != '/')
+            return;
+        auto sv = stringSplitViewDelimitedBy(full_path, '/') | views::drop(1);
+        if (const auto vol = ranges::get(sv, 0))
+            volume = *vol;
+        path = ranges::join(sv | views::drop(1), std::string{"/"});
+        std::cout << "APFSPath(\"" << full_path << "\") vol: " << volume << " path: " << path
+                  << "\n";
+        valid = true;
+    }
+    std::string volume;
+    std::string path;
+    bool valid;
+};
+
 class APFSNode {
 public:
     APFSNode(ApfsContainer *container) : m_container(container) {
@@ -96,27 +113,30 @@ public:
             return "/";
     }
 
+    bool isContainer() const {
+        return !m_volume && !m_dirrec;
+    }
+
+    bool isVolume() const {
+        return m_volume && !m_dirrec;
+    }
+
+    bool isPath() const {
+        return !!m_dirrec;
+    }
+
+    bool isDir() const {
+        return isPath() && false;
+    }
+
+    bool isFile() const {
+        return isPath() && false;
+    }
+
 private:
     ApfsContainer *m_container;
     std::shared_ptr<ApfsVolume> m_volume;
     std::shared_ptr<ApfsDir::DirRec> m_dirrec;
-};
-
-struct APFSPath {
-    APFSPath(const std::string &full_path) : valid(false) {
-        if (full_path.empty() || full_path[0] != '/')
-            return;
-        auto sv = stringSplitViewDelimitedBy(full_path, '/') | views::drop(1);
-        if (const auto vol = ranges::get(sv, 0))
-            volume = *vol;
-        path = ranges::join(sv | views::drop(1), std::string{"/"});
-        std::cout << "APFSPath(\"" << full_path << "\") vol: " << volume << " path: " << path
-                  << "\n";
-        valid = true;
-    }
-    std::string volume;
-    std::string path;
-    bool valid;
 };
 
 std::shared_ptr<ApfsVolume> lookupVolume(const std::string &volName, ApfsContainer *container) {
@@ -153,8 +173,37 @@ std::shared_ptr<APFSNode> lookup(const APFSPath &path, ApfsContainer *container)
     assert(!"lookup() unhandled case");
 }
 
-std::vector<APFSNode> list(const APFSPath &path, ApfsContainer *container) {
-    return {};
+std::vector<std::shared_ptr<ApfsVolume>> listVolumes(ApfsContainer *container) {
+    const auto nvol = container->GetVolumeCnt();
+    std::vector<std::shared_ptr<ApfsVolume>> vols;
+    for (unsigned int volidx = 0; volidx < nvol; ++volidx) {
+        auto vol = container->GetVolume(volidx);
+        assert(vol);
+        vols.emplace_back(vol);
+    }
+    return vols;
+}
+
+std::vector<std::shared_ptr<APFSNode>> listVolumesAsNodes(ApfsContainer *container) {
+    std::vector<std::shared_ptr<APFSNode>> vols;
+    for (auto vol : listVolumes(container)) {
+        vols.emplace_back(std::make_shared<APFSNode>(container, vol));
+    }
+    return vols;
+}
+
+std::vector<std::shared_ptr<APFSNode>> list(const APFSPath &path, ApfsContainer *container) {
+    assert(path.valid);
+    const bool vempty = path.volume.empty();
+    const bool pempty = path.path.empty();
+    if (vempty && pempty)
+        return listVolumesAsNodes(container);
+    auto vol = lookupVolume(path.volume, container);
+    if (!vempty && pempty)
+        return {};
+    if (!vempty && !pempty)
+        return {};
+    assert(!"list() unhandled case");
 }
 
 std::unique_ptr<ApfsDir::DirRec> childDirNamed(ApfsDir *apfsDir, ApfsDir::DirRec *parentDir,
