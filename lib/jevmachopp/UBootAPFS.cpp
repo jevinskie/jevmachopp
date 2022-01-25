@@ -1,6 +1,7 @@
 #include "jevmachopp/UBootAPFS.h"
 
 #include <cassert>
+#include <cerrno>
 #include <cfloat>
 #include <cstdint>
 #include <cstdio>
@@ -29,11 +30,34 @@
 #include <nanorange/views/join.hpp>
 #include <visit.hpp>
 
-struct fs_dirent;
-struct fs_dir_stream;
 typedef long long int loff_t;
 typedef unsigned long int ulong;
 typedef unsigned char uchar;
+
+/*
+ * Directory entry types, matches the subset of DT_x in posix readdir()
+ * which apply to u-boot.
+ */
+#define FS_DT_DIR 4  /* directory */
+#define FS_DT_REG 8  /* regular file */
+#define FS_DT_LNK 10 /* symbolic link */
+
+/*
+ * A directory entry, returned by fs_readdir().  Returns information
+ * about the file/directory at the current directory entry position.
+ */
+struct fs_dirent {
+    unsigned type; /* one of FS_DT_x (not a mask) */
+    loff_t size;   /* size in bytes */
+    char name[256];
+    fs_dirent() = default;
+};
+
+struct fs_dir_stream {
+    struct blk_desc *desc;
+    int part;
+    fs_dir_stream() = default;
+};
 
 #define UUID_STR_LEN 36
 #define PART_NAME_LEN 32
@@ -138,6 +162,15 @@ private:
     std::shared_ptr<ApfsVolume> m_volume;
     std::shared_ptr<ApfsDir::DirRec> m_dirrec;
 };
+
+struct APFSDirStream {
+    struct fs_dir_stream dir_str;
+    std::vector<std::shared_ptr<APFSNode>> *nodes;
+    size_t idx;
+    APFSDirStream() = default;
+};
+
+static_assert_cond(std::is_trivial_v<APFSDirStream> &&std::is_standard_layout_v<APFSDirStream>);
 
 std::shared_ptr<ApfsVolume> lookupVolume(const std::string &volName, ApfsContainer *container) {
     const auto nvol = container->GetVolumeCnt();
@@ -261,13 +294,14 @@ public:
         assert(gpt.LoadAndVerify(m_dev));
         fmt::print("gpt.size: {:d}\n", gpt.size());
         assert(gpt.GetPartitionOffsetAndSize((uint32_t)part_num, m_blk_off_blks, m_blk_sz_bytes));
+        fmt::print("blk_off_blks: 0x{:x} blk_sz_bytes: 0x{:x}\n", m_blk_off_blks, m_blk_sz_bytes);
         return open_common();
     }
     bool open(struct blk_desc *fs_dev_desc, struct disk_partition *fs_partition) {
         if (!m_dev.Open(fs_dev_desc))
             return false;
-        m_blk_off_blks = fs_partition->start;
-        m_blk_sz_bytes = fs_partition->size;
+        m_blk_off_blks = fs_partition->start * fs_partition->blksz;
+        m_blk_sz_bytes = fs_partition->size * fs_partition->blksz;
         return open_common();
     }
     void close() {
@@ -277,8 +311,7 @@ public:
         m_dev.Close();
     }
     const ApfsContainer *container() const {
-        if (!m_opened)
-            return nullptr;
+        assert(m_opened && m_container);
         return const_cast<const ApfsContainer *>(m_container);
     }
     ApfsContainer *container() {
@@ -292,8 +325,10 @@ private:
     bool open_common() {
         m_container = new (reinterpret_cast<ApfsContainer *>(&m_container_storage))
             ApfsContainer(&m_dev, m_blk_off_blks, m_blk_sz_bytes);
-        if (!m_container->Init(0, false))
+        if (!m_container->Init(0, false)) {
+            printf("shit\n");
             return false;
+        }
         m_opened = true;
         return true;
     }
@@ -359,16 +394,35 @@ int apfs_uuid(char *uuid_str) {
 
 int apfs_opendir(const char *filename, struct fs_dir_stream **dirsp) {
     printf("apfs_opendir(\"%s\", %p)\n", filename, dirsp);
-    return -1;
+    APFSPath path{filename};
+    auto dir = new APFSDirStream{};
+    assert(dir);
+    dir->idx   = 0;
+    dir->nodes = new std::vector<std::shared_ptr<APFSNode>>(list(path, apfs_ctx.container()));
+    assert(dir->nodes);
+    assert(dirsp);
+    *dirsp = (struct fs_dir_stream *)dir;
+    return 0;
 }
 
 int apfs_readdir(struct fs_dir_stream *dirs, struct fs_dirent **dentp) {
-    assert(!"apfs_readdir");
-    return -1;
+    assert(dirs);
+    auto dir = (APFSDirStream *)dirs;
+    if (dir->idx >= dir->nodes->size())
+        return -ENOENT;
+    auto dent  = new fs_dirent{};
+    dent->type = FS_DT_DIR;
+    strncpy(dent->name, (*dir->nodes)[dir->idx]->name().c_str(), sizeof(dent->name));
+    *dentp = dent;
+    ++dir->idx;
+    return 0;
 }
 
 void apfs_closedir(struct fs_dir_stream *dirs) {
-    assert(!"apfs_closedir");
+    assert(dirs);
+    auto dir = (APFSDirStream *)dirs;
+    delete dir->nodes;
+    delete dir;
 }
 
 void uboot_apfs_doit(void) {
