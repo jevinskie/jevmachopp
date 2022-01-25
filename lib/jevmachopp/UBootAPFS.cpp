@@ -120,6 +120,8 @@ struct APFSPath {
             volume = *vol;
         path = ranges::join(sv | views::drop(1), std::string{"/"});
         std::cout << "APFSPath(\"" << fp << "\") vol: " << volume << " path: " << path << "\n";
+        if (!path.empty())
+            assert(!volume.empty());
     }
     std::string volume;
     std::string path;
@@ -199,17 +201,21 @@ private:
     std::shared_ptr<DirRec> m_dirrec;
 };
 
+using ApfsVolumeSP = std::shared_ptr<ApfsVolume>;
+using DirRecSP     = std::shared_ptr<DirRec>;
+using APFSNodeSP   = std::shared_ptr<APFSNode>;
+
 struct APFSDirStream {
     struct fs_dir_stream dir_str;
-    std::vector<std::shared_ptr<APFSNode>> *nodes;
+    std::shared_ptr<std::vector<APFSNodeSP>> nodes;
     size_t idx;
 };
 
-static_assert_cond(std::is_trivial_v<APFSDirStream> &&std::is_standard_layout_v<APFSDirStream>);
+static_assert_cond(std::is_standard_layout_v<APFSDirStream>);
 
-std::shared_ptr<ApfsVolume> lookupVolume(const std::string &volName, ApfsContainer *container) {
+ApfsVolumeSP lookupVolume(const std::string &volName, ApfsContainer *container) {
     const auto nvol = container->GetVolumeCnt();
-    std::shared_ptr<ApfsVolume> vol;
+    ApfsVolumeSP vol;
     for (unsigned int volidx = 0; volidx < nvol; ++volidx) {
         apfs_superblock_t sb;
         assert(container->GetVolumeInfo(volidx, sb));
@@ -222,27 +228,27 @@ std::shared_ptr<ApfsVolume> lookupVolume(const std::string &volName, ApfsContain
     return vol;
 }
 
-std::shared_ptr<DirRec> lookupDirRec(const std::string &full_path,
-                                     std::shared_ptr<ApfsVolume> volume) {
-    return {};
+DirRecSP lookupDirRec(const std::string &path, std::shared_ptr<ApfsVolume> volume) {
+    return nullptr;
 }
 
-std::shared_ptr<APFSNode> lookup(const APFSPath &path, ApfsContainer *container) {
-    const bool vempty = path.volume.empty();
-    const bool pempty = path.path.empty();
-    if (vempty && pempty)
+APFSNodeSP lookup(const APFSPath &path, ApfsContainer *container) {
+    if (path.volume.empty())
         return std::make_shared<APFSNode>(container);
     auto vol = lookupVolume(path.volume, container);
-    if (!vempty && pempty)
+    if (!vol)
+        return nullptr;
+    if (path.path.empty())
         return std::make_shared<APFSNode>(container, vol);
-    if (!vempty && !pempty)
-        return std::make_shared<APFSNode>(container, vol, lookupDirRec(path.path, vol));
-    assert(!"lookup() unhandled case");
+    auto dr = lookupDirRec(path.path, vol);
+    if (!dr)
+        return nullptr;
+    return std::make_shared<APFSNode>(container, vol, dr);
 }
 
-std::vector<std::shared_ptr<ApfsVolume>> listContainer(ApfsContainer *container) {
+std::vector<ApfsVolumeSP> listContainer(ApfsContainer *container) {
     const auto nvol = container->GetVolumeCnt();
-    std::vector<std::shared_ptr<ApfsVolume>> vols;
+    std::vector<ApfsVolumeSP> vols;
     for (unsigned int volidx = 0; volidx < nvol; ++volidx) {
         auto vol = container->GetVolume(volidx);
         assert(vol);
@@ -251,42 +257,42 @@ std::vector<std::shared_ptr<ApfsVolume>> listContainer(ApfsContainer *container)
     return vols;
 }
 
-std::vector<std::shared_ptr<APFSNode>> listContainerAsNodes(ApfsContainer *container) {
-    std::vector<std::shared_ptr<APFSNode>> vols;
+std::vector<APFSNodeSP> listContainerAsNodes(ApfsContainer *container) {
+    std::vector<APFSNodeSP> vols;
     for (auto vol : listContainer(container)) {
         vols.emplace_back(std::make_shared<APFSNode>(container, vol));
     }
     return vols;
 }
 
-std::vector<std::shared_ptr<DirRec>>
-listPath(ApfsContainer *container, std::shared_ptr<ApfsVolume> volume, const std::string &path) {
-    std::vector<std::shared_ptr<DirRec>> subpaths;
+std::shared_ptr<std::vector<DirRecSP>> listPath(ApfsContainer *container, ApfsVolumeSP volume,
+                                                const std::string &path) {
+    auto subpaths = std::make_shared<std::vector<DirRecSP>>();
     return subpaths;
 }
 
-std::vector<std::shared_ptr<APFSNode>> listPathAsNodes(ApfsContainer *container,
-                                                       std::shared_ptr<ApfsVolume> volume,
-                                                       const std::string &path) {
-    std::vector<std::shared_ptr<APFSNode>> paths;
-    for (auto dirrec : listPath(container, volume, path)) {
-        paths.emplace_back(std::make_shared<APFSNode>(container, volume, dirrec));
+std::shared_ptr<std::vector<APFSNodeSP>>
+listPathAsNodes(ApfsContainer *container, ApfsVolumeSP volume, const std::string &path) {
+    auto dirrecs = listPath(container, volume, path);
+    if (!dirrecs)
+        return nullptr;
+    auto paths = std::make_shared<std::vector<APFSNodeSP>>();
+    for (auto dirrec : *dirrecs) {
+        paths->emplace_back(std::make_shared<APFSNode>(container, volume, dirrec));
     }
     return paths;
 }
 
-std::vector<std::shared_ptr<APFSNode>> list(const APFSPath &path, ApfsContainer *container) {
-    const bool vempty = path.volume.empty();
-    const bool pempty = path.path.empty();
-    if (vempty && pempty)
-        return listContainerAsNodes(container);
+std::shared_ptr<std::vector<APFSNodeSP>> list(const APFSPath &path, ApfsContainer *container) {
+
+    if (path.volume.empty())
+        return std::make_shared<std::vector<APFSNodeSP>>(listContainerAsNodes(container));
     auto vol = lookupVolume(path.volume, container);
-    assert(vol);
-    if (!vempty && pempty)
+    if (!vol)
+        return nullptr;
+    if (path.path.empty())
         return listPathAsNodes(container, vol, "/");
-    if (!vempty && !pempty)
-        return listPathAsNodes(container, vol, path.path);
-    assert(!"list() unhandled case");
+    return listPathAsNodes(container, vol, path.path);
 }
 
 std::unique_ptr<DirRec> childDirNamed(ApfsDir *apfsDir, DirRec *parentDir,
@@ -441,10 +447,11 @@ int apfs_uuid(char *uuid_str) {
 int apfs_opendir(const char *filename, struct fs_dir_stream **dirsp) {
     printf("apfs_opendir(\"%s\", %p)\n", filename, dirsp);
     APFSPath path{filename};
-    auto dir = new APFSDirStream{};
+    auto dir   = new APFSDirStream{};
+    auto nodes = list(path, apfs_ctx.container());
     assert(dir);
     dir->idx   = 0;
-    dir->nodes = new std::vector<std::shared_ptr<APFSNode>>(list(path, apfs_ctx.container()));
+    dir->nodes = nodes;
     assert(dir->nodes);
     assert(dirsp);
     *dirsp = (struct fs_dir_stream *)dir;
@@ -469,7 +476,6 @@ int apfs_readdir(struct fs_dir_stream *dirs, struct fs_dirent **dentp) {
 void apfs_closedir(struct fs_dir_stream *dirs) {
     assert(dirs);
     auto dir = (APFSDirStream *)dirs;
-    delete dir->nodes;
     delete dir;
 }
 
@@ -479,13 +485,13 @@ void uboot_apfs_doit(void) {
     // g_debug = 0xff;
 
 #ifdef JEV_BAREMETAL
-    assert(apfs_ctx.open("virtio:0:3"));
+    assert(apfs_ctx.open("virtio:0:1"));
 #else
     assert(apfs_ctx.open("host:0"));
 #endif
 
     const auto ls_root_res = list(APFSPath{"/"}, apfs_ctx.container());
-    for (const auto &n : ls_root_res) {
+    for (const auto &n : *ls_root_res) {
         fmt::print("node: {:s}\n", n->name());
     }
 
