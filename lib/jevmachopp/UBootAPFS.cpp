@@ -383,7 +383,7 @@ void uboot_apfs_doit(void) {
 
     const auto ls_root_res = list(APFSPath{"/"}, apfs_ctx.container());
     for (const auto &n : ls_root_res) {
-        std::cout << "node: " << n->name() << "\n";
+        fmt::print("node: {:s}\n", n->name());
     }
 
 #if 0
