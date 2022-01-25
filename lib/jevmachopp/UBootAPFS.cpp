@@ -27,6 +27,7 @@
 
 #include <nanorange/views/drop.hpp>
 #include <nanorange/views/join.hpp>
+#include <visit.hpp>
 
 struct fs_dirent;
 struct fs_dir_stream;
@@ -68,8 +69,28 @@ namespace UBootAPFS {
 // /foo/bar
 // /foo/bar/
 
-using APFSNode =
-    std::variant<ApfsContainer *, std::unique_ptr<ApfsVolume>, std::unique_ptr<ApfsDir::DirRec>>;
+class APFSNode {
+public:
+    APFSNode(ApfsContainer *container) : m_container(container) {}
+    APFSNode(ApfsContainer *container, std::shared_ptr<ApfsVolume> volume)
+        : m_container(container), m_volume(volume) {}
+    APFSNode(ApfsContainer *container, std::shared_ptr<ApfsVolume> volume,
+             std::shared_ptr<ApfsDir::DirRec> dirrec)
+        : m_container(container), m_volume(volume), m_dirrec(dirrec) {}
+
+    std::string name() const {
+        return rollbear::visit(
+            [&](auto &&o) {
+                return "lol";
+            },
+            m_node);
+    }
+
+private:
+    ApfsContainer *m_container;
+    std::shared_ptr<ApfsVolume> m_volume;
+    std::shared_ptr<ApfsDir::DirRec> m_dirrec;
+};
 
 struct APFSPath {
     APFSPath(const std::string &full_path) : valid(false) {
@@ -88,14 +109,14 @@ struct APFSPath {
     bool valid;
 };
 
-std::unique_ptr<ApfsVolume> lookupVolume(const std::string &volName, ApfsContainer *container) {
+std::shared_ptr<No> lookupVolume(const std::string &volName, ApfsContainer *container) {
     const auto nvol = container->GetVolumeCnt();
-    std::unique_ptr<ApfsVolume> vol;
+    std::shared_ptr<ApfsVolume> vol;
     for (unsigned int volidx = 0; volidx < nvol; ++volidx) {
         apfs_superblock_t sb;
         assert(container->GetVolumeInfo(volidx, sb));
         if (volName == (const char *)sb.apfs_volname) {
-            vol = std::unique_ptr<ApfsVolume>{container->GetVolume(volidx)};
+            vol.reset(container->GetVolume(volidx));
             assert(vol);
             break;
         }
@@ -103,20 +124,21 @@ std::unique_ptr<ApfsVolume> lookupVolume(const std::string &volName, ApfsContain
     return vol;
 }
 
-std::unique_ptr<ApfsVolume> lookupPath(const std::string &full_path, ApfsVolume *volume) {
+std::shared_ptr<APFSNode> lookupPath(const std::string &full_path,
+                                     std::shared_ptr<ApfsVolume> volume) {
     return {};
 }
 
-APFSNode lookup(const APFSPath &path, ApfsContainer *container) {
+std::shared_ptr<APFSNode> lookup(const APFSPath &path, ApfsContainer *container) {
     assert(path.valid);
     const bool vempty = path.volume.empty();
     const bool pempty = path.path.empty();
     if (vempty && pempty)
-        return container;
+        return {container};
     if (!vempty && pempty)
-        return lookupVolume(path.volume, container);
+        return {lookupVolume(path.volume, container)};
     if (!vempty && !pempty)
-        return lookupPath(path.path, lookupVolume(path.volume, container).get());
+        return {lookupPath(path.path, lookupVolume(path.volume, container))};
     assert(!"lookup() unhandled case");
 }
 
