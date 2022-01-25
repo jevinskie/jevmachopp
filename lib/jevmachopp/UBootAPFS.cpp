@@ -239,13 +239,33 @@ public:
         if (m_opened)
             close();
     }
+    bool open(const char *name) {
+        auto sv         = stringSplitViewDelimitedBy(name, ':');
+        const auto type = ranges::get(sv, 0);
+        assert(type);
+        const auto dev_num_str = ranges::get(sv, 1);
+        assert(dev_num_str);
+        const auto part_num_str = ranges::get(sv, 2);
+        auto part_num           = 0;
+        if (part_num)
+            const auto part_num = std::stoi(std::string{*part_num_str}, nullptr, 10);
+        assert(part_num >= 0);
+
+        std::string dev_open_name = std::string{*type} + ":" + std::string{*dev_num_str};
+        if (!m_dev.Open(dev_open_name.c_str()))
+            return false;
+
+        GptPartitionMap gpt;
+        assert(gpt.LoadAndVerify(m_dev));
+        assert(gpt.GetPartitionOffsetAndSize((uint32_t)part_num, m_blk_off_blks, m_blk_sz_bytes));
+        return open_common();
+    }
     bool open(struct blk_desc *fs_dev_desc, struct disk_partition *fs_partition) {
         if (!m_dev.Open(fs_dev_desc))
             return false;
-        m_container = new (reinterpret_cast<ApfsContainer *>(&m_container_storage))
-            ApfsContainer(&m_dev, fs_partition->start, fs_partition->size);
-        m_opened = true;
-        return true;
+        m_blk_off_blks = fs_partition->start;
+        m_blk_sz_bytes = fs_partition->size;
+        return open_common();
     }
     void close() {
         m_opened = false;
@@ -266,7 +286,18 @@ public:
     }
 
 private:
+    bool open_common() {
+        m_container = new (reinterpret_cast<ApfsContainer *>(&m_container_storage))
+            ApfsContainer(&m_dev, m_blk_off_blks, m_blk_sz_bytes);
+        if (!m_container->Init(0, false))
+            return false;
+        m_opened = true;
+        return true;
+    }
+
     DeviceUBoot m_dev;
+    uint64_t m_blk_off_blks;
+    uint64_t m_blk_sz_bytes;
     std::aligned_storage_t<sizeof(ApfsContainer), alignof(ApfsContainer)> m_container_storage;
     ApfsContainer *m_container;
     bool m_opened;
@@ -345,6 +376,18 @@ void uboot_apfs_doit(void) {
     // g_debug = 0xff;
 
 #ifdef JEV_BAREMETAL
+    assert(apfs_ctx.open("virtio:0"));
+#else
+    assert(apfs_ctx.open("host:0"));
+#endif
+
+    const auto ls_root_res = list(APFSPath{"/"}, apfs_ctx.container());
+    for (const auto &n : ls_root_res) {
+        std::cout << "node: " << n->name() << "\n";
+    }
+
+#if 0
+#ifdef JEV_BAREMETAL
     auto dev = Device::OpenDevice("virtio:0");
 #else
     auto dev = Device::OpenDevice("host:0");
@@ -416,6 +459,7 @@ void uboot_apfs_doit(void) {
     } else {
         printf("failed to find dir\n");
     }
+#endif
 
     return;
 }
