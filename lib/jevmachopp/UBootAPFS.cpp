@@ -50,13 +50,11 @@ struct fs_dirent {
     unsigned type; /* one of FS_DT_x (not a mask) */
     loff_t size;   /* size in bytes */
     char name[256];
-    fs_dirent() = default;
 };
 
 struct fs_dir_stream {
     struct blk_desc *desc;
     int part;
-    fs_dir_stream() = default;
 };
 
 #define UUID_STR_LEN 36
@@ -89,25 +87,42 @@ struct disk_partition {
 
 namespace UBootAPFS {
 
-// /foo
-// /foo/bar
-// /foo/bar/
+class DirRec : public ApfsDir::DirRec {
+public:
+    uint8_t drec_type() const {
+        return flags & dir_rec_flags::DREC_TYPE_MASK;
+    }
+    bool is_dir() const {
+        return drec_type() == DT_DIR;
+    }
+    bool is_file() const {
+        return drec_type() == DT_REG;
+    }
+    bool is_link() const {
+        return drec_type() == DT_LNK;
+    }
+};
 
 struct APFSPath {
-    APFSPath(const std::string &full_path) : valid(false) {
-        if (full_path.empty() || full_path[0] != '/')
-            return;
-        auto sv = stringSplitViewDelimitedBy(full_path, '/') | views::drop(1);
+    APFSPath(const std::string &full_path) {
+        // cases:
+        // (empty) -> /
+        // /
+        // foo -> /foo
+        // /foo
+        // /foo/bar
+        // /foo/bar/
+        std::string fp = full_path;
+        if (full_path.empty() || fp[0] != '/')
+            fp = '/' + fp;
+        auto sv = stringSplitViewDelimitedBy(fp, '/') | views::drop(1);
         if (const auto vol = ranges::get(sv, 0))
             volume = *vol;
         path = ranges::join(sv | views::drop(1), std::string{"/"});
-        std::cout << "APFSPath(\"" << full_path << "\") vol: " << volume << " path: " << path
-                  << "\n";
-        valid = true;
+        std::cout << "APFSPath(\"" << fp << "\") vol: " << volume << " path: " << path << "\n";
     }
     std::string volume;
     std::string path;
-    bool valid;
 };
 
 class APFSNode {
@@ -121,7 +136,7 @@ public:
         assert(m_volume);
     }
     APFSNode(ApfsContainer *container, std::shared_ptr<ApfsVolume> volume,
-             std::shared_ptr<ApfsDir::DirRec> dirrec)
+             std::shared_ptr<DirRec> dirrec)
         : m_container(container), m_volume(volume), m_dirrec(dirrec) {
         assert(m_container);
         assert(m_volume);
@@ -150,24 +165,31 @@ public:
     }
 
     bool isDir() const {
-        return isPath() && false;
+        return isPath() && m_dirrec->is_dir();
+    }
+
+    bool isFileRaw() const {
+        return isPath() && m_dirrec->is_file();
     }
 
     bool isFile() const {
-        return isPath() && false;
+        return isPath() && !(isDir() || isLink());
+    }
+
+    bool isLink() const {
+        return isPath() && m_dirrec->is_link();
     }
 
 private:
     ApfsContainer *m_container;
     std::shared_ptr<ApfsVolume> m_volume;
-    std::shared_ptr<ApfsDir::DirRec> m_dirrec;
+    std::shared_ptr<DirRec> m_dirrec;
 };
 
 struct APFSDirStream {
     struct fs_dir_stream dir_str;
     std::vector<std::shared_ptr<APFSNode>> *nodes;
     size_t idx;
-    APFSDirStream() = default;
 };
 
 static_assert_cond(std::is_trivial_v<APFSDirStream> &&std::is_standard_layout_v<APFSDirStream>);
@@ -187,13 +209,12 @@ std::shared_ptr<ApfsVolume> lookupVolume(const std::string &volName, ApfsContain
     return vol;
 }
 
-std::shared_ptr<ApfsDir::DirRec> lookupDirRec(const std::string &full_path,
-                                              std::shared_ptr<ApfsVolume> volume) {
+std::shared_ptr<DirRec> lookupDirRec(const std::string &full_path,
+                                     std::shared_ptr<ApfsVolume> volume) {
     return {};
 }
 
 std::shared_ptr<APFSNode> lookup(const APFSPath &path, ApfsContainer *container) {
-    assert(path.valid);
     const bool vempty = path.volume.empty();
     const bool pempty = path.path.empty();
     if (vempty && pempty)
@@ -226,7 +247,6 @@ std::vector<std::shared_ptr<APFSNode>> listVolumesAsNodes(ApfsContainer *contain
 }
 
 std::vector<std::shared_ptr<APFSNode>> list(const APFSPath &path, ApfsContainer *container) {
-    assert(path.valid);
     const bool vempty = path.volume.empty();
     const bool pempty = path.path.empty();
     if (vempty && pempty)
@@ -239,25 +259,25 @@ std::vector<std::shared_ptr<APFSNode>> list(const APFSPath &path, ApfsContainer 
     assert(!"list() unhandled case");
 }
 
-std::unique_ptr<ApfsDir::DirRec> childDirNamed(ApfsDir *apfsDir, ApfsDir::DirRec *parentDir,
-                                               std::string_view childDirName) {
+std::unique_ptr<DirRec> childDirNamed(ApfsDir *apfsDir, DirRec *parentDir,
+                                      std::string_view childDirName) {
     assert(parentDir);
-    auto res = std::make_unique<ApfsDir::DirRec>();
+    auto res = std::make_unique<DirRec>();
     if (!apfsDir->LookupName(*res, parentDir->file_id, std::string{childDirName}.c_str())) {
         return nullptr;
     }
     return res;
 }
 
-std::unique_ptr<ApfsDir::DirRec> lookupDir(ApfsDir *apfsDir, std::string_view dirPath) {
+std::unique_ptr<DirRec> lookupDir(ApfsDir *apfsDir, std::string_view dirPath) {
     if (!dirPath.size() || dirPath[0] != '/') {
         return nullptr;
     }
-    std::unique_ptr<ApfsDir::DirRec> res = std::make_unique<ApfsDir::DirRec>();
+    std::unique_ptr<DirRec> res = std::make_unique<DirRec>();
     assert(apfsDir->LookupName(*res, ROOT_DIR_PARENT, "root"));
     for (const auto childName : stringSplitViewDelimitedBy(dirPath, '/') | views::drop(1)) {
         printf("looking up childName: \"%*s\"\n", SV2PF(childName));
-        res = std::unique_ptr<ApfsDir::DirRec>{childDirNamed(apfsDir, res.get(), childName)};
+        res = std::unique_ptr<DirRec>{childDirNamed(apfsDir, res.get(), childName)};
         if (!res) {
             return nullptr;
         }
@@ -357,12 +377,8 @@ extern "C" {
 //         fs_close()
 
 int apfs_probe(struct blk_desc *fs_dev_desc, struct disk_partition *fs_partition) {
-    // assert(!"apfs_probe");
     struct disk_partition *p = fs_partition;
-    printf("apfs_probe() part start: 0x%lx sz: 0x%lx blksz: %ld name: %s type: %s bootable: %d "
-           "uuid: %s guid: %s\n",
-           p->start, p->size, p->blksz, p->name, p->type, p->bootable, p->uuid, p->type_guid);
-    bool good = apfs_ctx.open(fs_dev_desc, fs_partition);
+    bool good                = apfs_ctx.open(fs_dev_desc, fs_partition);
     return good ? 0 : -1;
 }
 
@@ -413,6 +429,7 @@ int apfs_readdir(struct fs_dir_stream *dirs, struct fs_dirent **dentp) {
     auto dent  = new fs_dirent{};
     dent->type = FS_DT_DIR;
     strncpy(dent->name, (*dir->nodes)[dir->idx]->name().c_str(), sizeof(dent->name));
+    assert(dentp);
     *dentp = dent;
     ++dir->idx;
     return 0;
@@ -426,8 +443,6 @@ void apfs_closedir(struct fs_dir_stream *dirs) {
 }
 
 void uboot_apfs_doit(void) {
-    setvbuf(stdout, nullptr, _IONBF, 0);
-
     printf("entering uboot_apfs_doit()\n");
 
     // g_debug = 0xff;
@@ -493,12 +508,12 @@ void uboot_apfs_doit(void) {
 
     ApfsDir apfsDir(*preboot_vol);
     // printf("apfsDir: %p\n", (void*)&apfsDir);
-    ApfsDir::DirRec res;
+    DirRec res;
     printf("res: %p\n", (void *)&res);
     // assert(apfsDir.LookupName(res, ROOT_DIR_INO_NUM, "D8961206-5EAC-4D35-94A3-5412F17E6B3B"));
     // printf("lookup of root dir D8961206-5EAC-4D35-94A3-5412F17E6B3B worked\n");
 
-    std::vector<ApfsDir::DirRec> list_res;
+    std::vector<DirRec> list_res;
     const bool list_root_res = apfsDir.ListDirectory(list_res, ROOT_DIR_PARENT);
     printf("list_root_res: %d len: %d\n", list_root_res, (int)list_res.size());
     for (const auto &dir : list_res) {

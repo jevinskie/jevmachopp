@@ -47,11 +47,15 @@ auxv_t __embcust_auxv[] = {
     {.type = 0, .val = 0},
 };
 
-extern void __libc_start_embcust(void);
-void (*__libc_start_embcust_dummy_import)(void) = __libc_start_embcust;
-
 // for compiler-rt __aarch64_have_lse_atomics really
 unsigned long (*__getauxval_dummy_import)(unsigned long) = getauxval;
+
+extern void __libc_start_embcust(void);
+
+void __libc_start_embcust_wrapper(void) {
+    __libc_start_embcust();
+    setvbuf(stdout, nullptr, _IONBF, 0);
+}
 
 ssize_t SYS_IMP_writev(int fd, const struct iovec *iov, int iovcnt) {
     ssize_t res = 0;

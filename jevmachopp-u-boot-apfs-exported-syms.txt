@@ -18,4 +18,4 @@ board_fit_image_post_process
 board_fit_config_name_match
 
 # musl entrypoint
-__libc_start_embcust
+__libc_start_embcust_wrapper
