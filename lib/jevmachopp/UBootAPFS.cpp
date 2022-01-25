@@ -247,8 +247,10 @@ public:
         assert(dev_num_str);
         const auto part_num_str = ranges::get(sv, 2);
         auto part_num           = 0;
-        if (part_num)
-            const auto part_num = std::stoi(std::string{*part_num_str}, nullptr, 10);
+        if (part_num_str) {
+            fmt::print("setting part num to {:s} - 1\n", *part_num_str);
+            const auto part_num = std::stoi(std::string{*part_num_str}, nullptr, 10) - 1;
+        }
         assert(part_num >= 0);
 
         std::string dev_open_name = std::string{*type} + ":" + std::string{*dev_num_str};
@@ -257,6 +259,7 @@ public:
 
         GptPartitionMap gpt;
         assert(gpt.LoadAndVerify(m_dev));
+        fmt::print("gpt.size: {:d}\n", gpt.size());
         assert(gpt.GetPartitionOffsetAndSize((uint32_t)part_num, m_blk_off_blks, m_blk_sz_bytes));
         return open_common();
     }
@@ -376,7 +379,7 @@ void uboot_apfs_doit(void) {
     // g_debug = 0xff;
 
 #ifdef JEV_BAREMETAL
-    assert(apfs_ctx.open("virtio:0"));
+    assert(apfs_ctx.open("virtio:0:3"));
 #else
     assert(apfs_ctx.open("host:0"));
 #endif
