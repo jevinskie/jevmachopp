@@ -178,7 +178,10 @@ public:
         auto parent_ino = ROOT_DIR_PARENT;
         if (isDir())
             parent_ino = m_dirrec->file_id;
-        return nullptr;
+        auto dirrec = std::make_shared<DirRec>();
+        if (!dir.LookupName(*dirrec, parent_ino, name.c_str()))
+            return nullptr;
+        return std::make_shared<APFSNode>(m_container, m_volume, dirrec);
     }
 
     std::vector<APFSNodeSP> list() {
@@ -285,6 +288,31 @@ ApfsVolumeSP lookupVolume(const std::string &volName, ApfsContainer *container) 
     return vol;
 }
 
+APFSNodeSP lookup(const APFSPath &path, ApfsContainer *container) {
+    assert(container);
+    if (path.volume.empty())
+        return std::make_shared<APFSNode>(container);
+    auto vol = lookupVolume(path.volume, container);
+    if (!vol)
+        return nullptr;
+    auto res = std::make_shared<APFSNode>(container, vol);
+    if (path.path.empty())
+        return res;
+    for (const auto childName : stringSplitViewDelimitedBy(path.path, '/') | views::drop(1)) {
+        res = res->childNamed(std::string{childName});
+        if (!res)
+            return nullptr;
+    }
+    return res;
+}
+
+std::shared_ptr<std::vector<APFSNodeSP>> list(const APFSPath &path, ApfsContainer *container) {
+    auto node = lookup(path, container);
+    if (!node)
+        return nullptr;
+    return std::make_shared<std::vector<APFSNodeSP>>(node->list());
+}
+
 std::unique_ptr<DirRec> childDirNamed(ApfsDir *apfsDir, DirRec *parentDir,
                                       std::string_view childDirName) {
     assert(parentDir);
@@ -309,85 +337,6 @@ std::unique_ptr<DirRec> lookupDir(ApfsDir *apfsDir, std::string_view dirPath) {
         }
     }
     return res;
-}
-
-DirRecSP lookupDirRec(const APFSPath &path, std::shared_ptr<ApfsVolume> volume) {
-    auto dirrec = std::make_shared<DirRec>();
-    // for (const auto childName : stringSplitViewDelimitedBy(path.path, '/') | views::drop(1)) {
-
-    //     printf("looking up childName: \"%*s\"\n", SV2PF(childName));
-    //     res = std::unique_ptr<DirRec>{childDirNamed(apfsDir, res.get(), childName)};
-    //     if (!res) {
-    //         return nullptr;
-    //     }
-    // }
-    return nullptr;
-}
-
-APFSNodeSP lookup(const APFSPath &path, ApfsContainer *container) {
-    if (path.volume.empty())
-        return std::make_shared<APFSNode>(container);
-    auto vol = lookupVolume(path.volume, container);
-    if (!vol)
-        return nullptr;
-    if (path.path.empty())
-        return std::make_shared<APFSNode>(container, vol);
-    auto dr = lookupDirRec(path.path, vol);
-    if (!dr)
-        return nullptr;
-    return std::make_shared<APFSNode>(container, vol, dr);
-}
-
-std::vector<ApfsVolumeSP> listContainer(ApfsContainer *container) {
-    const auto nvol = container->GetVolumeCnt();
-    std::vector<ApfsVolumeSP> vols;
-    for (unsigned int volidx = 0; volidx < nvol; ++volidx) {
-        auto vol = container->GetVolume(volidx);
-        assert(vol);
-        vols.emplace_back(vol);
-    }
-    return vols;
-}
-
-std::vector<APFSNodeSP> listContainerAsNodes(ApfsContainer *container) {
-    std::vector<APFSNodeSP> vols;
-    for (auto vol : listContainer(container)) {
-        vols.emplace_back(std::make_shared<APFSNode>(container, vol));
-    }
-    return vols;
-}
-
-std::shared_ptr<std::vector<DirRecSP>> listPath(ApfsContainer *container, ApfsVolumeSP volume,
-                                                const APFSPath &path) {
-    auto dirrec = lookupDirRec(path, volume);
-    if (!dirrec)
-        return nullptr;
-    auto subpaths = std::make_shared<std::vector<DirRecSP>>();
-    return subpaths;
-}
-
-std::shared_ptr<std::vector<APFSNodeSP>>
-listPathAsNodes(ApfsContainer *container, ApfsVolumeSP volume, const APFSPath &path) {
-    auto dirrecs = listPath(container, volume, path);
-    if (!dirrecs)
-        return nullptr;
-    auto paths = std::make_shared<std::vector<APFSNodeSP>>();
-    for (auto dirrec : *dirrecs) {
-        paths->emplace_back(std::make_shared<APFSNode>(container, volume, dirrec));
-    }
-    return paths;
-}
-
-std::shared_ptr<std::vector<APFSNodeSP>> list(const APFSPath &path, ApfsContainer *container) {
-
-    if (path.volume.empty())
-        return std::make_shared<std::vector<APFSNodeSP>>(listContainerAsNodes(container));
-    auto vol = lookupVolume(path.volume, container);
-    if (!vol)
-        return nullptr;
-    if (path.path.empty())
-        return listPathAsNodes(container, vol, APFSPath{path.volume, "/"});
-    return listPathAsNodes(container, vol, path);
 }
 
 class APFSCtx {
