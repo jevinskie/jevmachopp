@@ -30,6 +30,12 @@
 #include <nanorange/views/join.hpp>
 #include <visit.hpp>
 
+using ApfsVolumeSP = std::shared_ptr<ApfsVolume>;
+namespace UBootAPFS {
+class APFSNode;
+}
+using APFSNodeSP = std::shared_ptr<UBootAPFS::APFSNode>;
+
 typedef long long int loff_t;
 typedef unsigned long int ulong;
 typedef unsigned char uchar;
@@ -89,6 +95,10 @@ namespace UBootAPFS {
 
 class DirRec : public ApfsDir::DirRec {
 public:
+    DirRec() = default;
+    DirRec(const ApfsDir::DirRec &other) {
+        *static_cast<ApfsDir::DirRec *>(this) = other;
+    }
     uint8_t drec_type() const {
         return flags & dir_rec_flags::DREC_TYPE_MASK;
     }
@@ -102,6 +112,7 @@ public:
         return drec_type() == DT_LNK;
     }
 };
+using DirRecSP = std::shared_ptr<DirRec>;
 
 struct APFSPath {
     APFSPath(const std::string volume, const std::string &volume_path)
@@ -138,17 +149,61 @@ public:
     APFSNode(ApfsContainer *container) : m_container(container) {
         assert(m_container);
     }
-    APFSNode(ApfsContainer *container, std::shared_ptr<ApfsVolume> volume)
+    APFSNode(ApfsContainer *container, ApfsVolumeSP volume)
         : m_container(container), m_volume(volume) {
         assert(m_container);
         assert(m_volume);
     }
-    APFSNode(ApfsContainer *container, std::shared_ptr<ApfsVolume> volume,
-             std::shared_ptr<DirRec> dirrec)
+    APFSNode(ApfsContainer *container, ApfsVolumeSP volume, DirRecSP dirrec)
         : m_container(container), m_volume(volume), m_dirrec(dirrec) {
         assert(m_container);
         assert(m_volume);
         assert(m_dirrec);
+    }
+
+    APFSNodeSP childNamed(const std::string &name) {
+        if (!(isContainer() || isVolume() || isDir()))
+            return nullptr;
+        if (isContainer()) {
+            const auto nvol = m_container->GetVolumeCnt();
+            for (unsigned int volidx = 0; volidx < nvol; ++volidx) {
+                auto vol = ApfsVolumeSP{m_container->GetVolume(volidx)};
+                assert(vol);
+                if (vol->name() == name)
+                    return std::make_shared<APFSNode>(m_container, vol);
+            }
+            return nullptr;
+        }
+        ApfsDir dir(*m_volume);
+        auto parent_ino = ROOT_DIR_PARENT;
+        if (isDir())
+            parent_ino = m_dirrec->file_id;
+        return nullptr;
+    }
+
+    std::vector<APFSNodeSP> list() {
+        assert(isContainer() || isVolume() || isDir());
+        std::vector<APFSNodeSP> children;
+        if (isContainer()) {
+            const auto nvol = m_container->GetVolumeCnt();
+            for (unsigned int volidx = 0; volidx < nvol; ++volidx) {
+                auto vol = ApfsVolumeSP{m_container->GetVolume(volidx)};
+                assert(vol);
+                children.emplace_back(std::make_shared<APFSNode>(m_container, vol));
+            }
+            return children;
+        }
+        ApfsDir dir(*m_volume);
+        auto parent_ino = ROOT_DIR_PARENT;
+        if (isDir())
+            parent_ino = m_dirrec->file_id;
+        std::vector<ApfsDir::DirRec> res_drs;
+        assert(dir.ListDirectory(res_drs, parent_ino));
+        for (const auto &dr : res_drs) {
+            children.emplace_back(
+                std::make_shared<APFSNode>(m_container, m_volume, std::make_shared<DirRec>(dr)));
+        }
+        return children;
     }
 
     std::string name() const {
@@ -206,10 +261,6 @@ private:
     std::shared_ptr<ApfsVolume> m_volume;
     std::shared_ptr<DirRec> m_dirrec;
 };
-
-using ApfsVolumeSP = std::shared_ptr<ApfsVolume>;
-using DirRecSP     = std::shared_ptr<DirRec>;
-using APFSNodeSP   = std::shared_ptr<APFSNode>;
 
 struct APFSDirStream {
     struct fs_dir_stream dir_str;
@@ -574,7 +625,7 @@ void uboot_apfs_doit(void) {
                dir.file_id);
     }
 
-    const bool lookup_root_res = apfsDir.LookupName(res, ROOT_DIR_PARENT, "root");
+    const bool lookup_root_res = apfsDir.LookupName(res, ROOT_DIR_PARENT, ".");
     assert(lookup_root_res);
     printf("lookup of superroot dir root worked\n");
 
