@@ -1,14 +1,14 @@
 [submodule "3rdparty/apfs-fuse-embedded"]
 	path = 3rdparty/apfs-fuse-embedded
-	url = git@git.je.vin:jevin/apfs-fuse.git
+	url = https://github.com/jevinskie/apfs-fuse-embedded
 
 [submodule "3rdparty/arch-arm64"]
 	path = 3rdparty/arch-arm64
-	url = git@git.je.vin:jevin/arch-arm64.git
+	url = https://github.com/jevinskie/arch-arm64
 
 [submodule "3rdparty/benchmark"]
 	path = 3rdparty/benchmark
-	url = git@git.je.vin:jevin/benchmark.git
+	url = https://github.com/jevinskie/benchmark
 
 [submodule "3rdparty/callable_traits"]
 	path = 3rdparty/callable_traits
@@ -44,19 +44,19 @@
 
 [submodule "3rdparty/nanorange"]
 	path = 3rdparty/nanorange
-	url = git@git.je.vin:jevin/NanoRange.git
+	url = https://github.com/jevinskie/NanoRange
 
 [submodule "3rdparty/perf-macos"]
 	path = 3rdparty/perf-macos
-	url = git@git.je.vin:jevin/perf-macos.git
+	url = https://github.com/jevinskie/perf-macos
 
 [submodule "3rdparty/static_string"]
 	path = 3rdparty/static_string
-	url = git@git.je.vin:jevin/static_string.git
+	url = https://github.com/jevinskie/static_string
 
 [submodule "3rdparty/static_vector"]
 	path = 3rdparty/static_vector
-	url = git@git.je.vin:jevin/static_vector.git
+	url = https://github.com/jevinskie/static_vector
 
 [submodule "3rdparty/thread-pool"]
 	path = 3rdparty/thread-pool
@@ -64,8 +64,8 @@
 
 [submodule "3rdparty/uleb128"]
 	path = 3rdparty/uleb128
-	url = git@github.com:jevinskie/uleb128.git
+	url = https://github.com/jevinskie/uleb128
 
 [submodule "3rdparty/visit"]
 	path = 3rdparty/visit
-	url = git@git.je.vin:jevin/rollbear-visit.git
+	url = https://github.com/jevinskie/visit
