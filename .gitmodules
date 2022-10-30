@@ -1,14 +1,17 @@
 [submodule "3rdparty/apfs-fuse-embedded"]
 	path = 3rdparty/apfs-fuse-embedded
 	url = https://github.com/jevinskie/apfs-fuse-embedded
+	branch = jev/main
 
 [submodule "3rdparty/arch-arm64"]
 	path = 3rdparty/arch-arm64
 	url = https://github.com/jevinskie/arch-arm64
+	branch = jev/main
 
 [submodule "3rdparty/benchmark"]
 	path = 3rdparty/benchmark
 	url = https://github.com/jevinskie/benchmark
+	branch = jev/main
 
 [submodule "3rdparty/callable_traits"]
 	path = 3rdparty/callable_traits
@@ -45,18 +48,22 @@
 [submodule "3rdparty/nanorange"]
 	path = 3rdparty/nanorange
 	url = https://github.com/jevinskie/NanoRange
+	branch = jev/main
 
 [submodule "3rdparty/perf-macos"]
 	path = 3rdparty/perf-macos
 	url = https://github.com/jevinskie/perf-macos
+	branch = jev/main
 
 [submodule "3rdparty/static_string"]
 	path = 3rdparty/static_string
 	url = https://github.com/jevinskie/static_string
+	branch = jev/m1n1
 
 [submodule "3rdparty/static_vector"]
 	path = 3rdparty/static_vector
 	url = https://github.com/jevinskie/static_vector
+	branch = jev/main
 
 [submodule "3rdparty/thread-pool"]
 	path = 3rdparty/thread-pool
@@ -65,7 +72,9 @@
 [submodule "3rdparty/uleb128"]
 	path = 3rdparty/uleb128
 	url = https://github.com/jevinskie/uleb128
+	branch = jev/main
 
 [submodule "3rdparty/visit"]
 	path = 3rdparty/visit
 	url = https://github.com/jevinskie/visit
+	branch = jev/main

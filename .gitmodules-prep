@@ -1,3 +1,35 @@
+[3rdparty/apfs-fuse-embedded]
+	upstream_url = https://github.com/sgan81/apfs-fuse
+	upstream_branch = master
+
 [3rdparty/arch-arm64]
-    upstream_url = https://github.com/Vector35/arch-arm64
-    upstream_branch = staging
+	upstream_url = https://github.com/Vector35/arch-arm64
+	upstream_branch = master
+
+[3rdparty/benchmark]
+	upstream_url = https://github.com/google/benchmark
+	upstream_branch = main
+
+[3rdparty/nanorange]
+	upstream_url = https://github.com/tcbrindle/NanoRange
+	upstream_branch = master
+
+[3rdparty/perf-macos]
+	upstream_url = https://github.com/DominikHorn/perf-macos
+	upstream_branch = main
+
+[3rdparty/static_string]
+	upstream_url = https://github.com/boostorg/static_string
+	upstream_branch = develop
+
+[3rdparty/static_vector]
+	upstream_url = https://github.com/gnzlbg/static_vector
+	upstream_branch = master
+
+[submodule "3rdparty/uleb128"]
+	upstream_url = https://github.com/bolderflight/uleb128
+	upstream_branch = main
+
+[3rdparty/visit]
+	upstream_url = https://github.com/rollbear/visit
+	upstream_branch = master
